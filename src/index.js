@@ -3,6 +3,11 @@ import 'babel-polyfill'
 
 import sdk from 'matrix-js-sdk'
 import config from './config'
+import minimongo from 'minimongo'
+
+const LocalDb = minimongo.MemoryDb
+const db = new LocalDb()
+db.addCollection('accounts')
 
 var client = sdk.createClient({
   baseUrl: 'https://matrix.org',
