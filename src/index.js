@@ -8,6 +8,16 @@ import minimongo from 'minimongo'
 const LocalDb = minimongo.MemoryDb
 const db = new LocalDb()
 db.addCollection('accounts')
+db.addCollection('config')
+
+var master
+
+db.config.upsert({ master: '@chevdor:matrix.org' }, () => {
+  db.config.findOne({ }, {}, function (res) {
+    console.log('Master is : ' + res.master)
+    master = res.master
+  })
+})
 
 var client = sdk.createClient({
   baseUrl: 'https://matrix.org',
@@ -40,17 +50,29 @@ client.on('RoomMember.membership', function (event, member) {
   }
 })
 
+function isPrivate (sender, room) {
+  // console.log('sender:', sender, 'room', room.name)
+  return (sender === `@${room.name}:matrix.org`)
+}
+
 client.on('Room.timeline', function (event, room, toStartOfTimeline) {
   if (toStartOfTimeline) {
     return // don't print paginated results
   }
+
   if (event.getType() !== 'm.room.message') {
-    return // only print messages
+    console.log('EVENT:', event)
+    return
   }
-  console.log(
-    // the room name will update with m.room.name events automatically
-    '(%s) %s \t: %s', room.name, event.getSender(), event.getContent().body
-  )
+
+  // console.log(event)
+  const priv = isPrivate(event.getSender(), room)
+
+  if (event.getSender() === master) {
+    console.log('%s (%s) %s \t: %s', priv ? 'PRI' : '   ', room.name, '*** master ***', event.getContent().body)
+  } else {
+    console.log('%s (%s) %s \t: %s', priv ? 'PRI' : '   ', room.name, event.getSender(), event.getContent().body)
+  }
 })
 
 client.startClient()
