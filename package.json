@@ -1,0 +1,52 @@
+{
+  "name": "project",
+  "version": "0.0.1",
+  "description": "description",
+  "main": "src/index.js",
+  "repository": "",
+  "scripts": {
+    "dev": "nodemon ./src/index.js ./config-dev.json --exec babel-node --presets env",
+    "start": "babel-node ./src/index.js",
+    "test": "mocha --timeout 5000 --require babel-core/register test/* --exit",
+    "test:local": "mocha --require babel-core/register test/* --exit",
+    "test:watch": "mocha --watch --require babel-core/register test/* --exit",
+    "lint": "standard",
+    "clean": "rm -rf .nyc_output build coverage node_modules out",
+    "build": "babel src -d dist",
+    "build:doc": "jsdoc -r -d out -c jsdoc.conf"
+  },
+  "author": "chevdor",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "babel-cli": "^6.0.0",
+    "babel-core": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
+    "jsdoc": "^3.5.5",
+    "jsdoc-route-plugin": "^0.1.0",
+    "mocha": "^5.0.4",
+    "nodemon": "^1.17.2",
+    "standard": "^10.0.3"
+  },
+  "standard": {
+    "ignore": [
+      "dist/"
+    ],
+    "env": [
+      "mocha"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "engines": {
+    "node": "10"
+  }
+}

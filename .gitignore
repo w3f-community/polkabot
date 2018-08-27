@@ -1,0 +1,6 @@
+node_modules/
+src/config/config*
+.DS_Store
+build
+dist/
+out/
