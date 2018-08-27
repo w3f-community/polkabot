@@ -22,7 +22,7 @@ db.addCollection('config')
 var master
 
 db.config.upsert({ master: '@chevdor:matrix.org' }, () => {
-  db.config.findOne({ }, {}, function (res) {
+  db.config.findOne({}, {}, function (res) {
     console.log('Master is : ' + res.master)
     master = res.master
   })
@@ -93,7 +93,12 @@ function poll () {
     .then(header => {
       const bnBlockNumber = new BN(header.number, 16)
       console.log(bnBlockNumber.toString(10))
-      if (bnBlockNumber.mod(new BN(10)).toString(10) === '0') { console.log('Happy Block Day') }
+      if (bnBlockNumber.mod(new BN(10)).toString(10) === '0') {
+        console.log('Happy Block Day')
+        client.sendTextMessage('!dCkmWIgUWtONXbANNc:matrix.org', 'Happy Block day').finally(function () {
+
+        })
+      }
     })
     .catch((error) => console.error(error))
 }
