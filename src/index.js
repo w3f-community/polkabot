@@ -1,9 +1,18 @@
 import 'babel-core/register'
 import 'babel-polyfill'
-
-import sdk from 'matrix-js-sdk'
+import Olm from 'olm'
 import config from './config'
 import minimongo from 'minimongo'
+import createApi from '@polkadot/api'
+import HttpProvider from '@polkadot/api-provider/http'
+// import { Hash } from '@polkadot/primitives/base'
+import BN from 'bn.js'
+
+global.Olm = Olm
+const sdk = require('matrix-js-sdk')
+
+const provider = new HttpProvider('http://127.0.0.1:9933')
+const api = createApi(provider)
 
 const LocalDb = minimongo.MemoryDb
 const db = new LocalDb()
@@ -76,3 +85,17 @@ client.on('Room.timeline', function (event, room, toStartOfTimeline) {
 })
 
 client.startClient()
+
+function poll () {
+  api.chain
+    .getHead()
+    .then((hash) => api.chain.getHeader(hash))
+    .then(header => {
+      const bnBlockNumber = new BN(header.number, 16)
+      console.log(bnBlockNumber.toString(10))
+      if (bnBlockNumber.mod(new BN(10)).toString(10) === '0') { console.log('Happy Block Day') }
+    })
+    .catch((error) => console.error(error))
+}
+
+setInterval(poll, 2500)
