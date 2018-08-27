@@ -4,3 +4,4 @@ src/config/config*
 build
 dist/
 out/
+config.js
