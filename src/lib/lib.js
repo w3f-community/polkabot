@@ -1,15 +1,7 @@
 #!/usr/bin/env node
 
-class User {
-  constructor (name) {
-    this.name = name
+export default class Plugin {
+  constructor (matrix) {
+    this.matrix = matrix
   }
-
-  hello () {
-    return 'Hello ' + this.name
-  }
-}
-
-module.exports = {
-  User
 }
