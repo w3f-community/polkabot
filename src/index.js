@@ -10,6 +10,7 @@ import pkg from '../package.json'
 global.Olm = Olm
 const sdk = require('matrix-js-sdk')
 
+console.log(`Connecting to ${config.polkadot.host}`)
 const provider = new WsProvider(config.polkadot.host)
 const polkadot = createApi(provider)
 
@@ -18,12 +19,9 @@ const db = new LocalDb()
 db.addCollection('accounts')
 db.addCollection('config')
 
-var master = null
-
-db.config.upsert({ master: '@chevdor:matrix.org' }, () => {
+db.config.upsert({ master: config.matrix.master }, () => {
   db.config.findOne({}, {}, function (res) {
     console.log('Master is : ' + res.master)
-    master = res.master
   })
 })
 
