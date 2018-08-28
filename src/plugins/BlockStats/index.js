@@ -9,11 +9,11 @@ export default class Blocthday extends Plugin {
     this.version = '0.0.1'
 
     // Every how many blocks do we output stats
-    this.NB_BLOCKS = 10
+    this.NB_BLOCKS = 300
 
     this.watchChain()
     this.data = []
-
+    this.previousData = null
     console.log(' * Plugin: BlockStats started')
   }
 
@@ -22,8 +22,6 @@ export default class Blocthday extends Plugin {
       .newHead((error, header) => {
         if (error) console.error('ERR:', error)
         const bnBlockNumber = new BN(header.number, 16)
-
-        // console.log('#' + bnBlockNumber.toString(10))
 
         this.addBlock(header)
 
@@ -36,27 +34,37 @@ export default class Blocthday extends Plugin {
   }
 
   addBlock (header) {
-    this.data.push({
+    const data = {
       tmsp: new Date(),
-      header
-    })
+      blockTime: this.previousData ? new Date() - this.previousData.tmsp : null
+      // header
+    }
+    this.data.push(data)
 
     while (this.data.length > this.NB_BLOCKS) { this.data.shift() }
+    this.previousData = data
+  }
+
+  averageBlockTime () {
+    const sum = (accumulator, currentValue) => accumulator + currentValue
+    return this.data
+      .map(el => el.blockTime || 0)
+      .reduce(sum) / this.data.filter(item => item.blockTime > 0).length / 1000
   }
 
   computeStats () {
     this.stats = {
       nbBlock: this.data.length,
-      averageBlockTime: 42
+      averageBlockTime: this.averageBlockTime()
     }
   }
 
   showStats (bnBlockNumber) {
     this.matrix.sendTextMessage(
         '!dCkmWIgUWtONXbANNc:matrix.org',
-        `Stats at #${bnBlockNumber.toString(10)}
+        `Stats for the last ${this.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
     Nb Blocks: ${this.stats.nbBlock}
-    Average Block time: ${this.stats.averageBlockTime}`)
+    Average Block time: ${this.stats.averageBlockTime.toFixed(3)}s`)
       .finally(function () {
       })
   }
