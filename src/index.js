@@ -5,9 +5,12 @@ import config from './config'
 import minimongo from 'minimongo'
 import createApi from '@polkadot/api'
 import WsProvider from '@polkadot/api-provider/ws'
+import pkg from '../package.json'
+
+// Plugins
 import Blocthday from './plugins/Blocthday'
 import Operator from './plugins/Operator'
-import pkg from '../package.json'
+import BlockStats from './plugins/BlockStats'
 
 global.Olm = Olm
 const sdk = require('matrix-js-sdk')
@@ -41,7 +44,7 @@ matrix.on('event', function (event) {
 })
 
 function loadPlugins () {
-  const plugins = [ Blocthday, Operator]
+  const plugins = [ Blocthday, Operator, BlockStats ]
   plugins.map(Plugin => {
     new Plugin(matrix, polkadot)
   })
@@ -49,11 +52,14 @@ function loadPlugins () {
 
 function start () {
   loadPlugins()
-  matrix.sendTextMessage(
-    '!dCkmWIgUWtONXbANNc:matrix.org',
-    `${pkg.name} v${pkg.version} started`)
-  .finally(() => {
-  })
+
+  console.log(`${pkg.name} v${pkg.version} started`)
+
+  // matrix.sendTextMessage(
+  //   '!dCkmWIgUWtONXbANNc:matrix.org',
+  //   `${pkg.name} v${pkg.version} started`)
+  // .finally(() => {
+  // })
 }
 
 matrix.on('sync', function (state, prevState, data) {
