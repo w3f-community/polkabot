@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import Plugin from '../../lib/lib'
 
-export default class Operator extends Plugin {
+module.exports = class Operator extends Plugin {
   constructor (matrix) {
     super(matrix)
     this.name = 'Operator'

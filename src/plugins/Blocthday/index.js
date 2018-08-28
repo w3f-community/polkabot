@@ -2,7 +2,7 @@
 import Plugin from '../../lib/lib'
 import BN from 'bn.js'
 
-export default class Blocthday extends Plugin {
+module.exports = class Blocthday extends Plugin {
   constructor (matrix, polkadot) {
     super(matrix, polkadot)
     this.name = 'Blocthday'

@@ -7,11 +7,6 @@ import createApi from '@polkadot/api'
 import WsProvider from '@polkadot/api-provider/ws'
 import pkg from '../package.json'
 
-// Plugins
-import Blocthday from './plugins/Blocthday'
-import Operator from './plugins/Operator'
-import BlockStats from './plugins/BlockStats'
-
 global.Olm = Olm
 const sdk = require('matrix-js-sdk')
 
@@ -44,10 +39,14 @@ matrix.on('event', function (event) {
 })
 
 function loadPlugins () {
-  const plugins = [ Blocthday, Operator, BlockStats ]
-  plugins.map(Plugin => {
-    new Plugin(matrix, polkadot)
-  })
+  console.log('Loading plugins:')
+  config.plugins
+    .filter(plugin => plugin.enabled)
+    .map(plugin => {
+      let Plugin = require('./plugins/' + plugin.name)
+      let p = new Plugin(matrix, polkadot)
+      console.log(' - ' + plugin.name)
+    })
 }
 
 function start () {
