@@ -2,12 +2,11 @@
 import Plugin from '../../lib/lib'
 
 module.exports = class Operator extends Plugin {
-  constructor (matrix) {
-    super(matrix)
-    this.name = 'Operator'
+  constructor (...args) {
+    super(args)
     this.version = '0.0.1'
 
-    matrix.on('Room.timeline', function (event, room, toStartOfTimeline) {
+    this.matrix.on('Room.timeline', function (event, room, toStartOfTimeline) {
       if (event.getType() !== 'm.room.message') {
         return
       }
@@ -16,13 +15,13 @@ module.exports = class Operator extends Plugin {
         return (sender === `@${room.name}:matrix.org`)
       }
 
-      const isOperator = (sender) => sender === '@chevdor:matrix.org'
+      const isOperator = (sender) => sender === this.config.matrix.master
 
       if (isPrivate(event.getSender(), room) && isOperator(event.getSender())) {
         const msg = event.getContent().body
 
-        matrix.sendTextMessage(
-          '!dCkmWIgUWtONXbANNc:matrix.org',
+        this.matrix.sendTextMessage(
+          this.config.matrix.room,
           'OP: your command is ' + msg).finally(function () {
           })
       }

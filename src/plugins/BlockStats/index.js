@@ -3,9 +3,8 @@ import Plugin from '../../lib/lib'
 import BN from 'bn.js'
 
 module.exports = class Blocthday extends Plugin {
-  constructor (matrix, polkadot) {
-    super(matrix, polkadot)
-    this.name = 'BlockStats'
+  constructor (...args) {
+    super(args)
     this.version = '0.0.1'
 
     this.config = {
@@ -13,9 +12,13 @@ module.exports = class Blocthday extends Plugin {
       threshold: 6.0      //
     }
 
-    this.watchChain()
     this.data = []
     this.previousData = null
+  }
+
+  start () {
+    super.start()
+    this.watchChain()
   }
 
   watchChain () {
@@ -63,7 +66,7 @@ module.exports = class Blocthday extends Plugin {
   alert (bnBlockNumber) {
     if (this.stats.averageBlockTime >= this.config.threshold) {
       this.matrix.sendTextMessage(
-          '!dCkmWIgUWtONXbANNc:matrix.org',
+          this.config.matrix.room,
           `Stats for the last ${this.config.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
       Nb Blocks: ${this.stats.nbBlock}
       Average Block time: ${this.stats.averageBlockTime.toFixed(3)}s`)

@@ -3,7 +3,8 @@ const config = {
     host: 'ws://127.0.0.1:9944'
   },
   matrix: {
-    master: '@you:matrix.org'
+    master: '@you:matrix.org',
+    room: '!<someid>:matrix.org'
   },
 
   userId: '@...:matrix.org',

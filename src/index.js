@@ -42,8 +42,13 @@ function loadPlugins () {
     .filter(plugin => plugin.enabled)
     .map(plugin => {
       let Plugin = require('./plugins/' + plugin.name)
-      let p = new Plugin(matrix, polkadot)
+      let p = new Plugin(
+        plugin.name,
+        config,
+        matrix,
+        polkadot)
       console.log(' - ' + plugin.name)
+      p.start()
     })
 }
 
@@ -53,7 +58,7 @@ function start () {
   console.log(`${pkg.name} v${pkg.version} started`)
 
   // matrix.sendTextMessage(
-  //   '!dCkmWIgUWtONXbANNc:matrix.org',
+  //   config.matrix.room,
   //   `${pkg.name} v${pkg.version} started`)
   // .finally(() => {
   // })

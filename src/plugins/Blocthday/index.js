@@ -3,15 +3,14 @@ import Plugin from '../../lib/lib'
 import BN from 'bn.js'
 
 module.exports = class Blocthday extends Plugin {
-  constructor (matrix, polkadot) {
-    super(matrix, polkadot)
-    this.name = 'Blocthday'
+  constructor (...args) {
+    super(args)
     this.version = '0.0.1'
 
     // Every how many blocks do we wish a happy Blocthday
     const NB_BLOCKS = 1000
 
-    polkadot.chain
+    this.polkadot.chain
       .newHead((error, header) => {
         if (error) console.error('ERR:', error)
 
@@ -20,8 +19,8 @@ module.exports = class Blocthday extends Plugin {
         console.log('#' + bnBlockNumber.toString(10))
 
         if (bnBlockNumber.mod(new BN(NB_BLOCKS)).toString(10) === '0') {
-          matrix.sendTextMessage(
-            '!dCkmWIgUWtONXbANNc:matrix.org',
+          this.matrix.sendTextMessage(
+            this.config.matrix.room,
             `Happy BlocthDay!!! Polkadot is now at #${bnBlockNumber.toString(10)}`)
           .finally(function () {
           })
