@@ -1,11 +1,21 @@
 #!/usr/bin/env node
 import Plugin from '../../lib/lib'
+import pluginConfig from './config'
 
 module.exports = class Operator extends Plugin {
   constructor (...args) {
     super(args)
     this.version = '0.0.1'
 
+    this.config[this.name] = pluginConfig
+  }
+
+  start () {
+    super.start()
+    this.watchChat()
+  }
+
+  watchChat () {
     this.matrix.on('Room.timeline', function (event, room, toStartOfTimeline) {
       if (event.getType() !== 'm.room.message') {
         return

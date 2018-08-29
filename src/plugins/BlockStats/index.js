@@ -1,16 +1,14 @@
 #!/usr/bin/env node
 import Plugin from '../../lib/lib'
 import BN from 'bn.js'
+import pluginConfig from './config'
 
 module.exports = class Blocthday extends Plugin {
   constructor (...args) {
     super(args)
     this.version = '0.0.1'
 
-    this.config = {
-      NB_BLOCKS: 300,     // Every how many blocks do we output stats
-      threshold: 6.0      //
-    }
+    this.config[this.name] = pluginConfig
 
     this.data = []
     this.previousData = null
@@ -29,7 +27,7 @@ module.exports = class Blocthday extends Plugin {
 
         this.addBlock(header)
 
-        if (bnBlockNumber.mod(new BN(this.config.NB_BLOCKS)).toString(10) === '0') {
+        if (bnBlockNumber.mod(new BN(this.config[this.name].NB_BLOCKS)).toString(10) === '0') {
           this.computeStats()
           this.alert(bnBlockNumber)
         }
@@ -45,7 +43,7 @@ module.exports = class Blocthday extends Plugin {
     }
     this.data.push(data)
 
-    while (this.data.length > this.config.NB_BLOCKS) { this.data.shift() }
+    while (this.data.length > this.config[this.name].NB_BLOCKS) { this.data.shift() }
     this.previousData = data
   }
 
@@ -64,12 +62,13 @@ module.exports = class Blocthday extends Plugin {
   }
 
   alert (bnBlockNumber) {
-    if (this.stats.averageBlockTime >= this.config.threshold) {
+    if (this.stats.averageBlockTime >= pluginConfig.threshold) {
       this.matrix.sendTextMessage(
           this.config.matrix.room,
-          `Stats for the last ${this.config.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
-      Nb Blocks: ${this.stats.nbBlock}
-      Average Block time: ${this.stats.averageBlockTime.toFixed(3)}s`)
+          `WARNING: Average block time exceeded ${pluginConfig.threshold.toFixed(3)}s
+Stats for the last ${pluginConfig.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
+    - Nb Blocks: ${this.stats.nbBlock}
+    - Average Block time: ${this.stats.averageBlockTime.toFixed(3)}s`)
         .finally(function () {
         })
     }

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import Plugin from '../../lib/lib'
 import BN from 'bn.js'
+import pluginConfig from './config'
 
 module.exports = class Blocthday extends Plugin {
   constructor (...args) {
@@ -8,8 +9,10 @@ module.exports = class Blocthday extends Plugin {
     this.version = '0.0.1'
 
     // Every how many blocks do we wish a happy Blocthday
-    const NB_BLOCKS = 1000
+    this.config[this.name] = pluginConfig
+  }
 
+  watchChain () {
     this.polkadot.chain
       .newHead((error, header) => {
         if (error) console.error('ERR:', error)
@@ -18,7 +21,7 @@ module.exports = class Blocthday extends Plugin {
 
         // console.log('#' + bnBlockNumber.toString(10))
 
-        if (bnBlockNumber.mod(new BN(NB_BLOCKS)).toString(10) === '0') {
+        if (bnBlockNumber.mod(new BN(pluginConfig.NB_BLOCKS)).toString(10) === '0') {
           this.matrix.sendTextMessage(
             this.config.matrix.room,
             `Happy BlocthDay!!! Polkadot is now at #${bnBlockNumber.toString(10)}`)
@@ -27,5 +30,10 @@ module.exports = class Blocthday extends Plugin {
         }
       })
       .catch(e => console.log)
+  }
+
+  start () {
+    super.start()
+    this.watchChain()
   }
 }
