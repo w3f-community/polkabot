@@ -16,7 +16,7 @@ module.exports = class Blocthday extends Plugin {
 
         const bnBlockNumber = new BN(header.number, 16)
 
-        console.log('#' + bnBlockNumber.toString(10))
+        // console.log('#' + bnBlockNumber.toString(10))
 
         if (bnBlockNumber.mod(new BN(NB_BLOCKS)).toString(10) === '0') {
           this.matrix.sendTextMessage(

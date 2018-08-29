@@ -13,7 +13,11 @@
     "lint": "standard",
     "clean": "rm -rf .nyc_output build coverage node_modules out",
     "build": "babel src -d dist",
-    "build:doc": "jsdoc -r -d out -c jsdoc.conf"
+    "build:doc": "jsdoc -r -d out -c jsdoc.conf",
+    "docker:build": "docker build -t chevdor/polkabot .",
+    "docker:build-my": "cd docker && docker build -t chevdor/mypolkabot .",
+    "docker": "npm run docker:build && npm run docker:build-my",
+    "docker:run": "docker run --rm -it chevdor/mypolkabot"
   },
   "author": "chevdor",
   "license": "ISC",
