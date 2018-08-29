@@ -1,9 +1,9 @@
 = Polkabot
 :toc:
 
-image::doc/polkabot.png[width=300px]
-
 == Intro
+
+image::doc/polkabot.png[width=300px]
 
 You can see Polkabot in action in link:++https://matrix.to/#/#polkadot-network-status:matrix.org++[#polkadot-network-status:matrix.org]
 
@@ -63,8 +63,13 @@ include::doc/plugin.js[]
 You can find the list of supported plugins below.
 
 include::src/plugins/AccountWatcher/README.adoc[leveloffset=+2]
+
 include::src/plugins/BlockStats/README.adoc[leveloffset=+2]
+
 include::src/plugins/Blocthday/README.adoc[leveloffset=+2]
+
 include::src/plugins/Operator/README.adoc[leveloffset=+2]
+
 include::src/plugins/StallWatcher/README.adoc[leveloffset=+2]
+
 include::src/plugins/Validator/README.adoc[leveloffset=+2]
