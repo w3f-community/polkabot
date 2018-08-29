@@ -1,0 +1,70 @@
+= Polkabot
+:toc:
+
+image::doc/polkabot.png[width=300px]
+
+== Intro
+
+You can see Polkabot in action in link:++https://matrix.to/#/#polkadot-network-status:matrix.org++[#polkadot-network-status:matrix.org]
+
+Polkabot is an extensible bot for http://polkadot.network[Polkadot], running on http://matrix.org[Matrix.org]
+
+NOTE: Polkabot aims as being *as silent as possible* so don't expect lots of fuzz and action!
+
+== Install & Run
+
+	git clone https://gitlab.com/chevdor/polkabot.git
+	cd polkabot
+	yarn
+
+At that point, you will need to search for the `config-sample.js` files. Everywhere you find one, create a `config.js` and make sure you adapt the content. Once you think you are good:
+
+	yarn start
+
+== Docker images
+
+To build the base and the custom:
+
+	yarn docker
+
+This will build the Polkabot main image and a custom image as specified in the `docker` folder.
+
+Then, test with :
+
+	yarn docker:run
+
+== Configuration
+
+Polkabot uses 2 levels of configuration:
+- the main config in src/config.js
+- the plugin specific config in `src/plugins/.../config.js`
+
+
+== Contribute
+
+Contributions are more than welcome, especially in the form of Pull Requests.
+
+You may also report any issue you run into, questions, wishes and ideas at https://gitlab.com/chevdor/polkabot/issues
+
+
+=== Create plugins
+
+Once you picked a name for your plugin, create a folder in `src/plugin`.
+
+Your plugin can start with code similar to:
+
+[source, js, indent=0, linenums]
+----
+include::doc/plugin.js[]
+----
+
+== Plugins
+
+You can find the list of supported plugins below.
+
+include::src/plugins/AccountWatcher/README.adoc[leveloffset=+2]
+include::src/plugins/BlockStats/README.adoc[leveloffset=+2]
+include::src/plugins/Blocthday/README.adoc[leveloffset=+2]
+include::src/plugins/Operator/README.adoc[leveloffset=+2]
+include::src/plugins/StallWatcher/README.adoc[leveloffset=+2]
+include::src/plugins/Validator/README.adoc[leveloffset=+2]
