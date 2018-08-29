@@ -36,7 +36,7 @@ module.exports = class StallWatcher extends Plugin {
   alert () {
     this.matrix.sendTextMessage(
       this.config.matrix.room,
-      `CRITICAL: Network seems to be stalled !!! The last block (#${this.lastBlockNumber.toString(10)}) was see ${pluginConfig.duration}s ago.`)
+      `CRITICAL: Network seems to be stalled !!! The last block (#${this.lastBlockNumber.toString(10)}) was seen ${pluginConfig.duration}s ago.`)
     .finally(function () {
     })
   }

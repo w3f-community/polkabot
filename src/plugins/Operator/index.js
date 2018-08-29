@@ -15,6 +15,13 @@ module.exports = class Operator extends Plugin {
     this.watchChat()
   }
 
+  answer(roomId, msg) {
+    this.matrix
+      .sendTextMessage( roomId, msg )
+      // .finally(function () {
+      //   })
+  }
+
   watchChat () {
     this.matrix.on('Room.timeline', (event, room, toStartOfTimeline) => {
       if (event.getType() !== 'm.room.message') {
@@ -28,12 +35,23 @@ module.exports = class Operator extends Plugin {
       const isOperator = (sender) => sender === this.config.matrix.master
 
       if (isPrivate(event.getSender(), room) && isOperator(event.getSender())) {
+        // console.log('Private OP message received')
+        // console.log('event', event)
+        // console.log('room', room)
+
         const msg = event.getContent().body
 
-        this.matrix.sendTextMessage(
-          this.config.matrix.room,
-          'OP: your command is ' + msg).finally(function () {
-          })
+        let capture = msg.match(/^!(?<cmd>\w+)/) || []
+        if (capture.length > 0 && capture.groups.cmd) {
+          const cmd = capture.groups.cmd
+          switch (cmd) {
+            case 'status':
+              this.answer(room.roomId, 'I am still there!')
+              break
+            default:
+              this.answer(room.roomId, `Command *${cmd}* is not supported`)
+          }
+        }
       }
     })
   }
