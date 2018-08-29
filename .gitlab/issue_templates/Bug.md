@@ -2,8 +2,8 @@ This is a bug report.
 
 # Context
 
-- <WHEN>
-- <WHERE>
+- WHEN_DID_THAT_HAPPEN
+- WHERE_DID_THAT_HAPPEN
 
 # Here is what I expected
 
