@@ -24,7 +24,7 @@ module.exports = class Blocthday extends Plugin {
         if (bnBlockNumber.mod(new BN(pluginConfig.NB_BLOCKS)).toString(10) === '0') {
           this.matrix.sendTextMessage(
             this.config.matrix.room,
-            `Happy BlocthDay!!! Polkadot is now at #${bnBlockNumber.toString(10)}`)
+            `Happy ${pluginConfig.NB_BLOCKS}-BlocthDay!!! Polkadot is now at #${bnBlockNumber.toString(10)}`)
           .finally(function () {
           })
         }
