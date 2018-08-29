@@ -16,7 +16,7 @@ module.exports = class Operator extends Plugin {
   }
 
   watchChat () {
-    this.matrix.on('Room.timeline', function (event, room, toStartOfTimeline) {
+    this.matrix.on('Room.timeline', (event, room, toStartOfTimeline) => {
       if (event.getType() !== 'm.room.message') {
         return
       }

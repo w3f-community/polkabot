@@ -12,6 +12,11 @@ module.exports = class Blocthday extends Plugin {
     this.config[this.name] = pluginConfig
   }
 
+  start () {
+    super.start()
+    this.watchChain()
+  }
+
   watchChain () {
     this.polkadot.chain
       .newHead((error, header) => {
@@ -30,10 +35,5 @@ module.exports = class Blocthday extends Plugin {
         }
       })
       .catch(e => console.log)
-  }
-
-  start () {
-    super.start()
-    this.watchChain()
   }
 }

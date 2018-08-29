@@ -4,3 +4,4 @@ Dockerfile
 config.js
 .DS_Store
 .*
+docker
