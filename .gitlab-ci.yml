@@ -24,6 +24,7 @@ cache:
     - node_modules/
 
 lint:
+  stage: lint
   script:
     - npm run lint
 
