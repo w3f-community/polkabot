@@ -1,6 +1,6 @@
 if [ "`which standard`" = "" ]
 then
-    npm install standard -g
+    npm install -g standard 
 fi
 
 if [ "`which snazzy`" = "" ]

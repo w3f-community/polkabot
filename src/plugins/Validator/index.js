@@ -64,7 +64,7 @@ ${this.formatValidators(this.previousValidators)}
     Current:
 ${this.formatValidators(this.currentValidators)}
 See details at http://polkadash.io/`)
-    .finally(function () {
-    })
+      .finally(function () {
+      })
   }
 }

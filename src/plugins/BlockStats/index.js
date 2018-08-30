@@ -64,8 +64,8 @@ module.exports = class Blocthday extends Plugin {
   alert (bnBlockNumber) {
     if (this.stats.averageBlockTime >= pluginConfig.threshold) {
       this.matrix.sendTextMessage(
-          this.config.matrix.room,
-          `WARNING: Average block time exceeded ${pluginConfig.threshold.toFixed(3)}s
+        this.config.matrix.room,
+        `WARNING: Average block time exceeded ${pluginConfig.threshold.toFixed(3)}s
 Stats for the last ${pluginConfig.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
     - Nb Blocks: ${this.stats.nbBlock}
     - Average Block time: ${this.stats.averageBlockTime.toFixed(3)}s`)

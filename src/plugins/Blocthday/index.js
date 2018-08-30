@@ -30,8 +30,8 @@ module.exports = class Blocthday extends Plugin {
           this.matrix.sendTextMessage(
             this.config.matrix.room,
             `Happy ${pluginConfig.NB_BLOCKS}-BlocthDay!!! Polkadot is now at #${bnBlockNumber.toString(10)}`)
-          .finally(function () {
-          })
+            .finally(function () {
+            })
         }
       })
       .catch(e => console.log)

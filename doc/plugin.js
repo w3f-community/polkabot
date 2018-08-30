@@ -13,6 +13,7 @@ module.exports = class SuperPlugin extends Plugin {
     // Interact with Polkadot
     this.polkadot.chain
       .newHead((error, header) => {
+        if (error) console.error(error)
         // ...
       })
       .catch(e => console.log)

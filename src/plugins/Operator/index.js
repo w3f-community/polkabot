@@ -15,9 +15,9 @@ module.exports = class Operator extends Plugin {
     this.watchChat()
   }
 
-  answer(roomId, msg) {
+  answer (roomId, msg) {
     this.matrix
-      .sendTextMessage( roomId, msg )
+      .sendTextMessage(roomId, msg)
       // .finally(function () {
       //   })
   }
