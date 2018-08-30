@@ -27,8 +27,8 @@ db.config.upsert({ master: config.matrix.master }, () => {
 
 var matrix = sdk.createClient({
   baseUrl: 'https://matrix.org',
-  accessToken: config.token,
-  userId: config.userId
+  accessToken: config.matrix.token,
+  userId: config.matrix.userId
 })
 
 matrix.on('event', function (event) {
@@ -38,6 +38,7 @@ matrix.on('event', function (event) {
 
 function loadPlugins () {
   console.log('Loading plugins:')
+  let nbPlugins = 0
   config.plugins
     .filter(plugin => plugin.enabled)
     .map(plugin => {
@@ -49,7 +50,9 @@ function loadPlugins () {
         polkadot)
       console.log(' - ' + plugin.name)
       p.start()
+      nbPlugins++
     })
+  if (!nbPlugins) console.error('Polkabot could not find any plugin, it needs at least one to be useful')
 }
 
 function start () {
