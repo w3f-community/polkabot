@@ -6,6 +6,8 @@ import minimongo from 'minimongo'
 import createApi from '@polkadot/api'
 import WsProvider from '@polkadot/api-provider/ws'
 import pkg from '../package.json'
+import PluginScanner from './lib/plugin-scanner'
+import PluginLoader from './lib/plugin-loader'
 
 global.Olm = Olm
 const sdk = require('matrix-js-sdk')
@@ -38,21 +40,40 @@ matrix.on('event', function (event) {
 
 function loadPlugins () {
   console.log('Loading plugins:')
-  let nbPlugins = 0
-  config.plugins
-    .filter(plugin => plugin.enabled)
-    .map(plugin => {
-      let Plugin = require('./plugins/' + plugin.name)
-      let p = new Plugin(
-        plugin.name,
+  // let nbPlugins = 0
+  // config.plugins
+  //   .filter(plugin => plugin.enabled)
+  //   .map(plugin => {
+  //     let Plugin = require('./plugins/' + plugin.name)
+  //     let p = new Plugin(
+  //       plugin.name,
+  //       config,
+  //       matrix,
+  //       polkadot)
+  //     console.log(' - ' + plugin.name)
+  //     p.start()
+  //     nbPlugins++
+  //   })
+  // if (!nbPlugins) console.error('Polkabot could not find any plugin, it needs at least one to be useful')
+  const pluginScanner = new PluginScanner(pkg.name)
+
+  pluginScanner.scan((err, module) => {
+    if (err) console.error(err)
+    console.log('Found plugin: ', module.name)
+    const pluginLoader = new PluginLoader(module)
+    pluginLoader.load(Plugin => {
+      // console.log(Plugin)
+      let plugin = new Plugin({
         config,
         matrix,
-        polkadot)
-      console.log(' - ' + plugin.name)
-      p.start()
-      nbPlugins++
+        polkadot })
+      plugin.start()
     })
-  if (!nbPlugins) console.error('Polkabot could not find any plugin, it needs at least one to be useful')
+  }, (err, all) => {
+    if (err) console.error(err)
+    console.log('Found ' + all.length + ' plugins')
+    if (all.length === 0) { console.log('Polkabot does not do much without plugin, make sure you install at least one') }
+  })
 }
 
 function start () {
