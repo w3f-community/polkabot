@@ -1,0 +1,6 @@
+
+== Contributing
+
+Contributions are more than welcome, especially in the form of Pull Requests.
+
+You may also report any issue you run into, questions, wishes and ideas at https://gitlab.com/chevdor/polkabot/issues
