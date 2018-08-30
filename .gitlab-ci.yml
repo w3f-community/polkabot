@@ -24,7 +24,7 @@ cache:
     - node_modules/
 
 lint:
-  stage: lint
+  stage:
   script:
     - npm run lint
 
@@ -76,4 +76,4 @@ build:doc:
 #   before_script:
 #     - echo "Skipping before_script"
 #   script:
-#     - docker build -t ccs-service .
+#     - docker build -t chevdor/polkabot .

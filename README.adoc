@@ -1,6 +1,10 @@
 = Polkabot
 :toc:
 
+image:https://gitlab.com/chevdor/polkabot/badges/master/pipeline.svg[link="https://gitlab.com/chevdor/polkabot/commits/master",title="pipeline status"]
+
+image:https://gitlab.com/chevdor/polkabot/badges/master/coverage.svg[link="https://gitlab.com/chevdor/polkabot/commits/master",title="coverage report"]
+
 == Intro
 
 image::doc/polkabot.png[width=300px]
