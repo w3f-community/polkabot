@@ -2593,6 +2593,23 @@ jquery@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
 
+js-class@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/js-class/-/js-class-0.0.2.tgz#56c33db955fab52caef9079af73641ba4f981dbf"
+
+js-flow@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/js-flow/-/js-flow-0.0.1.tgz#83581efc621df0c8dbc0842c629ef450eb11f896"
+  dependencies:
+    js-class "0.0.2"
+
+js-plugins@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/js-plugins/-/js-plugins-1.0.0.tgz#5451a9ff8efa64c59884e520967142662e4181bd"
+  dependencies:
+    js-class "0.0.2"
+    js-flow "0.0.1"
+
 js-sha1@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/js-sha1/-/js-sha1-0.6.0.tgz#adbee10f0e8e18aa07cdea807cf08e9183dbc7f9"

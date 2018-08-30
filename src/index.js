@@ -7,10 +7,15 @@ import createApi from '@polkadot/api'
 import WsProvider from '@polkadot/api-provider/ws'
 import pkg from '../package.json'
 
+import Plugins from 'js-plugins'
+const pluginManager = new Plugins()
+
 global.Olm = Olm
 const sdk = require('matrix-js-sdk')
 
 console.log(`Connecting to ${config.polkadot.host}`)
+console.log(`Operating as ${config.matrix.userId}`)
+
 const provider = new WsProvider(config.polkadot.host)
 const polkadot = createApi(provider)
 
@@ -25,7 +30,7 @@ db.config.upsert({ master: config.matrix.master }, () => {
   })
 })
 
-var matrix = sdk.createClient({
+const matrix = sdk.createClient({
   baseUrl: 'https://matrix.org',
   accessToken: config.matrix.token,
   userId: config.matrix.userId
@@ -38,21 +43,40 @@ matrix.on('event', function (event) {
 
 function loadPlugins () {
   console.log('Loading plugins:')
-  let nbPlugins = 0
-  config.plugins
-    .filter(plugin => plugin.enabled)
-    .map(plugin => {
-      let Plugin = require('./plugins/' + plugin.name)
-      let p = new Plugin(
-        plugin.name,
-        config,
-        matrix,
-        polkadot)
-      console.log(' - ' + plugin.name)
-      p.start()
-      nbPlugins++
-    })
-  if (!nbPlugins) console.error('Polkabot could not find any plugin, it needs at least one to be useful')
+  // let nbPlugins = 0
+  // config.plugins
+  //   .filter(plugin => plugin.enabled)
+  //   .map(plugin => {
+  //     let Plugin = require('./plugins/' + plugin.name)
+  //     let p = new Plugin(
+  //       plugin.name,
+  //       config,
+  //       matrix,
+  //       polkadot)
+  //     console.log(' - ' + plugin.name)
+  //     p.start()
+  //     nbPlugins++
+  //   })
+  // if (!nbPlugins) console.error('Polkabot could not find any plugin, it needs at least one to be useful')
+  // console.log(pluginManager)
+  // pluginManager.scan()
+
+  pluginManager.scanSubdirs(['../'])
+  const extensionPoint = 'polkabot:plugin'
+
+  // pluginManager.register(extensionPoint, 'blocthday', null)
+
+  pluginManager
+    .connect({ iam: 'host' },
+      extensionPoint, {
+        data: { config, matrix, polkadot },
+        multi: true,
+        name: 'blocthday',
+        required: true
+      }, (err, instance) => {
+        if (err) console.log(err)
+        console.log(instance)
+      })
 }
 
 function start () {
@@ -71,8 +95,11 @@ matrix.on('sync', function (state, prevState, data) {
   // console.log(state, data)
   switch (state) {
     case 'PREPARED':
+      console.log('Matrix state: PREPARED')
       start()
       break
+    case 'ERROR':
+      console.error(data)
   }
 })
 
@@ -106,5 +133,4 @@ matrix.on('Room.timeline', function (event, room, toStartOfTimeline) {
   // console.log('(%s) %s \t: %s', room.name, '*** master ***', event.getContent().body)
 })
 
-const MESSAGES_TO_SHOW = 20
-matrix.startClient(MESSAGES_TO_SHOW)
+matrix.startClient(config.matrix.MESSAGES_TO_SHOW)
