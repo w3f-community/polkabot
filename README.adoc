@@ -40,11 +40,8 @@ Polkabot uses 2 levels of configuration:
 - the plugin specific config in `src/plugins/.../config.js`
 
 
-== Contribute
+include::CONTRIBUTING.adoc[]
 
-Contributions are more than welcome, especially in the form of Pull Requests.
-
-You may also report any issue you run into, questions, wishes and ideas at https://gitlab.com/chevdor/polkabot/issues
 
 
 === Create plugins
