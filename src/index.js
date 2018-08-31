@@ -18,7 +18,6 @@ const polkadot = createApi(provider)
 
 const LocalDb = minimongo.MemoryDb
 const db = new LocalDb()
-db.addCollection('accounts')
 db.addCollection('config')
 
 db.config.upsert({ master: config.matrix.master }, () => {
@@ -33,63 +32,38 @@ var matrix = sdk.createClient({
   userId: config.matrix.userId
 })
 
-matrix.on('event', function (event) {
-  // comment out if you need to trouble shoot
-  // console.log(event.getType())
-})
+// comment out if you need to trouble shoot matrix issues
+// matrix.on('event', function (event) {
+//   console.log(event.getType())
+// })
 
 function loadPlugins () {
   console.log('Loading plugins:')
-  // let nbPlugins = 0
-  // config.plugins
-  //   .filter(plugin => plugin.enabled)
-  //   .map(plugin => {
-  //     let Plugin = require('./plugins/' + plugin.name)
-  //     let p = new Plugin(
-  //       plugin.name,
-  //       config,
-  //       matrix,
-  //       polkadot)
-  //     console.log(' - ' + plugin.name)
-  //     p.start()
-  //     nbPlugins++
-  //   })
-  // if (!nbPlugins) console.error('Polkabot could not find any plugin, it needs at least one to be useful')
-  const pluginScanner = new PluginScanner(pkg.name)
+  const pluginScanner = new PluginScanner(pkg.name + '-plugin')
 
   pluginScanner.scan((err, module) => {
     if (err) console.error(err)
-    console.log('Found plugin: ', module.name)
     const pluginLoader = new PluginLoader(module)
     pluginLoader.load(Plugin => {
-      // console.log(Plugin)
       let plugin = new Plugin({
         config,
+        db,
         matrix,
         polkadot })
       plugin.start()
     })
   }, (err, all) => {
     if (err) console.error(err)
-    console.log('Found ' + all.length + ' plugins')
     if (all.length === 0) { console.log('Polkabot does not do much without plugin, make sure you install at least one') }
   })
 }
 
 function start () {
   loadPlugins()
-
   console.log(`${pkg.name} v${pkg.version} started`)
-
-  // matrix.sendTextMessage(
-  //   config.matrix.room,
-  //   `${pkg.name} v${pkg.version} started`)
-  // .finally(() => {
-  // })
 }
 
 matrix.on('sync', function (state, prevState, data) {
-  // console.log(state, data)
   switch (state) {
     case 'PREPARED':
       start()
@@ -97,34 +71,15 @@ matrix.on('sync', function (state, prevState, data) {
   }
 })
 
-matrix.on('RoomMember.typing', function (event, member) {
-  // if (member.typing) {
-  //   // console.log(member.name + ' is typing...')
-  // } else {
-  //   // console.log(member.name + ' stopped typing.')
-  // }
-})
-
 matrix.on('RoomMember.membership', function (event, member) {
   if (member.membership === 'invite' && member.userId === config.userId) {
-    matrix.joinRoom(member.roomId).done(function () {
+    matrix.joinRoom(member.roomId).done(() => {
       console.log('Auto-joined %s', member.roomId)
+      matrix.sendTextMessage(
+        member.roomId,
+        `Hi there!`)
     })
   }
-})
-
-matrix.on('Room.timeline', function (event, room, toStartOfTimeline) {
-  if (toStartOfTimeline) {
-    return // don't print paginated results
-  }
-
-  if (event.getType() !== 'm.room.message') {
-    // console.log('EVENT:', event)
-
-  }
-
-  // console.log(event)
-  // console.log('(%s) %s \t: %s', room.name, '*** master ***', event.getContent().body)
 })
 
 const MESSAGES_TO_SHOW = 20

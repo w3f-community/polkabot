@@ -1,4 +1,0 @@
-
-= Operator
-
-This plugin takes care of the administration of Polkabot thru Matrix.org messages.

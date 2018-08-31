@@ -1,4 +1,0 @@
-
-= Validator
-
-NOTE: Not Implemented Yet

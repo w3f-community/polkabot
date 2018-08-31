@@ -60,16 +60,4 @@ include::doc/plugin.js[]
 
 == Plugins
 
-You can find the list of supported plugins below.
-
-include::src/plugins/AccountWatcher/README.adoc[leveloffset=+2]
-
-include::src/plugins/BlockStats/README.adoc[leveloffset=+2]
-
-include::src/plugins/Blocthday/README.adoc[leveloffset=+2]
-
-include::src/plugins/Operator/README.adoc[leveloffset=+2]
-
-include::src/plugins/StallWatcher/README.adoc[leveloffset=+2]
-
-include::src/plugins/Validator/README.adoc[leveloffset=+2]
+You can all the plugins in https://gitlab.com/Polkabot

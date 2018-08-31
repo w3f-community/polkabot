@@ -5,7 +5,7 @@ export default class PluginLoader {
   }
 
   load (cb) {
-    console.log('loading', this.plugin.name)
+    console.log('loading plugin: ' + this.plugin.name)
     cb(require(this.plugin.path))
   }
 }
