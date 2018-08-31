@@ -1,12 +1,13 @@
 {
   "name": "polkabot",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Matrix Bot for Polkadot",
-  "main": "src/index.js",
+  "main": "./src/polkabot",
+  "bin": "./src/polkabot",
   "repository": "",
   "scripts": {
-    "dev": "nodemon ./src/index.js ./config-dev.json --exec babel-node --presets env",
-    "start": "babel-node ./src/index.js",
+    "dev": "nodemon ./src/polkabot -c ./src/config.js --exec babel-node --presets env",
+    "start": "babel-node ./src/polkabot",
     "test": "mocha --timeout 5000 --require babel-core/register test/* --exit",
     "test:local": "mocha --require babel-core/register test/* --exit",
     "test:watch": "mocha --watch --require babel-core/register test/* --exit",
@@ -21,12 +22,16 @@
   },
   "author": "chevdor",
   "license": "ISC",
+  "keywords": [
+    "blockchain", "polkadot", "NodeJS", "ChatBox", "Matrix.org"
+  ],
   "dependencies": {
     "@polkadot/api": "0.28.24",
     "bn.js": "^4.11.8",
     "matrix-js-sdk": "^0.10.8",
     "minimongo": "^5.0.1",
-    "olm": "https://matrix.org/packages/npm/olm/olm-2.2.2.tgz"
+    "olm": "https://matrix.org/packages/npm/olm/olm-2.2.2.tgz",
+    "yargs": "^12.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.0.0",
