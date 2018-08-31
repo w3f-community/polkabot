@@ -55,11 +55,11 @@ export default class Polakbot {
     console.log('dirname', __dirname)
 
     const configLocation = this.args.config
-      ? path.join(process.cwd(), this.args.config)
+      ? this.args.config
       : path.join(__dirname, './config')
     console.log('Config location: ', configLocation)
 
-    this.config = require(configLocation).default
+    this.config = require(configLocation)
 
     console.log(`Connecting to ${this.config.polkadot.host}`)
     const provider = new WsProvider(this.config.polkadot.host)

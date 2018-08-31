@@ -21,6 +21,7 @@
     "docker:run": "docker run --rm -it chevdor/mypolkabot"
   },
   "author": "chevdor",
+  "repository":"https://gitlab.com/Polkabot/polkabot",
   "license": "ISC",
   "keywords": [
     "blockchain", "polkadot", "NodeJS", "ChatBox", "Matrix.org"
