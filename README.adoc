@@ -28,13 +28,15 @@ At that point, you will need to search for the `config-sample.js` files. Everywh
 
 To build the base and the custom:
 
-	yarn docker
+	yarn build:docker
 
-This will build the Polkabot main image and a custom image as specified in the `docker` folder.
+This will build the Polkabot main image.
 
 Then, test with :
 
-	yarn docker:run
+----
+docker run --rm -it -v ~/path/to/your/config.js:/data/config.js chevdor/polkabot npm start -- --config /data/config.js
+----
 
 == Configuration
 
@@ -44,7 +46,6 @@ Polkabot uses 2 levels of configuration:
 
 
 include::CONTRIBUTING.adoc[]
-
 
 
 === Create plugins
@@ -60,16 +61,4 @@ include::doc/plugin.js[]
 
 == Plugins
 
-You can find the list of supported plugins below.
-
-include::src/plugins/AccountWatcher/README.adoc[leveloffset=+2]
-
-include::src/plugins/BlockStats/README.adoc[leveloffset=+2]
-
-include::src/plugins/Blocthday/README.adoc[leveloffset=+2]
-
-include::src/plugins/Operator/README.adoc[leveloffset=+2]
-
-include::src/plugins/StallWatcher/README.adoc[leveloffset=+2]
-
-include::src/plugins/Validator/README.adoc[leveloffset=+2]
+You can all the plugins in https://gitlab.com/Polkabot
