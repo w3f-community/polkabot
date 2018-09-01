@@ -1,3 +1,4 @@
+var path = require('path')
 
 export default class PluginLoader {
   constructor (plugin) {
@@ -5,7 +6,10 @@ export default class PluginLoader {
   }
 
   load (cb) {
-    console.log('loading plugin: ' + this.plugin.name)
-    cb(require(this.plugin.path))
+    const plugin = require(this.plugin.path)
+    const pkg = require(path.join(this.plugin.path, 'package.json'))
+    console.log(` - ${pkg.name} version ${pkg.version} from ${pkg.author.name || pkg.author}`)
+    // console.log(` - path: ${this.plugin.path}`)
+    cb(plugin)
   }
 }

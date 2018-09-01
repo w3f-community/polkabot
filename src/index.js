@@ -39,6 +39,7 @@ export default class Polakbot {
       })
     }, (err, all) => {
       if (err) console.error(err)
+      console.log()
       if (all.length === 0) { console.log('Polkabot does not do much without plugin, make sure you install at least one') }
     })
   }
