@@ -1,6 +1,6 @@
 {
   "name": "polkabot",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Matrix Bot for Polkadot",
   "main": "./dist/polkabot.js",
   "bin": {
@@ -16,6 +16,7 @@
     "lint": "standard",
     "clean": "rm -rf .nyc_output build coverage node_modules out dist",
     "build": "babel src -d dist --ignore config*.js",
+    "prepublishOnly": "npm run build",
     "build:doc": "jsdoc -r -d out -c jsdoc.conf",
     "build:docker": "docker build -t chevdor/polkabot .",
     "docker:run": "docker run --rm -it chevdor/mypolkabot "
