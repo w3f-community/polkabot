@@ -1,7 +1,8 @@
 node_modules
 npm-debug.log
 Dockerfile
-config.js
+src/config.js
 .DS_Store
-.*
-docker
+dist
+*.log
+doc

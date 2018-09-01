@@ -1,4 +1,4 @@
-const config = {
+module.exports = {
 
   // General Polkadot config
   polkadot: {
@@ -18,19 +18,5 @@ const config = {
     // Credentials of the bot
     userId: '@...:matrix.org',
     token: 'your_token_here'
-  },
-
-  // Plugin names must match folder names in the plugins folder
-  plugins: [{
-    name: 'BlockStats',
-    enabled: true
-  }, {
-    name: 'Blocthday',
-    enabled: true
-  }, {
-    name: 'Operator',
-    enabled: true
-  }]
+  }
 }
-
-export default config
