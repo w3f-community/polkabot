@@ -1,6 +1,6 @@
 {
   "name": "polkabot",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Matrix Bot for Polkadot",
   "main": "./dist/polkabot.js",
   "bin": {
