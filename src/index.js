@@ -32,6 +32,7 @@ export default class Polakbot {
       pluginLoader.load(Plugin => {
         let plugin = new Plugin({
           config: this.config,
+          pkg: pkg,
           db: this.db,
           matrix: this.matrix,
           polkadot: this.polkadot })
@@ -52,9 +53,6 @@ export default class Polakbot {
     console.log(`${pkg.name} v${pkg.version}`)
     console.log(`===========================`)
 
-    console.log('process', process.cwd())
-    console.log('dirname', __dirname)
-
     const configLocation = this.args.config
       ? this.args.config
       : path.join(__dirname, './config')
@@ -63,6 +61,8 @@ export default class Polakbot {
     this.config = require(configLocation)
 
     console.log(`Connecting to ${this.config.polkadot.host}`)
+    console.log(`Running as ${this.config.matrix.userId}`)
+
     const provider = new WsProvider(this.config.polkadot.host)
     this.polkadot = createApi(provider)
 

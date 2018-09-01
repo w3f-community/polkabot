@@ -3,8 +3,10 @@
   "version": "0.0.3",
   "description": "Matrix Bot for Polkadot",
   "main": "./dist/polkabot.js",
-  "bin": { "polkabot" : "./dist/polkabot.js" },
-  "repository": "",
+  "bin": {
+    "polkabot": "./dist/polkabot.js"
+  },
+  "repository": "https://gitlab.com/Polkabot/polkabot",
   "scripts": {
     "dev": "nodemon ./src/polkabot -c ./config.js --exec babel-node --presets env",
     "start": "babel-node ./src/polkabot",
@@ -19,10 +21,13 @@
     "docker:run": "docker run --rm -it chevdor/mypolkabot "
   },
   "author": "chevdor",
-  "repository":"https://gitlab.com/Polkabot/polkabot",
   "license": "ISC",
   "keywords": [
-    "blockchain", "polkadot", "NodeJS", "ChatBox", "Matrix.org"
+    "blockchain",
+    "polkadot",
+    "NodeJS",
+    "ChatBox",
+    "Matrix.org"
   ],
   "dependencies": {
     "@polkadot/api": "0.28.24",
