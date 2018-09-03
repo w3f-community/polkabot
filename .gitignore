@@ -7,3 +7,4 @@ out/
 config.js
 package-lock.json
 yarn-error.log
+*.db

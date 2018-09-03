@@ -1,13 +1,13 @@
 import 'babel-core/register'
 import 'babel-polyfill'
 import Olm from 'olm'
-import minimongo from 'minimongo'
 import createApi from '@polkadot/api'
 import WsProvider from '@polkadot/api-provider/ws'
 import pkg from '../package.json'
 import PluginScanner from './lib/plugin-scanner'
 import PluginLoader from './lib/plugin-loader'
-var path = require('path')
+import Datastore from 'nedb'
+const path = require('path')
 
 global.Olm = Olm
 const sdk = require('matrix-js-sdk')
@@ -20,6 +20,7 @@ const sdk = require('matrix-js-sdk')
 export default class Polakbot {
   constructor (args) {
     this.args = args
+    this.db = new Datastore({ filename: 'polkabot.db' })
   }
 
   loadPlugins () {
@@ -46,7 +47,10 @@ export default class Polakbot {
   }
 
   start () {
-    this.loadPlugins()
+    this.db.loadDatabase(err => {
+      if (err) console.error(err)
+      this.loadPlugins()
+    })
   }
 
   run () {
@@ -65,16 +69,6 @@ export default class Polakbot {
 
     const provider = new WsProvider(this.config.polkadot.host)
     this.polkadot = createApi(provider)
-
-    const LocalDb = minimongo.MemoryDb
-    this.db = new LocalDb()
-    this.db.addCollection('config')
-
-    this.db.config.upsert({ master: this.config.matrix.master }, () => {
-      this.db.config.findOne({}, {}, res => {
-        console.log('Master is : ' + res.master)
-      })
-    })
 
     this.matrix = sdk.createClient({
       baseUrl: 'https://matrix.org',
