@@ -6,3 +6,4 @@ dist/
 out/
 config.js
 package-lock.json
+*.db
