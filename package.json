@@ -1,6 +1,6 @@
 {
   "name": "polkabot",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Matrix Bot for Polkadot",
   "main": "./dist/polkabot.js",
   "bin": {
@@ -8,16 +8,12 @@
   },
   "repository": "https://gitlab.com/Polkabot/polkabot",
   "scripts": {
-    "dev": "nodemon ./src/polkabot -c ./config.js --exec babel-node --presets env",
+    "dev": "nodemon ./src/polkabot -c ./config.js --exec babel-node --presets @babel/env",
     "start": "babel-node ./src/polkabot",
-    "test": "mocha --timeout 5000 --require babel-core/register test/* --exit",
-    "test:local": "mocha --require babel-core/register test/* --exit",
-    "test:watch": "mocha --watch --require babel-core/register test/* --exit",
     "lint": "standard",
     "clean": "rm -rf .nyc_output build coverage node_modules out dist",
     "build": "babel src -d dist --ignore config*.js",
     "prepublishOnly": "npm run build",
-    "build:doc": "jsdoc -r -d out -c jsdoc.conf",
     "build:docker": "docker build -t chevdor/polkabot .",
     "docker:run": "docker run --rm -it chevdor/mypolkabot "
   },
@@ -31,6 +27,11 @@
     "Matrix.org"
   ],
   "dependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/register": "^7.0.0",
     "@polkadot/api": "0.28.24",
     "bn.js": "^4.11.8",
     "matrix-js-sdk": "^0.10.8",
@@ -39,17 +40,6 @@
     "yargs": "^12.0.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.0.0",
-    "babel-core": "^6.26.0",
-    "babel-eslint": "^9.0.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.26.0",
-    "chai": "^4.1.2",
-    "chai-http": "4.2.0",
-    "jsdoc": "^3.5.5",
-    "jsdoc-route-plugin": "^0.1.0",
-    "mocha": "^5.0.4",
     "nodemon": "1.18.4",
     "standard": "12.0.1"
   },
@@ -57,14 +47,6 @@
     "parser": "babel-eslint",
     "ignore": [
       "dist/"
-    ],
-    "env": [
-      "mocha"
-    ]
-  },
-  "babel": {
-    "presets": [
-      "env"
     ]
   },
   "engines": {

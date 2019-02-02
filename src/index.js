@@ -1,5 +1,3 @@
-import 'babel-core/register'
-import 'babel-polyfill'
 import Olm from 'olm'
 import createApi from '@polkadot/api'
 import WsProvider from '@polkadot/api-provider/ws'
