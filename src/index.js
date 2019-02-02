@@ -1,6 +1,6 @@
 import Olm from 'olm'
-import createApi from '@polkadot/api'
-import WsProvider from '@polkadot/api-provider/ws'
+import { ApiPromise } from '@polkadot/api'
+import { WsProvider } from '@polkadot/rpc-provider'
 import pkg from '../package.json'
 import PluginScanner from './lib/plugin-scanner'
 import PluginLoader from './lib/plugin-loader'
@@ -51,7 +51,7 @@ export default class Polakbot {
     })
   }
 
-  run () {
+  async run () {
     console.log(`${pkg.name} v${pkg.version}`)
     console.log(`===========================`)
 
@@ -64,9 +64,9 @@ export default class Polakbot {
 
     console.log(`Connecting to ${this.config.polkadot.host}`)
     console.log(`Running as ${this.config.matrix.userId}`)
-
+ 
     const provider = new WsProvider(this.config.polkadot.host)
-    this.polkadot = createApi(provider)
+    this.polkadot = await ApiPromise.create(provider);
 
     this.matrix = sdk.createClient({
       baseUrl: 'https://matrix.org',
