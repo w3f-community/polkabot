@@ -2,11 +2,15 @@ import 'babel-core/register'
 import 'babel-polyfill'
 import Olm from 'olm'
 import minimongo from 'minimongo'
-import createApi from '@polkadot/api'
-import WsProvider from '@polkadot/api-provider/ws'
+import { ApiPromise, WsProvider } from '@polkadot/api'
+
 import pkg from '../package.json'
 import PluginScanner from './lib/plugin-scanner'
 import PluginLoader from './lib/plugin-loader'
+import {
+  handleNewMemberEvent
+} from './methods/handleEvents';
+
 var path = require('path')
 
 global.Olm = Olm
@@ -17,7 +21,7 @@ const sdk = require('matrix-js-sdk')
 //   console.log(event.getType())
 // })
 
-export default class Polakbot {
+export default class Polkabot {
   constructor (args) {
     this.args = args
   }
@@ -41,15 +45,38 @@ export default class Polakbot {
     }, (err, all) => {
       if (err) console.error(err)
       console.log()
-      if (all.length === 0) { console.log('Polkabot does not do much without plugin, make sure you install at least one') }
+      if (all.length === 0) {
+        console.log('Polkabot does not do much without plugin, make sure you install at least one');
+      }
     })
   }
 
-  start () {
+  start (syncState) {
+
+    // Send message to the room notifying users of the bot's state
+    const messageBody = `Polkadot sync state with Matrix client is: ${syncState}.`;
+    const sendEventArgs = {
+      roomId: this.config.matrix.roomId,
+      eventType: 'm.room.message',
+      content: {
+        'body': messageBody,
+        'msgtype': 'm.text'
+      },
+      txnId: ''
+    }
+
+    this.matrix.sendEvent(
+      sendEventArgs.roomId,
+      sendEventArgs.eventType,
+      sendEventArgs.content,
+      sendEventArgs.txnId, (err, res) => {
+      if (err) { console.log(err) };
+    });
+
     this.loadPlugins()
   }
 
-  run () {
+  async run () {
     console.log(`${pkg.name} v${pkg.version}`)
     console.log(`===========================`)
 
@@ -60,54 +87,112 @@ export default class Polakbot {
 
     this.config = require(configLocation)
 
-    console.log(`Connecting to ${this.config.polkadot.host}`)
-    console.log(`Running as ${this.config.matrix.userId}`)
+    console.log(`Connecting to host: ${this.config.polkadot.host}`)
+    console.log(`Running with bot user id: ${this.config.matrix.botUserId}`)
 
+    // Reference: https://polkadot.js.org/api/examples/promise/01_simple_connect/
     const provider = new WsProvider(this.config.polkadot.host)
-    this.polkadot = createApi(provider)
+    // Create the API and wait until ready
+    this.polkadot = await ApiPromise.create(provider);
+
+    // Retrieve the chain & node information information via rpc calls
+    const [chain, nodeName, nodeVersion] = await Promise.all([
+      this.polkadot.rpc.system.chain(),
+      this.polkadot.rpc.system.name(),
+      this.polkadot.rpc.system.version()
+    ]);
+
+    console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
 
     const LocalDb = minimongo.MemoryDb
     this.db = new LocalDb()
     this.db.addCollection('config')
 
-    this.db.config.upsert({ master: this.config.matrix.master }, () => {
+    this.db.config.upsert({ botMasterId: this.config.matrix.botMasterId }, () => {
       this.db.config.findOne({}, {}, res => {
-        console.log('Master is : ' + res.master)
+        console.log('Matrix client bot manager id: ' + res.botMasterId)
       })
     })
 
+    // TODO - refactor using async/await. See https://github.com/matrix-org/matrix-js-sdk/issues/789
     this.matrix = sdk.createClient({
-      baseUrl: 'https://matrix.org',
+      baseUrl: this.config.matrix.baseUrl,
       accessToken: this.config.matrix.token,
-      userId: this.config.matrix.userId
+      userId: this.config.matrix.botUserId
     })
 
-    this.matrix.on('sync', (state, prevState, data) => {
-      switch (state) {
-        case 'PREPARED':
-          this.start()
-          break
-      }
-    })
+    this.matrix.login(
+      'm.login.password',
+      {
+        user: this.config.matrix.loginUserId,
+        password: this.config.matrix.loginUserPassword,
+      },
+      (err, data) => {
+        if (err) { console.log('Error logging into matrix:', err); }
+        console.log('Logged in with credentials: ', data);
 
-    this.matrix.on('RoomMember.membership', (event, member) => {
-      if (member.membership === 'invite') {
-        // TODO: Fix the following to get the latest activity in the room
-        // const roomState = new sdk.RoomState(member.roomId)
-        // const inactivityInDays = (new Date() - new Date(roomState._modified)) / 1000 / 60 / 60
-        // console.log(roomState.events)
-
-        // if (inactivityInDays < 7) {
-        this.matrix.joinRoom(member.roomId).done(() => {
-          console.log('Auto-joined %s', member.roomId)
-          console.log(` - ${event.event.membership} from ${event.event.sender}`)
-          // console.log(` - modified ${new Date(roomState._modified)})`)
-          // console.log(` - last activity for ${(inactivityInDays / 24).toFixed(3)} days (${(inactivityInDays).toFixed(2)}h)`)
+        this.matrix.once('sync', (state, prevState, data) => {
+          switch (state) {
+            case 'PREPARED':
+              console.log(`Detected client sync state: ${state}`);
+              this.start(state)
+              break
+            default:
+              console.log('Error. Unable to establish client sync state');
+              process.exit(1);
+          }
         })
-        // }
-      }
-    })
 
-    this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20)
+        /**
+         * Event listeners for events emitted from a room's timeline.
+         *
+         * Messages `m.room.message`
+         * Membership changes `m.room.member`
+         */
+        this.matrix.on('Room.timeline', (event) => {
+          console.log('Received event: ', event.event);
+          console.log('Received event sender: ', event.sender);
+          console.log('Received event type: ', event.getType());
+          console.log('Received event membership: ', event.sender.membership);
+          console.log('Received event roomId: ', event.sender.roomId);
+
+          // FIXME - move into a new plugin dedicated to welcome messages
+          if (
+            event.sender.roomId === this.config.matrix.roomId &&
+            event.getType() === 'm.room.member' &&
+            event.sender.membership === 'join' &&
+            (event.unsigned && (!event.unsigned.prev_content ||
+              event.unsigned.prev_content.membership === 'invite'))
+          ) {
+            console.log('New member joined!');
+            this.handleNewMemberEvent(event);
+          }
+        });
+
+        this.matrix.on('RoomMember.membership', (event, member) => {
+          if (member.membership === 'invite') {
+            // TODO: Fix the following to get the latest activity in the room
+            // const roomState = new sdk.RoomState(member.roomId)
+            // const inactivityInDays = (new Date() - new Date(roomState._modified)) / 1000 / 60 / 60
+            // console.log(roomState.events)
+
+            // if (inactivityInDays < 7) {
+            this.matrix.joinRoom(member.roomId).done(() => {
+              console.log('Auto-joined %s', member.roomId)
+              console.log(` - ${event.event.membership} from ${event.event.sender}`)
+              // console.log(` - modified ${new Date(roomState._modified)})`)
+              // console.log(` - last activity for ${(inactivityInDays / 24).toFixed(3)} days (${(inactivityInDays).toFixed(2)}h)`)
+            })
+            // }
+          }
+        })
+
+        this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20)
+      }
+    );
+  }
+
+  handleNewMemberEvent (event) {
+    handleNewMemberEvent(event, this.matrix);
   }
 }
