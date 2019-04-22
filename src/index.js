@@ -27,7 +27,7 @@ export default class Polkabot {
   }
 
   loadPlugins () {
-    console.log('Loading plugins:')
+    console.log('Polkabot - Loading plugins:')
     const pluginScanner = new PluginScanner(pkg.name + '-plugin')
 
     pluginScanner.scan((err, module) => {
@@ -46,7 +46,7 @@ export default class Polkabot {
       if (err) console.error(err)
       console.log()
       if (all.length === 0) {
-        console.log('Polkabot does not do much without plugin, make sure you install at least one');
+        console.log('Polkabot - Polkabot does not do much without plugin, make sure you install at least one');
       }
     })
   }
@@ -83,12 +83,12 @@ export default class Polkabot {
     const configLocation = this.args.config
       ? this.args.config
       : path.join(__dirname, './config')
-    console.log('Config location: ', configLocation)
+    console.log('Polkabot - Config location: ', configLocation)
 
     this.config = require(configLocation)
 
-    console.log(`Connecting to host: ${this.config.polkadot.host}`)
-    console.log(`Running with bot user id: ${this.config.matrix.botUserId}`)
+    console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`)
+    console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`)
 
     // Reference: https://polkadot.js.org/api/examples/promise/01_simple_connect/
     const provider = new WsProvider(this.config.polkadot.host)
@@ -102,7 +102,7 @@ export default class Polkabot {
       this.polkadot.rpc.system.version()
     ]);
 
-    console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+    console.log(`Polkabot - You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
 
     const LocalDb = minimongo.MemoryDb
     this.db = new LocalDb()
@@ -110,7 +110,7 @@ export default class Polkabot {
 
     this.db.config.upsert({ botMasterId: this.config.matrix.botMasterId }, () => {
       this.db.config.findOne({}, {}, res => {
-        console.log('Matrix client bot manager id: ' + res.botMasterId)
+        console.log('Polkabot - Matrix client bot manager id: ' + res.botMasterId)
       })
     })
 
@@ -129,16 +129,16 @@ export default class Polkabot {
       },
       (err, data) => {
         if (err) { console.log('Error logging into matrix:', err); }
-        console.log('Logged in with credentials: ', data);
+        console.log('Polkabot - Logged in with credentials: ', data);
 
         this.matrix.once('sync', (state, prevState, data) => {
           switch (state) {
             case 'PREPARED':
-              console.log(`Detected client sync state: ${state}`);
+              console.log(`Polkabot - Detected client sync state: ${state}`);
               this.start(state)
               break
             default:
-              console.log('Error. Unable to establish client sync state');
+              console.log('Polkabot - Error. Unable to establish client sync state');
               process.exit(1);
           }
         })
@@ -150,11 +150,11 @@ export default class Polkabot {
          * Membership changes `m.room.member`
          */
         this.matrix.on('Room.timeline', (event) => {
-          console.log('Received event: ', event.event);
-          console.log('Received event sender: ', event.sender);
-          console.log('Received event type: ', event.getType());
-          console.log('Received event membership: ', event.sender.membership);
-          console.log('Received event roomId: ', event.sender.roomId);
+          // console.log('Polkabot - Received event: ', event.event);
+          // console.log('Polkabot - Received event sender: ', event.sender);
+          console.log('Polkabot - Received event type: ', event.getType());
+          console.log('Polkabot - Received event membership: ', event.sender.membership);
+          console.log('Polkabot - Received event roomId: ', event.sender.roomId);
 
           // FIXME - move into a new plugin dedicated to welcome messages
           if (
@@ -164,7 +164,7 @@ export default class Polkabot {
             (event.unsigned && (!event.unsigned.prev_content ||
               event.unsigned.prev_content.membership === 'invite'))
           ) {
-            console.log('New member joined!');
+            console.log('Polkabot - New member joined!');
             this.handleNewMemberEvent(event);
           }
         });
@@ -178,7 +178,7 @@ export default class Polkabot {
 
             // if (inactivityInDays < 7) {
             this.matrix.joinRoom(member.roomId).done(() => {
-              console.log('Auto-joined %s', member.roomId)
+              console.log('Polkabot - Auto-joined %s', member.roomId)
               console.log(` - ${event.event.membership} from ${event.event.sender}`)
               // console.log(` - modified ${new Date(roomState._modified)})`)
               // console.log(` - last activity for ${(inactivityInDays / 24).toFixed(3)} days (${(inactivityInDays).toFixed(2)}h)`)
