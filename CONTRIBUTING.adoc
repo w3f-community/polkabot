@@ -108,6 +108,22 @@ MATRIX_BOT_USER_ID=@botusername:matrix.org
 MATRIX_TOKEN=
 ```
 
+==== Run Polkadot / Substrate
+
+Download and install Substrate:
+
+```
+curl https://getsubstrate.io -sSf | bash
+```
+
+Run Substrate in a seperate Terminal window
+
+```
+substrate --dev
+```
+
+Reference: https://docs.substrate.dev/
+
 ==== Run Polkabot
 
 ```
