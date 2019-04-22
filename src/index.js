@@ -169,6 +169,7 @@ export default class Polkabot {
           }
         });
 
+        // Event emitted when member's membership changes
         this.matrix.on('RoomMember.membership', (event, member) => {
           if (member.membership === 'invite') {
             // TODO: Fix the following to get the latest activity in the room
