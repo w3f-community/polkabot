@@ -1,5 +1,5 @@
-import handleNewMemberMessage from './handleNewMemberMessage';
+import handleNewMemberMessage from './handleNewMemberMessage'
 
 export {
   handleNewMemberMessage
-};
+}

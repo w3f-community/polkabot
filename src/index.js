@@ -9,7 +9,7 @@ import PluginScanner from './lib/plugin-scanner'
 import PluginLoader from './lib/plugin-loader'
 import {
   handleNewMemberEvent
-} from './methods/handleEvents';
+} from './methods/handleEvents'
 
 var path = require('path')
 
@@ -46,15 +46,14 @@ export default class Polkabot {
       if (err) console.error(err)
       console.log()
       if (all.length === 0) {
-        console.log('Polkabot - Polkabot does not do much without plugin, make sure you install at least one');
+        console.log('Polkabot - Polkabot does not do much without plugin, make sure you install at least one')
       }
     })
   }
 
   start (syncState) {
-
     // Send message to the room notifying users of the bot's state
-    const messageBody = `Polkadot sync state with Matrix client is: ${syncState}.`;
+    const messageBody = `Polkadot sync state with Matrix client is: ${syncState}.`
     const sendEventArgs = {
       roomId: this.config.matrix.roomId,
       eventType: 'm.room.message',
@@ -70,8 +69,9 @@ export default class Polkabot {
       sendEventArgs.eventType,
       sendEventArgs.content,
       sendEventArgs.txnId, (err, res) => {
-      if (err) { console.log(err) };
-    });
+        if (err) { console.log(err) };
+      }
+    )
 
     this.loadPlugins()
   }
@@ -93,16 +93,16 @@ export default class Polkabot {
     // Reference: https://polkadot.js.org/api/examples/promise/01_simple_connect/
     const provider = new WsProvider(this.config.polkadot.host)
     // Create the API and wait until ready
-    this.polkadot = await ApiPromise.create(provider);
+    this.polkadot = await ApiPromise.create(provider)
 
     // Retrieve the chain & node information information via rpc calls
     const [chain, nodeName, nodeVersion] = await Promise.all([
       this.polkadot.rpc.system.chain(),
       this.polkadot.rpc.system.name(),
       this.polkadot.rpc.system.version()
-    ]);
+    ])
 
-    console.log(`Polkabot - You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+    console.log(`Polkabot - You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`)
 
     const LocalDb = minimongo.MemoryDb
     this.db = new LocalDb()
@@ -125,21 +125,21 @@ export default class Polkabot {
       'm.login.password',
       {
         user: this.config.matrix.loginUserId,
-        password: this.config.matrix.loginUserPassword,
+        password: this.config.matrix.loginUserPassword
       },
       (err, data) => {
-        if (err) { console.log('Error logging into matrix:', err); }
-        console.log('Polkabot - Logged in with credentials: ', data);
+        if (err) { console.log('Error logging into matrix:', err) }
+        console.log('Polkabot - Logged in with credentials: ', data)
 
         this.matrix.once('sync', (state, prevState, data) => {
           switch (state) {
             case 'PREPARED':
-              console.log(`Polkabot - Detected client sync state: ${state}`);
+              console.log(`Polkabot - Detected client sync state: ${state}`)
               this.start(state)
               break
             default:
-              console.log('Polkabot - Error. Unable to establish client sync state');
-              process.exit(1);
+              console.log('Polkabot - Error. Unable to establish client sync state')
+              process.exit(1)
           }
         })
 
@@ -150,11 +150,11 @@ export default class Polkabot {
          * Membership changes `m.room.member`
          */
         this.matrix.on('Room.timeline', (event) => {
-          // console.log('Polkabot - Received event: ', event.event);
-          // console.log('Polkabot - Received event sender: ', event.sender);
-          console.log('Polkabot - Received event type: ', event.getType());
-          console.log('Polkabot - Received event membership: ', event.sender.membership);
-          console.log('Polkabot - Received event roomId: ', event.sender.roomId);
+          // console.log('Polkabot - Received event: ', event.event)
+          // console.log('Polkabot - Received event sender: ', event.sender)
+          console.log('Polkabot - Received event type: ', event.getType())
+          console.log('Polkabot - Received event membership: ', event.sender.membership)
+          console.log('Polkabot - Received event roomId: ', event.sender.roomId)
 
           // FIXME - move into a new plugin dedicated to welcome messages
           if (
@@ -164,10 +164,10 @@ export default class Polkabot {
             (event.unsigned && (!event.unsigned.prev_content ||
               event.unsigned.prev_content.membership === 'invite'))
           ) {
-            console.log('Polkabot - New member joined!');
-            this.handleNewMemberEvent(event);
+            console.log('Polkabot - New member joined!')
+            this.handleNewMemberEvent(event)
           }
-        });
+        })
 
         // // Event emitted when member's membership changes
         // this.matrix.on('RoomMember.membership', (event, member) => {
@@ -190,10 +190,10 @@ export default class Polkabot {
 
         this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20)
       }
-    );
+    )
   }
 
   handleNewMemberEvent (event) {
-    handleNewMemberEvent(event, this.matrix);
+    handleNewMemberEvent(event, this.matrix)
   }
 }

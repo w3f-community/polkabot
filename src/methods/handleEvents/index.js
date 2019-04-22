@@ -1,5 +1,5 @@
-import handleNewMemberEvent from './handleNewMemberEvent';
+import handleNewMemberEvent from './handleNewMemberEvent'
 
 export {
   handleNewMemberEvent
-};
+}

@@ -1,6 +1,6 @@
-import { config as dotenvConfig } from 'dotenv';
+import { config as dotenvConfig } from 'dotenv'
 
-dotenvConfig();
+dotenvConfig()
 
 module.exports = {
 
