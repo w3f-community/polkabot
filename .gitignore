@@ -1,6 +1,7 @@
 node_modules/
 src/config/config*
 .DS_Store
+.env
 build
 dist/
 out/

@@ -8,6 +8,11 @@ then
     npm install snazzy -g
 fi
 
+if [ "`which babel-eslint`" = "" ]
+then
+    npm install babel-eslint -g
+fi
+
 echo '#!/bin/sh
 # Ensure all javascript files staged for commit pass standard code style
 if [ "$CHECK" = "0" ]
