@@ -9,7 +9,7 @@
   "repository": "https://gitlab.com/Polkabot/polkabot",
   "scripts": {
     "dev": "nodemon ./src/polkabot -c ./config.js --exec babel-node --presets env",
-    "start": "babel-node ./src/polkabot",
+    "start": "babel-node ./src/polkabot -c ./config.js",
     "test": "mocha --timeout 5000 --require babel-core/register test/* --exit",
     "test:local": "mocha --require babel-core/register test/* --exit",
     "test:watch": "mocha --watch --require babel-core/register test/* --exit",
@@ -31,12 +31,12 @@
     "Matrix.org"
   ],
   "dependencies": {
-    "@polkadot/api": "0.28.24",
+    "@polkadot/api": "0.76.1",
     "bn.js": "^4.11.8",
-    "matrix-js-sdk": "^0.10.8",
-    "minimongo": "^5.0.1",
-    "olm": "https://matrix.org/packages/npm/olm/olm-2.2.2.tgz",
-    "yargs": "^12.0.1"
+    "matrix-js-sdk": "^1.0.4",
+    "minimongo": "^5.1.2",
+    "olm": "https://matrix.org/packages/npm/olm/olm-3.0.0.tgz",
+    "yargs": "^13.2.2"
   },
   "devDependencies": {
     "babel-cli": "^6.0.0",
@@ -47,6 +47,7 @@
     "babel-register": "^6.26.0",
     "chai": "^4.1.2",
     "chai-http": "4.2.0",
+    "dotenv": "^7.0.0",
     "jsdoc": "^3.5.5",
     "jsdoc-route-plugin": "^0.1.0",
     "mocha": "^5.0.4",
@@ -60,11 +61,6 @@
     ],
     "env": [
       "mocha"
-    ]
-  },
-  "babel": {
-    "presets": [
-      "env"
     ]
   },
   "engines": {
