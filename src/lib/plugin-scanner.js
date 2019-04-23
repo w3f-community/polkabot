@@ -6,8 +6,11 @@ export default class PluginScanner {
     this.name = name
   }
 
+  // FIXME - this appears to only be scanning the global npm folder.
+  // i.e. where npm modules are installed when you run `npm install -g <PKG_NAME>`
   scan (cb, done) {
     const basepath = path.join(path.dirname(process.argv0), '../lib/node_modules')
+    console.log('PluginScanner scanning basepath for Polkabot plugins: ', basepath)
     var modules = []
 
     fs.readdir(basepath, (err, items) => {
