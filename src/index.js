@@ -118,49 +118,54 @@ export default class Polkabot {
       userId: this.config.matrix.botUserId
     })
 
-    this.matrix.login(
-      'm.login.password',
-      {
-        user: this.config.matrix.loginUserId,
-        password: this.config.matrix.loginUserPassword
-      },
-      (err, data) => {
-        if (err) { console.log('Error logging into matrix:', err) }
+    const isCustomBaseUrl = () => this.config.matrix.baseUrl !== 'https://matrix.org'
+
+    if (isCustomBaseUrl) {
+      const data = await this.matrix.login(
+        'm.login.password',
+        {
+          user: this.config.matrix.loginUserId,
+          password: this.config.matrix.loginUserPassword
+        }).catch(error => {
+          console.error('Polkabot: Error logging into matrix:', error.message);
+        });
+
+      if (data) {
         console.log('Polkabot - Logged in with credentials: ', data)
-
-        this.matrix.once('sync', (state, prevState, data) => {
-          switch (state) {
-            case 'PREPARED':
-              console.log(`Polkabot - Detected client sync state: ${state}`)
-              this.start(state)
-              break
-            default:
-              console.log('Polkabot - Error. Unable to establish client sync state')
-              process.exit(1)
-          }
-        })
-
-        // // Event emitted when member's membership changes
-        // this.matrix.on('RoomMember.membership', (event, member) => {
-        //   if (member.membership === 'invite') {
-        //     // TODO: Fix the following to get the latest activity in the room
-        //     // const roomState = new sdk.RoomState(member.roomId)
-        //     // const inactivityInDays = (new Date() - new Date(roomState._modified)) / 1000 / 60 / 60
-        //     // console.log(roomState.events)
-
-        //     // if (inactivityInDays < 7) {
-        //     this.matrix.joinRoom(member.roomId).done(() => {
-        //       console.log('Polkabot - Auto-joined %s', member.roomId)
-        //       console.log(` - ${event.event.membership} from ${event.event.sender}`)
-        //       // console.log(` - modified ${new Date(roomState._modified)})`)
-        //       // console.log(` - last activity for ${(inactivityInDays / 24).toFixed(3)} days (${(inactivityInDays).toFixed(2)}h)`)
-        //     })
-        //     // }
-        //   }
-        // })
-
-        this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20)
       }
-    )
+    }
+
+    this.matrix.once('sync', (state, prevState, data) => {
+      switch (state) {
+        case 'PREPARED':
+          console.log(`Polkabot - Detected client sync state: ${state}`)
+          this.start(state)
+          break
+        default:
+          console.log('Polkabot - Error. Unable to establish client sync state')
+          process.exit(1)
+      }
+    })
+
+    // // Event emitted when member's membership changes
+    // this.matrix.on('RoomMember.membership', (event, member) => {
+    //   if (member.membership === 'invite') {
+    //     // TODO: Fix the following to get the latest activity in the room
+    //     // const roomState = new sdk.RoomState(member.roomId)
+    //     // const inactivityInDays = (new Date() - new Date(roomState._modified)) / 1000 / 60 / 60
+    //     // console.log(roomState.events)
+
+    //     // if (inactivityInDays < 7) {
+    //     this.matrix.joinRoom(member.roomId).done(() => {
+    //       console.log('Polkabot - Auto-joined %s', member.roomId)
+    //       console.log(` - ${event.event.membership} from ${event.event.sender}`)
+    //       // console.log(` - modified ${new Date(roomState._modified)})`)
+    //       // console.log(` - last activity for ${(inactivityInDays / 24).toFixed(3)} days (${(inactivityInDays).toFixed(2)}h)`)
+    //     })
+    //     // }
+    //   }
+    // })
+
+    this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20)
   }
 }
