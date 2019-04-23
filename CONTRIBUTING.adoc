@@ -86,6 +86,8 @@ In order test Polkabot with your two users, you may wish to run one instance of 
 The .env file is for you to store credentials, and since the file is included in the .gitignore
 file, it will not be added to GitLab.
 
+Rename the sample .env-config to .env and modify it as follows.
+
 Replace `!AbCdEfGhIjKlMnPqRS` with the Matrix Riot chat room id where you want the Bot to make announcements
 for certain plugins that you include and configure.
 
@@ -95,6 +97,8 @@ Replace `MATRIX_BOT_MASTER_USER_ID` with the Matrix Riot user id of your Bot Mas
 able to send direct messages to the Bot requesting them to perform certain actions such as make an
 annoucement to the Matrix Riot room id that you specified)
 Replace `MATRIX_BOT_USER_ID` with your Bot's user id.
+
+Note that Polkabot will only try to login your user if you are using a custom Matrix base url (i.e. not matrix.org).
 
 ```
 POLKADOT_NODE_NAME=anything
