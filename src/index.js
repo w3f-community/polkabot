@@ -7,9 +7,6 @@ import { ApiPromise, WsProvider } from '@polkadot/api'
 import pkg from '../package.json'
 import PluginScanner from './lib/plugin-scanner'
 import PluginLoader from './lib/plugin-loader'
-import {
-  handleNewMemberEvent
-} from './methods/handleEvents'
 
 var path = require('path')
 
@@ -53,7 +50,7 @@ export default class Polkabot {
 
   start (syncState) {
     // Send message to the room notifying users of the bot's state
-    const messageBody = `Polkadot sync state with Matrix client is: ${syncState}.`
+    const messageBody = `Polkadot - sync state with Matrix client is: ${syncState}.`
     const sendEventArgs = {
       roomId: this.config.matrix.roomId,
       eventType: 'm.room.message',
@@ -143,33 +140,6 @@ export default class Polkabot {
           }
         })
 
-        /**
-         * Event listeners for events emitted from a room's timeline.
-         *
-         * Messages `m.room.message`
-         * Membership changes `m.room.member`
-         */
-        this.matrix.on('Room.timeline', (event) => {
-          // console.log('Polkabot - Received event: ', event.event)
-          // console.log('Polkabot - Received event sender: ', event.sender)
-          console.log('Polkabot - Received event type: ', event.getType())
-          console.log('Polkabot - Received event membership: ', event.sender.membership)
-          console.log('Polkabot - Received event roomId: ', event.sender.roomId)
-
-          // FIXME - move into a new plugin dedicated to welcome messages
-          if (
-            event.sender.roomId === this.config.matrix.roomId &&
-            event.getType() === 'm.room.member' &&
-            event.sender.membership === 'join' &&
-            (event.unsigned && (!event.unsigned.prev_content ||
-              event.unsigned.prev_content.membership === 'invite'))
-          ) {
-            console.log('Polkabot - New member joined!')
-            // FIXME - only show welcome message to new users in a direct message
-            // this.handleNewMemberEvent(event)
-          }
-        })
-
         // // Event emitted when member's membership changes
         // this.matrix.on('RoomMember.membership', (event, member) => {
         //   if (member.membership === 'invite') {
@@ -192,9 +162,5 @@ export default class Polkabot {
         this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20)
       }
     )
-  }
-
-  handleNewMemberEvent (event) {
-    handleNewMemberEvent(event, this.matrix)
   }
 }
