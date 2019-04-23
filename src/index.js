@@ -118,9 +118,7 @@ export default class Polkabot {
       userId: this.config.matrix.botUserId
     })
 
-    const isCustomBaseUrl = () => this.config.matrix.baseUrl !== 'https://matrix.org'
-
-    if (isCustomBaseUrl()) {
+    if (this.isCustomBaseUrl()) {
       const data = await this.matrix.login(
         'm.login.password',
         {
@@ -128,7 +126,7 @@ export default class Polkabot {
           password: this.config.matrix.loginUserPassword
         }
       ).catch(error => {
-        console.error('Polkabot: Error logging into matrix:', error.message)
+        console.error('Polkabot: Error logging into matrix:', error)
       })
 
       if (data) {
@@ -168,5 +166,11 @@ export default class Polkabot {
     // })
 
     this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20)
+  }
+
+  isCustomBaseUrl () {
+    const { baseUrl } = this.config.matrix
+
+    return baseUrl && baseUrl !== 'https://matrix.org'
   }
 }
