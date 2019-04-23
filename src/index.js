@@ -120,7 +120,7 @@ export default class Polkabot {
 
     const isCustomBaseUrl = () => this.config.matrix.baseUrl !== 'https://matrix.org'
 
-    if (isCustomBaseUrl) {
+    if (isCustomBaseUrl()) {
       const data = await this.matrix.login(
         'm.login.password',
         {
