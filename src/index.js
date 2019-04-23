@@ -126,9 +126,10 @@ export default class Polkabot {
         {
           user: this.config.matrix.loginUserId,
           password: this.config.matrix.loginUserPassword
-        }).catch(error => {
-          console.error('Polkabot: Error logging into matrix:', error.message);
-        });
+        }
+      ).catch(error => {
+        console.error('Polkabot: Error logging into matrix:', error.message)
+      })
 
       if (data) {
         console.log('Polkabot - Logged in with credentials: ', data)
