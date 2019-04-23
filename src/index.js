@@ -165,7 +165,8 @@ export default class Polkabot {
               event.unsigned.prev_content.membership === 'invite'))
           ) {
             console.log('Polkabot - New member joined!')
-            this.handleNewMemberEvent(event)
+            // FIXME - only show welcome message to new users in a direct message
+            // this.handleNewMemberEvent(event)
           }
         })
 
