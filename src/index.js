@@ -52,25 +52,29 @@ export default class Polkabot {
 
   start (syncState) {
     // Send message to the room notifying users of the bot's state
-    const messageBody = `Polkadot - sync state with Matrix client is: ${syncState}.`
-    const sendEventArgs = {
-      roomId: this.config.matrix.roomId,
-      eventType: 'm.room.message',
-      content: {
-        'body': messageBody,
-        'msgtype': 'm.text'
-      },
-      txnId: ''
-    }
 
-    this.matrix.sendEvent(
-      sendEventArgs.roomId,
-      sendEventArgs.eventType,
-      sendEventArgs.content,
-      sendEventArgs.txnId, (err, res) => {
-        if (err) { console.log(err) };
-      }
-    )
+    // we dont want to bother users, the following should be removed
+    // todo: if the state is not PREPARED, we could log and error or tell the bot
+    // owner as private message.
+    //   const messageBody = `Polkadot - sync state with Matrix client is: ${syncState}.`
+    //   const sendEventArgs = {
+    //     roomId: this.config.matrix.roomId,
+    //     eventType: 'm.room.message',
+    //     content: {
+    //       'body': messageBody,
+    //       'msgtype': 'm.text'
+    //     },
+    //     txnId: ''
+    //   }
+
+    //   this.matrix.sendEvent(
+    //     sendEventArgs.roomId,
+    //     sendEventArgs.eventType,
+    //     sendEventArgs.content,
+    //     sendEventArgs.txnId, (err, res) => {
+    //       if (err) { console.log(err) };
+    //     }
+    //   )
 
     this.loadPlugins()
   }
