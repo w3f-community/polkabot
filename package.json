@@ -1,6 +1,6 @@
 {
   "name": "polkabot",
-  "version": "0.0.5",
+  "version": "0.4.4",
   "description": "Matrix Bot for Polkadot",
   "main": "./dist/polkabot.js",
   "bin": {
@@ -9,7 +9,7 @@
   "repository": "https://gitlab.com/Polkabot/polkabot",
   "scripts": {
     "dev": "nodemon ./src/polkabot -c ./config.js --exec babel-node --presets env",
-    "start": "babel-node ./src/polkabot -c ./config.js",
+    "start": "yarn patch; babel-node ./src/polkabot -c ./config.js",
     "test": "mocha --timeout 5000 --require babel-core/register test/* --exit",
     "test:local": "mocha --require babel-core/register test/* --exit",
     "test:watch": "mocha --watch --require babel-core/register test/* --exit",
@@ -19,7 +19,8 @@
     "prepublishOnly": "npm run build",
     "build:doc": "jsdoc -r -d out -c jsdoc.conf",
     "build:docker": "docker build -t chevdor/polkabot .",
-    "docker:run": "docker run --rm -it chevdor/mypolkabot "
+    "docker:run": "docker run --rm -it chevdor/mypolkabot",
+    "patch": "echo 'Disabling package uniqueness check. See https://github.com/polkadot-js/api/issues/984'; sed -i '/function assertSingletonPackage(name) {/ a   return' node_modules/@polkadot/util/assertSingletonPackage.js"
   },
   "author": "chevdor",
   "license": "ISC",
