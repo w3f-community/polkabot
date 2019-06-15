@@ -1,5 +1,5 @@
-import 'babel-core/register'
-import 'babel-polyfill'
+// import 'babel-core/register'
+// import 'babel-polyfill'
 import Olm from 'olm'
 import minimongo from 'minimongo'
 import { ApiPromise, WsProvider } from '@polkadot/api'
@@ -8,11 +8,11 @@ import Datastore from 'nedb'
 import pkg from '../package.json'
 import PluginScanner from './lib/plugin-scanner'
 import PluginLoader from './lib/plugin-loader'
+import * as path from 'path'
+import sdk from 'matrix-js-sdk'
 
-var path = require('path')
-
+//@ts-ignore
 global.Olm = Olm
-const sdk = require('matrix-js-sdk')
 
 // comment out if you need to trouble shoot matrix issues
 // matrix.on('event', function (event) {
@@ -20,12 +20,18 @@ const sdk = require('matrix-js-sdk')
 // })
 
 export default class Polkabot {
-  constructor (args) {
+  private args: any;
+  private db: any;
+  private config: any;
+  private matrix: any;
+  private polkadot: any;
+
+  public constructor (args) {
     this.args = args
     this.db = new Datastore({ filename: 'polkabot.db' })
   }
 
-  loadPlugins () {
+  private loadPlugins (): void {
     console.log('Polkabot - Loading plugins:')
     const pluginScanner = new PluginScanner(pkg.name + '-plugin')
 
@@ -33,7 +39,7 @@ export default class Polkabot {
       if (err) console.error(err)
       const pluginLoader = new PluginLoader(module)
       pluginLoader.load(Plugin => {
-        let plugin = new Plugin({
+        const plugin = new Plugin({
           config: this.config,
           pkg: pkg,
           db: this.db,
@@ -50,7 +56,7 @@ export default class Polkabot {
     })
   }
 
-  start (syncState) {
+  private start (_syncState): void {
     // Send message to the room notifying users of the bot's state
 
     // we dont want to bother users, the following should be removed
@@ -79,9 +85,9 @@ export default class Polkabot {
     this.loadPlugins()
   }
 
-  async run () {
+  public async run () {
     console.log(`${pkg.name} v${pkg.version}`)
-    console.log(`===========================`)
+    console.log('===========================')
 
     const configLocation = this.args.config
       ? this.args.config
@@ -140,7 +146,7 @@ export default class Polkabot {
       }
     }
 
-    this.matrix.once('sync', (state, prevState, data) => {
+    this.matrix.once('sync', (state, _prevState, _data) => {
       switch (state) {
         case 'PREPARED':
           console.log(`Polkabot - Detected client sync state: ${state}`)
@@ -174,7 +180,7 @@ export default class Polkabot {
     this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20)
   }
 
-  isCustomBaseUrl () {
+  private isCustomBaseUrl () {
     const { baseUrl } = this.config.matrix
 
     return baseUrl && baseUrl !== 'https://matrix.org'
