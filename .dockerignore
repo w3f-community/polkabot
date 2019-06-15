@@ -1,8 +1,11 @@
 node_modules
-npm-debug.log
+dist
+.gitlab
+.git
+plugins
 Dockerfile
 src/config.js
+
 .DS_Store
-dist
 *.log
 doc
