@@ -1,11 +1,9 @@
-node_modules
-dist
-.gitlab
-.git
-plugins
-Dockerfile
+**/node_modules
+**/dist
+**/.gitlab
+**/.git
+**/Dockerfile
 src/config.js
-
 .DS_Store
 *.log
 doc
