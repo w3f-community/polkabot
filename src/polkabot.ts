@@ -8,6 +8,6 @@ const argv = require('yargs')
   .epilog('chevdor-(C) 2018-2019')
   .argv
 
-var polkabot = new Polkabot(argv)
+const polkabot = new Polkabot(argv)
 
 polkabot.run()
