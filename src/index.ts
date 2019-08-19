@@ -96,6 +96,7 @@ export default class Polkabot {
 
     this.config = require(configLocation)
 
+    console.log(`Polkabot - Connecting to host: ${JSON.stringify(this.config, null, 2)}`)
     console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`)
     console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`)
 
@@ -124,6 +125,8 @@ export default class Polkabot {
     })
 
     // TODO - refactor using async/await. See https://github.com/matrix-org/matrix-js-sdk/issues/789
+       console.log('Polkabot - creating client')
+    
     this.matrix = sdk.createClient({
       baseUrl: this.config.matrix.baseUrl,
       accessToken: this.config.matrix.token,
@@ -153,7 +156,7 @@ export default class Polkabot {
           this.start(state)
           break
         default:
-          console.log('Polkabot - Error. Unable to establish client sync state')
+          console.log('Polkabot - Error. Unable to establish client sync state, state =', state, data)
           process.exit(1)
       }
     })
