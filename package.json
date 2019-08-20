@@ -35,7 +35,7 @@
   "dependencies": {
     "@polkadot/api": "0.81.1",
     "bn.js": "5.0.0",
-    "matrix-js-sdk": "^1.0.4",
+    "matrix-js-sdk": "2.3.0",
     "minimongo": "6.0.0",
     "nedb": "^1.8.0",
     "olm": "https://matrix.org/packages/npm/olm/olm-3.0.0.tgz",
