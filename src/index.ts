@@ -103,7 +103,7 @@ export default class Polkabot {
     assert(config.polkadot.host != null, 'Issue with the config')
     
     this.config = config
-    console.log(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`)
+    // console.log(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`)
     // console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`)
     // console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`)
 

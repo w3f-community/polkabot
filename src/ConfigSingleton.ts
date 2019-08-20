@@ -50,8 +50,6 @@ export class ConfigSingleton  {
     console.log('ENV file:', envfile)
     dotenv.config({ path: envfile });
     const ENV = process.env;
-    console.log('process.env', ENV)
-    console.log('configFields', ConfigFields)
     ConfigSingleton.instance = {
       polkadot: {
         nodeName: ENV[ConfigFields.POLKADOT_NODE_NAME.name],
@@ -69,7 +67,6 @@ export class ConfigSingleton  {
       }
     };
 
-    console.log(ConfigSingleton.instance)
     assert((ConfigSingleton.instance.polkadot.nodeName || '').length > 0, "The extracted config does not look OK") 
   }
 
