@@ -8,8 +8,11 @@ import Datastore from 'nedb'
 import pkg from '../package.json'
 import PluginScanner from './lib/plugin-scanner'
 import PluginLoader from './lib/plugin-loader'
-import * as path from 'path'
+// import * as path from 'path'
 import sdk from 'matrix-js-sdk'
+import { ConfigSingleton } from './ConfigSingleton.js';
+import { assert } from '@polkadot/util';
+import { IPolkabotConfig } from './types.js';
 
 //@ts-ignore
 global.Olm = Olm
@@ -20,14 +23,14 @@ global.Olm = Olm
 // })
 
 export default class Polkabot {
-  private args: any;
+  // private args: any;
   private db: any;
   private config: any;
   private matrix: any;
   private polkadot: any;
 
   public constructor (args) {
-    this.args = args
+    // this.args = args
     this.db = new Datastore({ filename: 'polkabot.db' })
   }
 
@@ -89,16 +92,20 @@ export default class Polkabot {
     console.log(`${pkg.name} v${pkg.version}`)
     console.log('===========================')
 
-    const configLocation = this.args.config
-      ? this.args.config
-      : path.join(__dirname, './config')
-    console.log('Polkabot - Config location: ', configLocation)
+    // const configLocation = this.args.config
+    //   ? this.args.config
+    //   : path.join(__dirname, './config')
+    // console.log('Polkabot - Config location: ', configLocation)
 
-    this.config = require(configLocation)
-
-    console.log(`Polkabot - Connecting to host: ${JSON.stringify(this.config, null, 2)}`)
-    console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`)
-    console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`)
+    // this.config = require(configLocation)
+    
+    let config: IPolkabotConfig = ConfigSingleton.getInstance()
+    assert(config.polkadot.host != null, 'Issue with the config')
+    
+    this.config = config
+    console.log(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`)
+    // console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`)
+    // console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`)
 
     // Reference: https://polkadot.js.org/api/examples/promise/01_simple_connect/
     const provider = new WsProvider(this.config.polkadot.host)
@@ -149,7 +156,7 @@ export default class Polkabot {
       }
     }
 
-    this.matrix.once('sync', (state, _prevState, _data) => {
+    this.matrix.once('sync', (state, _prevState, data) => {
       switch (state) {
         case 'PREPARED':
           console.log(`Polkabot - Detected client sync state: ${state}`)

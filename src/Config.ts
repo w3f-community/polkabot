@@ -1,113 +1,30 @@
-import process = require("process");
-import dotenv from "dotenv";
-import * as path from "path";
-import { IPolkabotConfig, EnvDictionnary } from "./types";
-const PREFIX = "POLKABOT_";
+import { config as dotenvConfig } from 'dotenv'
 
-export const ConfigFields: EnvDictionnary = {
-  POLKADOT_NODE_NAME: { name: PREFIX + "POLKADOT_NODE_NAME", description: "The name of the node we connect to" },
-  POLKADOT_URL: { name: PREFIX + "POLKADOT_URL", description: "The Polkadot WS url" },
+dotenvConfig()
 
-  MATRIX_ROOM: { name: PREFIX + "MATRIX_ROOM", description: "", regexp: /^.*$/ },
-  MATRIX_TOKEN: { name: PREFIX + "MATRIX_TOKEN", description: "", masked: true, regexp: /^.{3,}/ },
-  MATRIX_BOTMASTER_ID: { name: PREFIX + "MATRIX_BOTMASTER_ID", description: "" },
-  MATRIX_BOTUSER_ID:  { name: PREFIX + "MATRIX_BOTUSER_ID", description: "" } ,
-  MATRIX_BASEURL: { name: PREFIX + "MATRIX_BASEURL", description: "" },
-  MATRIX_LOGIN_USER_ID: { name: PREFIX + "MATRIX_LOGIN_USER_ID", description: "" },
-  MATRIX_LOGIN_USER_PASSWORD: { name: PREFIX + "MATRIX_LOGIN_USER_PASSWORD", description: "", masked: true, regexp: /^.{3,}/ },
-};
+module.exports = {
 
-export class ConfigSingleton  {
-  private static instance: IPolkabotConfig | null;
+  // General Polkadot config
+  polkadot: {
+    // This is just for you to remember. i.e. 'Crash Override'
+    nodeName: process.env.POLKADOT_NODE_NAME,
+    // WebSocket host:port, usually :9944. i.e. 'ws://127.0.0.1:9944'
+    host: process.env.POLKADOT_WS_HOST || 'ws://127.0.0.1:9944'
+  },
 
-  private constructor() {
-    ConfigSingleton.refresh();
-  }
-
-  /** If you need to access the config, use this method */
-  public static getInstance(): Config {
-    if (!ConfigSingleton.instance) {
-      new ConfigSingleton();
-    }
-    return ConfigSingleton.instance;
-  }
-
-  /** You likely will never have to use this function which
-   * is mostly use for the tests. If you don't know, do NOT call
-   * this function, it would take time and likely do nothing
-   * interesting for you.
-   */
-  public static refresh(): void {
-    const profile = process.env.NODE_ENV || "production";
-    const envfile =
-      profile == "production"
-        ? path.resolve(process.cwd(), ".env")
-        : path.resolve(process.cwd(), ".env." + profile.toLowerCase());
-    dotenv.config({ path: envfile });
-    const ENV = process.env;
-    ConfigSingleton.instance = {
-      polkadot: {
-        nodeName: ENV[ConfigFields.POLKADOT_NODE_NAME.name],
-        host: ENV[ConfigFields.POLKADOT_URL.name],
-
-      },
-      matrix: {
-        botMasterId: ENV[ConfigFields.MATRIX_BOTMASTERID.name],   // Who is managing the bot. i.e. '@you:matrix.org'
-        roomId: ENV[ConfigFields.MATRIX_ROOM.name],    
-        botUserId: ENV[ConfigFields.MATRIX_BOTUSER_ID.name],    
-        token: ENV[ConfigFields.MATRIX_TOKEN.name],    
-        baseUrl: ENV[ConfigFields.MATRIX_BASEURL.name],
-        loginUserId: ENV[ConfigFields.MATRIX_LOGIN_USER_ID.name],
-        loginUserPassword: ENV[ConfigFields.MATRIX_LOGIN_USER_PASSWORD.name],
-      }
-    };
-  }
-
-  /** Calling this function will get an instance of the Config and attach it
-   * to the global scope.
-   */
-  public static loadToGlobal(): void {
-    global["Config"] = ConfigSingleton.getInstance();
-  }
-
-  /** Validate the config and return wheather it is valid or not */
-  public static Validate(): boolean {
-    let result = true;
-    console.log("Validating process.env variables:");
-    Object.entries(ConfigFields).map(([_key, env]) => {
-      if (env.regexp != undefined) {
-        const value = process.env[env.name] || "";
-        const regex = RegExp(env.regexp);
-        const testResult = regex.test(value);
-        // console.log(`Checking ${env.name} =\t${value} with ${env.regexp} => ${testResult?"OK":"FAIL"}`)
-        console.log(
-          `  - Checking ${env.name} \t=> ${testResult ? "OK  " : "FAIL"}\t${env.masked ? "*****" : process.env[env.name]}`
-        );
-        result = result && testResult;
-      }
-    });
-    return result;
-  }
-
-  /** Show the ENV variables this application cares about */
-  public static getSupportedEnv(): EnvDictionnary {
-    return ConfigFields;
-  }
-
-  /**
-   * Display the current ENV to ensure everything that is used matches
-   * the expectations.
-   */
-  public static dumpEnv(): void {
-    console.log("================== ENV ==================");
-    Object.entries(ConfigFields).map(([_key, env]) => {
-      console.log(
-        `- ${env.name}: ${env.description}\n  value: ${
-          env.masked ? (process.env[env.name] ? "*****" : "empty") : process.env[env.name]
-        }`
-      );
-    });
-
-    console.log("================== === ==================");
+  // General Matrix config
+  matrix: {
+    // Who is managing the bot. i.e. '@you:matrix.org'
+    botMasterId: process.env.MATRIX_BOT_MASTER_USER_ID,
+    // In what room is the bot active by default. i.e. '!<someid>:matrix.org'
+    roomId: process.env.MATRIX_ROOM_ID,
+    // Credentials of the bot. i.e. '@...:matrix.org'
+    botUserId: process.env.MATRIX_BOT_USER_ID,
+    // Token. i.e. 'your_token_here'
+    token: process.env.MATRIX_TOKEN,
+    // Base Matrix URL. i.e. 'https://matrix.org'
+    baseUrl: process.env.MATRIX_BASE_URL || 'https://matrix.org',
+    loginUserId: process.env.MATRIX_LOGIN_USER_ID,
+    loginUserPassword: process.env.MATRIX_LOGIN_USER_PASSWORD
   }
 }

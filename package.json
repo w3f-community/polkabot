@@ -1,16 +1,17 @@
 {
   "name": "polkabot",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Matrix Bot for Polkadot",
-  "main": "./dist/polkabot.js",
+  "main": "./build/src/polkabot.js",
   "bin": {
     "polkabot": "./dist/polkabot.js"
   },
   "repository": "https://gitlab.com/Polkabot/polkabot",
   "scripts": {
+    "start": "node --inspect=5858 -r ts-node/register ./src/polkadot.ts",
+    "start:watch": "nodemon",
     "dev": "nodemon ./src/polkabot -c ./config.js --exec babel-node --presets env",
     "build": "tsc --build tsconfig.json",
-    "start": "yarn build && node build/src/polkabot.js",
     "test": "yarn lint --quiet && yarn build && mocha --recursive build/test --exit",
     "test:local": "mocha --require babel-core/register test/* --exit",
     "test:watch": "mocha --watch --require babel-core/register test/* --exit",
