@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
+import findNodeModules from "find-node-modules";
 
 export default class PluginScanner {
   private name: string;
@@ -10,15 +11,17 @@ export default class PluginScanner {
 
   public scan(cb, done): void {
     // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
-    const searchPaths: string[] = [
-      path.join(path.dirname(process.argv0), "../lib/node_modules"),
-      // path.join(__dirname, '../../../node_modules')
-    ];
+    const scriptLocation = path.join(path.dirname(process.argv[1]), "..");
+    console.log("script loc", scriptLocation);
+    const searchPaths: string[] = findNodeModules({ cwd: scriptLocation, relative: false });
+    // path.join(scriptLocation, "../lib/node_modules"),
+    // path.join(__dirname, '../../../node_modules')
+
     console.log("PluginScanner scanning searchPaths for Polkabot plugins: ", searchPaths);
     const modules = [];
 
-    // searchPaths.map(p => {
-      const p = searchPaths[0]
+    searchPaths.map(p => {
+      // const p = searchPaths[0]
       fs.readdir(p, (err, items) => {
         if (err) console.error(err);
         done(
@@ -36,6 +39,6 @@ export default class PluginScanner {
             })
         );
       });
-    // });
+    });
   }
 }
