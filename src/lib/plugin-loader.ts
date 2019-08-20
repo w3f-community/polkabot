@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import * as path from 'path'
 import * as fs from 'fs'
+import IPlugin from '../plugins/Plugin.interface';
 
 // interface Author  { 
 //   name: string; 
@@ -12,15 +13,10 @@ interface PackageJson {
   author: string | { name: string } ;
 }
 
-interface Plugin {
-  name: string;
-  path: string;
-}
-
 export default class PluginLoader {
-  private plugin: Plugin;
+  private plugin: IPlugin;
 
-  public constructor (plugin: Plugin) {
+  public constructor (plugin: IPlugin) {
     this.plugin = plugin
   }
 
@@ -31,7 +27,7 @@ export default class PluginLoader {
       // console.log('Resolved ' + this.plugin.path + ' to ' + pluginPath)
 
       
-      const plugin: Plugin = require(pluginPath)
+      const plugin: IPlugin = require(pluginPath)
       const pkg: PackageJson = require(path.join(pluginPath, 'package.json'))
     
       //@ts-ignore

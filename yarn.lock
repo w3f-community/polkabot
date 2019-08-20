@@ -723,13 +723,6 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
 
-base-x@3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/base-x/-/base-x-3.0.4.tgz#94c1788736da065edb1d68808869e357c977fa77"
-  integrity sha512-UYOadoSIkEI/VrRGSG6qp93rp2WdokiAiNYDfGW5qURAY8GiAQkvMbwNNSDYiVJopqv4gCna7xqf4rrNGp+5AA==
-  dependencies:
-    safe-buffer "^5.0.1"
-
 base-x@^3.0.2:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/base-x/-/base-x-3.0.5.tgz#d3ada59afed05b921ab581ec3112e6444ba0795a"
@@ -3050,14 +3043,13 @@ martinez-polygon-clipping@^0.4.3:
     splaytree "^0.1.4"
     tinyqueue "^1.2.0"
 
-matrix-js-sdk@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/matrix-js-sdk/-/matrix-js-sdk-1.0.4.tgz#dbfa8399f750a23b020c1ec8f037a2f5c36d4672"
-  integrity sha512-FPx7U1a0SmLbDXhXlR4XHlC+FVKTnK2/+ZBtyOWGLi3nxw4x8hCSSzJ82gzStya1qvhHvbf/y7eblYFVE1l7SQ==
+matrix-js-sdk@2.3.0:
+  version "2.3.0"
+  resolved "http://52.167.60.66:8081/repository/npm-all/matrix-js-sdk/-/matrix-js-sdk-2.3.0.tgz#ed04172add2e31c532dc87e2f38c26c2a63191c6"
+  integrity sha512-jeswie7cWK7+XxcD+pQ7LplWnWkOQDa+x6y7FUUnxCdEvaj38cE5Obo9bPMjFgOln2hISlLdR8fzMNE9F4oUJA==
   dependencies:
     another-json "^0.2.0"
     babel-runtime "^6.26.0"
-    base-x "3.0.4"
     bluebird "^3.5.0"
     browser-request "^0.3.3"
     bs58 "^4.0.1"

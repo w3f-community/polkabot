@@ -101,6 +101,7 @@ export default class Polkabot {
     
     let config: IPolkabotConfig = ConfigSingleton.getInstance()
     assert(config.polkadot.host != null, 'Issue with the config')
+    assert(config.matrix.botMasterId != null, 'Missing bot master id')
     
     this.config = config
     // console.log(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`)
