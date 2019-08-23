@@ -108,10 +108,9 @@ export default class Polkabot {
     // console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`)
     // console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`)
 
-    // Reference: https://polkadot.js.org/api/examples/promise/01_simple_connect/
     const provider = new WsProvider(this.config.polkadot.host)
     // Create the API and wait until ready
-    this.polkadot = await ApiPromise.create(provider)
+    this.polkadot = await ApiPromise.create({provider})
 
     // Retrieve the chain & node information information via rpc calls
     const [chain, nodeName, nodeVersion] = await Promise.all([

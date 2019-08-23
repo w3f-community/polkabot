@@ -33,7 +33,7 @@
     "Matrix.org"
   ],
   "dependencies": {
-    "@polkadot/api": "0.81.1",
+    "@polkadot/api": "0.90.0-beta.67",
     "bn.js": "5.0.0",
     "find-node-modules": "^2.0.0",
     "matrix-js-sdk": "2.3.0",
