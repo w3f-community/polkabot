@@ -1,82 +1,18 @@
 {
-  "name": "polkabot",
-  "version": "0.5.0",
-  "description": "Matrix Bot for Polkadot",
-  "main": "./build/src/polkabot.js",
-  "bin": {
-    "polkabot": "./dist/polkabot.js"
-  },
-  "repository": "https://gitlab.com/Polkabot/polkabot",
-  "scripts": {
-    "start": "node --inspect=5858 -r ts-node/register ./src/polkadot.ts",
-    "start:watch": "nodemon",
-    "dev": "nodemon ./src/polkabot -c ./config.js --exec babel-node --presets env",
-    "build": "tsc --build tsconfig.json",
-    "test": "yarn lint --quiet && yarn build && mocha --recursive build/test --exit",
-    "test:local": "mocha --require babel-core/register test/* --exit",
-    "test:watch": "mocha --watch --require babel-core/register test/* --exit",
-    "lint": "eslint --ext .js,.ts src",
-    "clean": "rm -rf .nyc_output build coverage node_modules out dist",
-    "prepublishOnly": "npm run build",
-    "build:doc": "jsdoc -r -d out -c jsdoc.conf",
-    "build:docker": "docker build -t chevdor/polkabot .",
-    "docker:run": "docker run --rm -it chevdor/mypolkabot",
-    "patch": "echo 'Disabling package uniqueness check. See https://github.com/polkadot-js/api/issues/984'; sed -i '/function assertSingletonPackage(name) {/ a   return' node_modules/@polkadot/util/assertSingletonPackage.js"
-  },
-  "author": "chevdor",
-  "license": "ISC",
-  "keywords": [
-    "blockchain",
-    "polkadot",
-    "NodeJS",
-    "ChatBox",
-    "Matrix.org"
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
-  "dependencies": {
-    "@polkadot/api": "0.90.0-beta.67",
-    "bn.js": "5.0.0",
-    "find-node-modules": "^2.0.0",
-    "matrix-js-sdk": "2.3.0",
-    "minimongo": "6.0.0",
-    "nedb": "^1.8.0",
-    "olm": "https://matrix.org/packages/npm/olm/olm-3.0.0.tgz",
-    "yargs": "13.3.0"
-  },
-  "devDependencies": {
-    "@types/dotenv": "^6.1.1",
-    "@types/mocha": "^5.2.7",
-    "@typescript-eslint/eslint-plugin": "2.0.0",
-    "@typescript-eslint/parser": "2.0.0",
-    "chai": "4.2.0",
-    "chai-http": "4.3.0",
-    "dotenv": "8.1.0",
-    "eslint": "6.2.0",
-    "eslint-config-prettier": "6.1.0",
-    "eslint-config-standard": "14.0.0",
-    "eslint-plugin-import": "2.18.2",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-promise": "4.2.1",
-    "eslint-plugin-react": "7.14.3",
-    "eslint-plugin-standard": "4.0.1",
-    "jsdoc": "3.6.3",
-    "jsdoc-route-plugin": "^0.1.0",
-    "mocha": "^6.1.4",
-    "nodemon": "1.19.1",
-    "snazzy": "^8.0.0",
-    "standard": "14.0.0",
-    "typescript": "3.5.3",
-    "yarn": "^1.16.0"
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "ignore": [
-      "dist/"
-    ],
-    "env": [
-      "mocha"
-    ]
-  },
   "engines": {
-    "node": "10"
+    "node": ">=10.13.0",
+    "yarn": "^1.10.1"
+  },
+  "scripts": {
+    "analyze": "yarn run build",
+    "check": "yarn lint",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx . && tsc --noEmit --pretty",
+    "test": "echo \"skipping tests\"",
+    "start": "cd packages/polkabot && yarn start",
+    "build": "cd packages/polkabot && yarn build"
   }
 }

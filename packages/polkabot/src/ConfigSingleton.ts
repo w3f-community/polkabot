@@ -28,7 +28,6 @@ export class ConfigSingleton  {
 
   /** If you need to access the config, use this method */
   public static getInstance(): IPolkabotConfig {
-    console.log('ConfigSingleton.getInstance()')
     if (!ConfigSingleton.instance) {
       new ConfigSingleton();
     }
@@ -50,6 +49,8 @@ export class ConfigSingleton  {
     console.log('ENV file:', envfile)
     dotenv.config({ path: envfile });
     const ENV = process.env;
+    // console.log(ConfigFields)
+    
     ConfigSingleton.instance = {
       polkadot: {
         nodeName: ENV[ConfigFields.POLKADOT_NODE_NAME.name],
@@ -67,6 +68,7 @@ export class ConfigSingleton  {
       }
     };
 
+    console.log(ConfigSingleton.instance)
     assert((ConfigSingleton.instance.polkadot.nodeName || '').length > 0, "The extracted config does not look OK") 
   }
 

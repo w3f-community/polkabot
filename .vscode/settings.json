@@ -2,5 +2,9 @@
     "eslint.enable": false,
     "search.exclude": {
         "**/node_modules": false
-    }
+    },
+    "cSpell.words": [
+        "BOTMASTER",
+        "POLKABOT"
+    ]
 }

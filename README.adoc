@@ -1,5 +1,7 @@
 = Polkabot
 :toc:
+:proj: PolkaBOT
+:exe: polkabot
 
 image:https://gitlab.com/chevdor/polkabot/badges/master/pipeline.svg[link="https://gitlab.com/chevdor/polkabot/commits/master",title="pipeline status"]
 image:https://gitlab.com/chevdor/polkabot/badges/master/coverage.svg[link="https://gitlab.com/chevdor/polkabot/commits/master",title="coverage report"]
@@ -8,11 +10,11 @@ image:https://gitlab.com/chevdor/polkabot/badges/master/coverage.svg[link="https
 
 image::doc/polkabot.png[width=300px]
 
-You can see Polkabot in action in link:++https://matrix.to/#/#polkadot-network-status:matrix.org++[#polkadot-network-status:matrix.org]
+You can see {proj} in action in link:++https://matrix.to/#/#polkadot-network-status:matrix.org++[#polkadot-network-status:matrix.org]
 
 Polkabot is an extensible bot for http://polkadot.network[Polkadot], running on http://matrix.org[Matrix.org]
 
-NOTE: Polkabot aims as being *as silent as possible* so don't expect lots of fuzz and action!
+NOTE: {proj} aims as being *as silent as possible* so don't expect lots of fuzz and action!
 
 == Install & Run
 
@@ -30,7 +32,7 @@ To build the base and the custom:
 
 	yarn build:docker
 
-This will build the Polkabot main image.
+This will build the {proj} main image.
 
 Then, test with :
 
@@ -40,7 +42,7 @@ docker run --rm -it -v ~/path/to/your/config.js:/data/config.js chevdor/polkabot
 
 == Configuration
 
-Polkabot uses 2 levels of configuration:
+{proj} uses 2 levels of configuration:
 - the main config in src/config.js
 - the plugin specific config in `src/plugins/.../config.js`
 
@@ -62,3 +64,28 @@ include::doc/plugin.js[]
 == Plugins
 
 You can all the plugins in https://gitlab.com/Polkabot
+
+== Dev notes
+
+	yarn
+	yarn-check
+	yarn upgrade
+
+Start your substrate node:
+
+	docker run --rm -it chevdor/substrate substrate --dev
+
+then run:
+
+	nvm use
+
+Before you got further you need to check your config. This is a .env file and all variables start with `POLKABOT_`. 
+By default, the running mode is 'production' and will pick the `.env` file. The following to the same:
+
+	yarn start
+	NODE_ENV=production yarn start
+	
+If you want to use another file such as `.env.dev`, you may use:
+
+	NODE_ENV=dev y start
+

@@ -10,9 +10,9 @@ import PluginScanner from './lib/plugin-scanner'
 import PluginLoader from './lib/plugin-loader'
 // import * as path from 'path'
 import sdk from 'matrix-js-sdk'
-import { ConfigSingleton } from './ConfigSingleton.js';
+import { ConfigSingleton } from './ConfigSingleton';
 import { assert } from '@polkadot/util';
-import { IPolkabotConfig } from './types.js';
+import { IPolkabotConfig } from './types';
 
 //@ts-ignore
 global.Olm = Olm
@@ -102,8 +102,10 @@ export default class Polkabot {
     let config: IPolkabotConfig = ConfigSingleton.getInstance()
     assert(config.polkadot.host != null, 'Issue with the config')
     assert(config.matrix.botMasterId != null, 'Missing bot master id')
+    ConfigSingleton.dumpEnv()
     
     this.config = config
+    
     // console.log(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`)
     // console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`)
     // console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`)

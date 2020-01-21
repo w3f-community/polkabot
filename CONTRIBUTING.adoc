@@ -95,7 +95,7 @@ Replace `MATRIX_LOGIN_USER_ID` and `MATRIX_LOGIN_USER_ID` with your Matrix Riot 
 
 Replace `MATRIX_BOT_MASTER_USER_ID` with the Matrix Riot user id of your Bot Master (the user that is
 able to send direct messages to the Bot requesting them to perform certain actions such as make an
-annoucement to the Matrix Riot room id that you specified)
+announcement to the Matrix Riot room id that you specified)
 Replace `MATRIX_BOT_USER_ID` with your Bot's user id.
 
 Note that Polkabot will only try to login your user if you are using a custom Matrix base url (i.e. not matrix.org).
@@ -107,7 +107,7 @@ MATRIX_BASE_URL=https://matrix.org
 MATRIX_ROOM_ID=!AbCdEfGhIjKlMnPqRS:matrix.org
 MATRIX_LOGIN_USER_ID=@yourusername:matrix.org
 MATRIX_LOGIN_USER_PASSWORD=yourpassword
-MATRIX_BOT_MASTER_USER_ID=@yourusername:matrix.org
+MATRIX_BOTMASTER_ID=@yourusername:matrix.org
 MATRIX_BOT_USER_ID=@botusername:matrix.org
 MATRIX_TOKEN=
 ```
@@ -149,4 +149,4 @@ Any user may write `!status` and the Bot will respond with the Polkadot / Substr
 
 ===== Polkabot StallWatcher plugin
 
-Write a direct message from your Bot Master to your Bot `!sw duration <FREQUENCY_IN_BLOCKS>`, and the Bot's configuration settings will change the threshold upon which it makes annoucements in the room id that you specified in the .env file (from the default specified in that plugin repositories config.js file).
+Write a direct message from your Bot Master to your Bot `!sw duration <FREQUENCY_IN_BLOCKS>`, and the Bot's configuration settings will change the threshold upon which it makes announcements in the room id that you specified in the .env file (from the default specified in that plugin repositories config.js file).

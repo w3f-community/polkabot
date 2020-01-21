@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import Polkabot from './index.js'
+import Polkabot from './index'
 
 const argv = require('yargs')
   .usage('Usage: $0 <command> [options]')

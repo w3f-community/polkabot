@@ -15,7 +15,7 @@ module.exports = {
   // General Matrix config
   matrix: {
     // Who is managing the bot. i.e. '@you:matrix.org'
-    botMasterId: process.env.MATRIX_BOT_MASTER_USER_ID,
+    botMasterId: process.env.MATRIX_BOTMASTER_ID,
     // In what room is the bot active by default. i.e. '!<someid>:matrix.org'
     roomId: process.env.MATRIX_ROOM_ID,
     // Credentials of the bot. i.e. '@...:matrix.org'
