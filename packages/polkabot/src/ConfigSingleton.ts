@@ -68,7 +68,6 @@ export class ConfigSingleton  {
       }
     };
 
-    console.log(ConfigSingleton.instance)
     assert((ConfigSingleton.instance.polkadot.nodeName || '').length > 0, "The extracted config does not look OK") 
   }
 

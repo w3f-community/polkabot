@@ -7,12 +7,13 @@ import Datastore from "nedb";
 
 import pkg from "../package.json";
 import PluginScanner from "./lib/plugin-scanner";
-import PluginLoader from "./lib/plugin-loader";
+// import PluginLoader from "./lib/plugin-loader"; // TODO wk bring that back
 // import * as path from 'path'
 import sdk from "matrix-js-sdk";
 import { ConfigSingleton } from "./ConfigSingleton";
 import { assert } from "@polkadot/util";
-import { IPolkabotConfig } from "./types";
+import { IPolkabotConfig, PluginContext } from "./types";
+import PluginLoader from "./lib/plugin-loader";
 
 //@ts-ignore
 global.Olm = Olm;
@@ -34,40 +35,43 @@ export default class Polkabot {
     this.db = new Datastore({ filename: "polkabot.db" });
   }
 
-  private loadPlugins(): void {
+  private async loadPlugins() {
     console.log("Polkabot - Loading plugins:");
     const pluginScanner = new PluginScanner(pkg.name + "-plugin");
+    var plugins = await pluginScanner.scan(); // TODO: switch back to a const
 
-    pluginScanner.scan(
-      (err, module) => {
-        if (err) console.error(err);
-        const pluginLoader = new PluginLoader(module);
-        pluginLoader.load(Plugin => {
-          const plugin = new Plugin({
-            config: this.config,
-            pkg: pkg,
-            db: this.db,
-            matrix: this.matrix,
-            polkadot: this.polkadot
-          });
-          plugin.start();
-        });
-      },
-      (err, all) => {
-        if (err) console.error(err);
-        console.log();
-        if (all.length === 0) {
-          console.log("Polkabot - Polkabot does not do much without plugin, make sure you install at least one");
-        }
-      }
-    );
+    // TODO remove that, here we ignore some plugins on purpose
+    plugins = plugins.filter(p => p.name.indexOf("day") > 0);
+    console.log(`Found ${plugins.length} plugins`);
+    console.log(`${JSON.stringify(plugins, null, 2)}`);
+
+    // pluginScanner.scan(
+    //   (err, module) => {
+    //     if (err) console.error("Error in pluginScanner.scan():", err);
+    //     console.log('Loading plugin:', module)
+    plugins.map(plugin => {
+      // const pluginLoader = new PluginLoader(plugin);
+      // wish is to write
+      const context: PluginContext = {
+        config: this.config,
+        pkg,
+        db: this.db,
+        matrix: this.matrix,
+        polkadot: this.polkadot
+      };
+
+      PluginLoader.load(plugin, context).then(p => {
+        // console.log(`Starting plugin ${p.name} v${p.version}`);
+        p.start();
+      });
+    });
   }
 
   private start(_syncState): void {
     // Send message to the room notifying users of the bot's state
 
-    // we dont want to bother users, the following should be removed
-    // todo: if the state is not PREPARED, we could log and error or tell the bot
+    // TODO we don't want to bother users, the following should be removed
+    // TODO: if the state is not PREPARED, we could log and error or tell the bot
     // owner as private message.
     //   const messageBody = `Polkadot - sync state with Matrix client is: ${syncState}.`
     //   const sendEventArgs = {
@@ -75,7 +79,7 @@ export default class Polkabot {
     //     eventType: 'm.room.message',
     //     content: {
     //       'body': messageBody,
-    //       'msgtype': 'm.text'
+    //       'msgsype': 'm.text'
     //     },
     //     txnId: ''
     //   }
@@ -110,16 +114,13 @@ export default class Polkabot {
 
     this.config = config;
 
-    console.log(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`);
+    // console.log(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`);
     console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`);
     console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`);
 
     const provider = new WsProvider(this.config.polkadot.host);
     // Create the API and wait until ready
-    console.log("Create prov");
     this.polkadot = await ApiPromise.create({ provider });
-
-    console.log("get chain data");
 
     // Retrieve the chain & node information information via rpc calls
     const [chain, nodeName, nodeVersion] = await Promise.all([
