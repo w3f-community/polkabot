@@ -8,9 +8,10 @@ import {
 
 // TODO: we want that to extends PolkabotPlugin
 export default class MatrixNotifier extends PolkabotNotifier {
-  public constructor(module: PluginModule, context: PluginContext, config?) {
-    super(module, context, config);
-    console.log("MatrixNotifier: ++");
+  public channel: string = "matrix";
+  public constructor(mod: PluginModule, context: PluginContext, config?) {
+    super(mod, context, config);
+    console.log("++MatrixNotifier", this);
   }
 
   public notify(message: NotifierMessage, specs: NotifierSpecs): void {

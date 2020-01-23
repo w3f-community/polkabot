@@ -41,7 +41,7 @@ export default class Polkabot {
   private config: any;
   private matrix: any;
   private polkadot: any;
-  private notifiersTable: INotifiersTable;
+  private notifiersTable: INotifiersTable = {};
 
   public constructor(args) {
     // this.args = args
@@ -63,6 +63,22 @@ export default class Polkabot {
     console.log("Notifier requested", specs, message);
 
     // go thru all notifiers and check if we have one that can do the job
+    console.log(this.notifiersTable);
+
+    Object.keys(this.notifiersTable).map(channel => {
+      this.notifiersTable[channel].map((notifier: PolkabotNotifier) => {
+        notifier.notify(message, specs);
+      });
+    });
+  }
+
+  /** This adds a new notifier to those Polkabot is aware of */
+  private registerNotifier(notifier: PolkabotNotifier) {
+    assert(notifier.channel, 'No channel defined')
+    const channel = notifier.channel
+    if (!this.notifiersTable[channel]) this.notifiersTable[channel] = [];
+    this.notifiersTable[channel].push(notifier);
+    // console.log("notifierTable", this.notifiersTable);
   }
 
   private async loadPlugins() {
@@ -71,8 +87,8 @@ export default class Polkabot {
     let plugins = await pluginScanner.scan(); // TODO: switch back to a const
 
     // TODO remove that, here we ignore some plugins on purpose
-    // plugins = plugins.filter((p: PluginModule) => p.name.indexOf("day") > 0 || p.name.indexOf("matrix") > 0);
-    plugins = plugins.filter((p: PluginModule) => p.name.indexOf("day") > 0);
+    plugins = plugins.filter((p: PluginModule) => p.name.indexOf("day") > 0 || p.name.indexOf("matrix") > 0);
+    // plugins = plugins.filter((p: PluginModule) => p.name.indexOf("day") > 0);
     console.log(`Found ${plugins.length} plugins`);
     console.log(`${JSON.stringify(plugins, null, 2)}`);
 
@@ -82,21 +98,20 @@ export default class Polkabot {
         pkg,
         db: this.db,
         matrix: this.matrix,
-        polkadot: this.polkadot
+        polkadot: this.polkadot,
+        polkabot: this
       };
 
       PluginLoader.load(plugin, context)
         .then(p => {
           if (this.isWorker(p)) {
-            // console.log(`Starting worker plugin ${p.module.name} v${p.module.version}`);
-            console.log(`Starting worker plugin`);
+            console.log(`Starting worker plugin ${p.package.name} v${p.package.version}`);
             p.start();
           } else {
-            // console.log(`Registering non-worker plugin ${p.module.name} v${p.module.version}`);
-            console.log(`Registering non-worker plugin`);
+            console.log(`Registering non-worker plugin ${p.package.name} v${p.package.version}`);
 
             // todo that will become a switch case
-            this.notifiersTable[p.type].push(p);
+            this.registerNotifier(p);
           }
         })
         .catch(e => console.log(e));
