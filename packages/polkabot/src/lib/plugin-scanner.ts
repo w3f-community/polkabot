@@ -61,7 +61,7 @@ export default class PluginScanner {
           .filter(f => f.indexOf(this.name) === 0)
           .map(plugin => {
             // console.log('Plugin detected:', plugin);
-            const mod = {
+            const mod: PluginModule = {
               name: plugin,
               path: path.join(p, plugin)
             };

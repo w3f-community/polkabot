@@ -14,7 +14,15 @@ import { ConfigSingleton } from "./ConfigSingleton";
 import { assert } from "@polkadot/util";
 import { IPolkabotConfig } from "./types";
 import PluginLoader from "./lib/plugin-loader";
-import { PluginContext, PolkabotPlugin, PolkabotWorker } from "../../polkabot-api/src/plugin.interface";
+import {
+  PluginContext,
+  PolkabotPlugin,
+  PolkabotWorker,
+  PolkabotNotifier,
+  NotifierMessage,
+  NotifierSpecs,
+  PluginModule
+} from "../../polkabot-api/src/plugin.interface";
 
 //@ts-ignore
 global.Olm = Olm;
@@ -24,12 +32,16 @@ global.Olm = Olm;
 //   console.log(event.getType())
 // })
 
+export interface INotifiersTable {
+  [type: string]: PolkabotNotifier[];
+}
 export default class Polkabot {
   // private args: any;
   private db: any;
   private config: any;
   private matrix: any;
   private polkadot: any;
+  private notifiersTable: INotifiersTable;
 
   public constructor(args) {
     // this.args = args
@@ -37,29 +49,34 @@ export default class Polkabot {
   }
 
   private isWorker(candidate: PolkabotPlugin): candidate is PolkabotWorker {
-    if((candidate as PolkabotWorker).start){
-      return true
+    if ((candidate as PolkabotWorker).start) {
+      return true;
     }
-    return false
+    return false;
+  }
+
+  /** this method is usually called by the workers who wish to notify something
+   * polkabot itself does nothing about it. it searches in the list of notifiers which one(s) can do the job and
+   * delegate them the task
+   */
+  public notify(message: NotifierMessage, specs: NotifierSpecs) {
+    console.log("Notifier requested", specs, message);
+
+    // go thru all notifiers and check if we have one that can do the job
   }
 
   private async loadPlugins() {
     console.log("Polkabot - Loading plugins:");
     const pluginScanner = new PluginScanner(pkg.name + "-plugin");
-    var plugins = await pluginScanner.scan(); // TODO: switch back to a const
+    let plugins = await pluginScanner.scan(); // TODO: switch back to a const
 
     // TODO remove that, here we ignore some plugins on purpose
-    plugins = plugins.filter(p => p.name.indexOf("day") > 0);
+    // plugins = plugins.filter((p: PluginModule) => p.name.indexOf("day") > 0 || p.name.indexOf("matrix") > 0);
+    plugins = plugins.filter((p: PluginModule) => p.name.indexOf("day") > 0);
     console.log(`Found ${plugins.length} plugins`);
     console.log(`${JSON.stringify(plugins, null, 2)}`);
 
-    // pluginScanner.scan(
-    //   (err, module) => {
-    //     if (err) console.error("Error in pluginScanner.scan():", err);
-    //     console.log('Loading plugin:', module)
     plugins.map(plugin => {
-      // const pluginLoader = new PluginLoader(plugin);
-      // wish is to write
       const context: PluginContext = {
         config: this.config,
         pkg,
@@ -68,12 +85,21 @@ export default class Polkabot {
         polkadot: this.polkadot
       };
 
-      PluginLoader.load(plugin, context).then(p => {
-        if (this.isWorker(p)) {
-          // console.log(`Starting plugin ${p.name} v${p.version}`);
-          p.start();
-        }
-      });
+      PluginLoader.load(plugin, context)
+        .then(p => {
+          if (this.isWorker(p)) {
+            // console.log(`Starting worker plugin ${p.module.name} v${p.module.version}`);
+            console.log(`Starting worker plugin`);
+            p.start();
+          } else {
+            // console.log(`Registering non-worker plugin ${p.module.name} v${p.module.version}`);
+            console.log(`Registering non-worker plugin`);
+
+            // todo that will become a switch case
+            this.notifiersTable[p.type].push(p);
+          }
+        })
+        .catch(e => console.log(e));
     });
   }
 

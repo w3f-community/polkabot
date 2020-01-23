@@ -1,8 +1,8 @@
 {
-  "name": "polkabot-api",
+  "name": "polkabot-plugin-notifier-matrix",
   "version": "0.5.0",
   "description": "",
-  "main": "dist/src/index.js",
+  "main": "dist/polkabot-plugin-notifier-matrix/src/index.js",
   "scripts": {
     "lint": "standard",
     "start": "babel-node ./src/index.js",
@@ -14,8 +14,7 @@
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "bn.js": "^5.1.1",
-    "package-json": "^4.0.1"
+    "bn.js": "^5.1.1"
   },
   "repository": {
     "type": "git",
