@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import findNodeModules from "find-node-modules";
-import { PluginFile } from "../types";
+import { PluginModule } from "../../../polkabot-api/src/plugin.interface";
 
 export default class PluginScanner {
   private name: string;
@@ -44,7 +44,7 @@ export default class PluginScanner {
   }
 
   public async scan() {
-    return new Promise<PluginFile[]>(resolve => {
+    return new Promise<PluginModule[]>(resolve => {
       // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
       const scriptLocation = path.join(path.dirname(process.argv[1]), "..");
       console.log("script loc", scriptLocation);

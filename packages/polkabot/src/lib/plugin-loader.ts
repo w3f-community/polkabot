@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import * as path from "path";
 import * as fs from "fs";
-// import IPlugin from "../plugins/Plugin.interface";
-import { PluginFile, PluginContext, PolkabotPlugin } from "../types";
-// import Blocthday from "polkabot-plugin-blocthday"
+import { PluginModule,PluginContext, PolkabotPlugin } from "../../../polkabot-api/src/plugin.interface";
 
 interface Author  {
   name: string | { name: string };
@@ -17,30 +15,16 @@ interface PackageJson {
 }
 
 export default class PluginLoader {
-  // private plugin: IPlugin;
-
-  // public constructor(plugin: IPlugin) {
-  //   return new Promise (resolve => {
-  //     //this.plugin = plugin;
-  //     resolve(plugin)
-  //   })
-  // }
-
-  public static async load(f: PluginFile, context: PluginContext): Promise<PolkabotPlugin> {
+  public static async load(f: PluginModule, context: PluginContext): Promise<PolkabotPlugin> {
     console.log("PluginLoader - Load(...)");
-    return new Promise((resolve, reject) => {
+    
+    return new Promise((resolve, _reject) => {
       // console.log('loading ', this.plugin.path)
       fs.realpath(f.path, async (err, pluginPath) => {
         if (err) console.log("ERR:", err);
-        // console.log('Resolved ' + this.plugin.path + ' to ' + pluginPath)
-
-        // console.log("Instantiating plugin", pluginPath);
-        // pluginPath = pluginPath + '/build'
-        // const myModule = require(pluginPath);
-        // console.log(myModule);
+  
         
-        // console.log('bd test', Blocthday.name)
-        try {
+        // try {
           const myModule = (await import(pluginPath)).default;
           // const myModule = await import("./polkabot-plugin-blocthday");
           // // const myModule = {}
@@ -56,9 +40,9 @@ export default class PluginLoader {
           // // console.log(` - path: ${this.plugin.path}`)
           resolve(plugin);
           // reject('make it work')
-        } catch (e) {
-          reject(e)
-        }
+        // } catch (e) {
+        //   reject(e)
+        // }
       });
     });
   }

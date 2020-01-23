@@ -12,8 +12,9 @@ import PluginScanner from "./lib/plugin-scanner";
 import sdk from "matrix-js-sdk";
 import { ConfigSingleton } from "./ConfigSingleton";
 import { assert } from "@polkadot/util";
-import { IPolkabotConfig, PluginContext } from "./types";
+import { IPolkabotConfig } from "./types";
 import PluginLoader from "./lib/plugin-loader";
+import { PluginContext, PolkabotPlugin, PolkabotWorker } from "../../polkabot-api/src/plugin.interface";
 
 //@ts-ignore
 global.Olm = Olm;
@@ -33,6 +34,13 @@ export default class Polkabot {
   public constructor(args) {
     // this.args = args
     this.db = new Datastore({ filename: "polkabot.db" });
+  }
+
+  private isWorker(candidate: PolkabotPlugin): candidate is PolkabotWorker {
+    if((candidate as PolkabotWorker).start){
+      return true
+    }
+    return false
   }
 
   private async loadPlugins() {
@@ -61,8 +69,10 @@ export default class Polkabot {
       };
 
       PluginLoader.load(plugin, context).then(p => {
-        // console.log(`Starting plugin ${p.name} v${p.version}`);
-        p.start();
+        if (this.isWorker(p)) {
+          // console.log(`Starting plugin ${p.name} v${p.version}`);
+          p.start();
+        }
       });
     });
   }

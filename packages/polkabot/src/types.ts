@@ -26,25 +26,3 @@ export interface IPolkabotConfig {
     loginUserPassword: string;
   };
 }
-
-
-
-export interface PluginFile {
-  name: string;
-  path: string;
-}
-
-
-export interface PolkabotPlugin extends PluginFile {
-  version: string;
-  author: string;
-  start(): void;
-}
-
-export interface PluginContext {
-  config;
-  pkg;
-  db;
-  matrix;
-  polkadot;
-}
