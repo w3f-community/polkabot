@@ -1,5 +1,5 @@
 {
-  "name": "polkabot",
+  "name": "@polkabot/polkabot",
   "version": "0.5.0",
   "description": "Matrix Bot for Polkadot",
   "main": "./build/src/polkabot.js",

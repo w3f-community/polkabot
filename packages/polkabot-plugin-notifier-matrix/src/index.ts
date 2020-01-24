@@ -16,6 +16,7 @@ export default class MatrixNotifier extends PolkabotNotifier {
 
   public notify(message: NotifierMessage, specs: NotifierSpecs): void {
     super.notify(message, specs);
+    console.log("Notifier/matrix:", message, specs);
 
     this.context.matrix.sendTextMessage(this.context.config.matrix.roomId, message.message).finally(function() {});
   }

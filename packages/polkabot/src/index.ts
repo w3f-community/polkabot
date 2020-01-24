@@ -86,8 +86,15 @@ export default class Polkabot {
     let plugins = await pluginScanner.scan(); // TODO: switch back to a const
 
     // TODO remove that, here we ignore some plugins on purpose
+    console.log("Plugins found:");
+    plugins.map(p => {
+      console.log(`- ${p.name}`);
+    });
+
+    console.log("Filtering plugins...");
     plugins = plugins.filter(
-      (p: PluginModule) => p.name.indexOf("day") > 0 || p.name.indexOf("matrix") > 0 || p.name.indexOf("twitter") > 0
+      (p: PluginModule) =>
+        p.name.indexOf("day") > 0 || p.name.indexOf("matrix") > 0 || p.name.indexOf("twitter") > 0 // || p.name.indexOf("demo") > 0
     );
     console.log(`Found ${plugins.length} plugins`);
     // console.log(`${JSON.stringify(plugins, null, 2)}`);

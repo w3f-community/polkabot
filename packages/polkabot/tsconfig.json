@@ -10,7 +10,7 @@
     "sourceMap": true,
     "preserveConstEnums": true,
     "lib": ["es2015", "dom"],
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "alwaysStrict": true,

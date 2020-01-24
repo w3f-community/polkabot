@@ -12,8 +12,8 @@ export type PluginModule = {
 };
 
 export enum Type {
-    Worker,
-    Notifier,
+  Worker,
+  Notifier
 }
 
 export class PolkabotPluginBase {
@@ -23,9 +23,9 @@ export class PolkabotPluginBase {
   public package: packageJson;
   public type: Type;
 
-  constructor(type:Type, mod: PluginModule, context: PluginContext, config?) {
+  constructor(type: Type, mod: PluginModule, context: PluginContext, config?) {
     // console.log(`++ PolkabotPluginBase/${type} ${mod.name}: ${mod.path}`);
-    this.type = type
+    this.type = type;
     this.context = context;
     this.config = config;
     this.module = mod;
@@ -43,21 +43,21 @@ export class PolkabotPluginBase {
 // }
 
 export abstract class PolkabotWorker extends PolkabotPluginBase {
-  constructor(mod: PluginModule,  context: PluginContext, config?) {
-    super(Type.Worker, mod, context, config)
+  constructor(mod: PluginModule, context: PluginContext, config?) {
+    super(Type.Worker, mod, context, config);
   }
-  public abstract start()
+  public abstract start();
 }
 
 export abstract class PolkabotNotifier extends PolkabotPluginBase {
   public abstract channel: string; // 'twitter', 'matrix', 'email', ....
 
-  constructor(mod: PluginModule,  context: PluginContext, config?) {
-    super(Type.Notifier, mod, context, config)
+  constructor(mod: PluginModule, context: PluginContext, config?) {
+    super(Type.Notifier, mod, context, config);
   }
 
   public notify(message: NotifierMessage, specs: NotifierSpecs): void {
-    console.log("MatrixNotifier - notify()", message, specs);
+    // console.log("Notifier - notify()", message, specs);
   }
 }
 

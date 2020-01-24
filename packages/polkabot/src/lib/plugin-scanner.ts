@@ -52,13 +52,20 @@ export default class PluginScanner {
       // path.join(scriptLocation, "../lib/node_modules"),
       // path.join(__dirname, '../../../node_modules')
 
-      console.log("PluginScanner scanning searchPaths for Polkabot plugins: ", searchPaths);
+      const pattern = "polkabot";
       const modules = [];
+      
+      // TODO the following helps find the @polkabot/stuff
+      // but some more work need to be done as the name should be found as
+      // @polkabot/stuff and not just stuff
+      // searchPaths.map(p => {
+      //   searchPaths.push(`${p}/@${pattern}`)
+      // })
+      console.log(`PluginScanner scanning searchPaths for ${pattern} plugins: `, searchPaths);
 
       searchPaths.map(p => {
-        // const p = searchPaths[0]
         fs.readdirSync(p)
-          .filter(f => f.indexOf(this.name) === 0)
+          .filter(f => f.indexOf(pattern) === 0)
           .map(plugin => {
             // console.log('Plugin detected:', plugin);
             const mod: PluginModule = {

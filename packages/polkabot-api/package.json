@@ -1,5 +1,5 @@
 {
-  "name": "polkabot-api",
+  "name": "@polkabot/api",
   "version": "0.5.0",
   "description": "",
   "main": "dist/src/index.js",
