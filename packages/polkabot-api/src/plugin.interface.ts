@@ -24,14 +24,14 @@ export class PolkabotPluginBase {
   public type: Type;
 
   constructor(type:Type, mod: PluginModule, context: PluginContext, config?) {
-    console.log(`++ PolkabotPluginBase/${type} ${mod.name}: ${mod.path}`);
+    // console.log(`++ PolkabotPluginBase/${type} ${mod.name}: ${mod.path}`);
     this.type = type
     this.context = context;
     this.config = config;
     this.module = mod;
     const packageFile = path.join(mod.path, "package.json");
 
-    console.log("loading package from", packageFile);
+    // console.log("loading package from", packageFile);
     this.package = require(packageFile);
 
     assert(this.package, "package not loaded properly");

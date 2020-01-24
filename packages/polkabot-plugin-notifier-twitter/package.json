@@ -13,12 +13,9 @@
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",
-  "dependencies": {
-    "bn.js": "^5.1.1"
-  },
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/Polkabot/polkabot-api.git"
+    "url": "https://gitlab.com/Polkabot"
   },
   "standard": {
     "parser": "babel-eslint",

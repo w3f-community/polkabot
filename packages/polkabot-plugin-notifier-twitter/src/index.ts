@@ -8,9 +8,10 @@ import {
 
 // TODO: we want that to extends PolkabotPlugin
 export default class TwitterNotifier extends PolkabotNotifier {
+  public channel: string = "twitter";
+
   public constructor(module: PluginModule, context: PluginContext, config?) {
     super(module, context, config);
-    console.log("TwitterNotifier: ++");
   }
 
   public notify(message: NotifierMessage, specs: NotifierSpecs): void {

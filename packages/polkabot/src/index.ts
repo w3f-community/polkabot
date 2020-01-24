@@ -60,22 +60,21 @@ export default class Polkabot {
    * delegate them the task
    */
   public notify(message: NotifierMessage, specs: NotifierSpecs) {
-    console.log("Notifier requested", specs, message);
+    console.log("Notifier requested", message, specs);
 
-    // go thru all notifiers and check if we have one that can do the job
-    console.log(this.notifiersTable);
-
-    Object.keys(this.notifiersTable).map(channel => {
-      this.notifiersTable[channel].map((notifier: PolkabotNotifier) => {
-        notifier.notify(message, specs);
+    Object.keys(this.notifiersTable)
+      .filter(channel => specs.notifiers.includes(channel))
+      .map(channel => {
+        this.notifiersTable[channel].map((notifier: PolkabotNotifier) => {
+          notifier.notify(message, specs);
+        });
       });
-    });
   }
 
   /** This adds a new notifier to those Polkabot is aware of */
   private registerNotifier(notifier: PolkabotNotifier) {
-    assert(notifier.channel, 'No channel defined')
-    const channel = notifier.channel
+    assert(notifier.channel, "No channel defined");
+    const channel = notifier.channel;
     if (!this.notifiersTable[channel]) this.notifiersTable[channel] = [];
     this.notifiersTable[channel].push(notifier);
     // console.log("notifierTable", this.notifiersTable);
@@ -87,10 +86,11 @@ export default class Polkabot {
     let plugins = await pluginScanner.scan(); // TODO: switch back to a const
 
     // TODO remove that, here we ignore some plugins on purpose
-    plugins = plugins.filter((p: PluginModule) => p.name.indexOf("day") > 0 || p.name.indexOf("matrix") > 0);
-    // plugins = plugins.filter((p: PluginModule) => p.name.indexOf("day") > 0);
+    plugins = plugins.filter(
+      (p: PluginModule) => p.name.indexOf("day") > 0 || p.name.indexOf("matrix") > 0 || p.name.indexOf("twitter") > 0
+    );
     console.log(`Found ${plugins.length} plugins`);
-    console.log(`${JSON.stringify(plugins, null, 2)}`);
+    // console.log(`${JSON.stringify(plugins, null, 2)}`);
 
     plugins.map(plugin => {
       const context: PluginContext = {

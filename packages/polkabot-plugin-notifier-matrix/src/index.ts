@@ -11,7 +11,7 @@ export default class MatrixNotifier extends PolkabotNotifier {
   public channel: string = "matrix";
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    console.log("++MatrixNotifier", this);
+    // console.log("++MatrixNotifier", this);
   }
 
   public notify(message: NotifierMessage, specs: NotifierSpecs): void {
