@@ -29,11 +29,10 @@ export default class BlocsStats extends PolkabotWorker {
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
 
-    // TODO replace the following by ENv 
     this.config = {
-      NB_BLOCKS: 10, // Size of the rolling buffer
-      THRESHOLD: 2.0, // We remain silent unless the average goes above this value
-      LOG_NTH_BLOCK: 5
+      NB_BLOCKS: parseInt(process.env.POLKABOT_PLUGIN_BLOCKSTATS_NB_BLOCKS) || 100, // Size of the rolling buffer
+      THRESHOLD: parseInt(process.env.POLKABOT_PLUGIN_BLOCKSTATS_THRESHOLD) || 8.0, // We remain silent unless the average goes above this value
+      LOG_NTH_BLOCK: parseInt(process.env.POLKABOT_PLUGIN_BLOCKSTATS_LOG_NTH_BLOCK) || 1000
     };
 
     this.data = [];
