@@ -1,0 +1,6 @@
+
+= Operator
+
+This plugin takes care of the administration of Polkabot thru Matrix.org messages.
+
+NOTE: Currently, it does not allow users to do much.

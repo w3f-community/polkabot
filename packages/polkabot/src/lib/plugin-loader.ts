@@ -6,7 +6,8 @@ import {
   PolkabotPlugin,
   PolkabotNotifier,
   PolkabotWorker,
-  } from "../../../polkabot-api/src/plugin.interface";
+  PolkabotChatbot
+} from "../../../polkabot-api/src/plugin.interface";
 
 export default class PluginLoader {
   // private static getType(mod: PluginModule) {
@@ -25,25 +26,27 @@ export default class PluginLoader {
         let plugin;
 
         // let test = new myModule(mod, context)
-         
-        const parentClass = Object.getPrototypeOf(myModule).name
+
+        const parentClass = Object.getPrototypeOf(myModule).name;
         // console.log('+++',PolkabotNotifier.name);
-        
+
         switch (parentClass) {
           case PolkabotNotifier.name:
-            plugin = new myModule(mod, context) as PolkabotNotifier 
+            plugin = new myModule(mod, context) as PolkabotNotifier;
             break;
           case PolkabotWorker.name:
-            plugin = new myModule(mod, context) as PolkabotWorker
+            plugin = new myModule(mod, context) as PolkabotWorker;
             break;
-
+          case PolkabotChatbot.name:
+            plugin = new myModule(mod, context) as PolkabotChatbot;
+            break;
           default:
             throw new Error("Plugin type not supported");
         }
 
         console.log(
-          ` - ${plugin.constructor.name}: ${plugin.package.name} version ${plugin.package.version} from ${plugin
-            .package.author.name || plugin.package.author}`
+          ` - ${plugin.constructor.name}: ${plugin.package.name} version ${plugin.package.version} from ${plugin.package.author
+            .name || plugin.package.author}`
         );
 
         resolve(plugin);

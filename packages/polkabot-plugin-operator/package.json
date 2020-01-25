@@ -1,0 +1,44 @@
+{
+  "name": "polkabot-plugin-operator",
+  "version": "0.5.0",
+  "description": "The operator plugin is targeted mainly to the Bot Maxter and allows performing monitoring and maintenance tasks.",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "lint": "standard",
+    "start": "babel-node ./src/index.js",
+    "build:watch": "tsc --build tsconfig.json -w",
+    "prepublishOnly": "npm run build",
+    "postinstall": "npm run build",
+    "clean": "rm -rf dist node_mdules"
+  },
+  "author": "Chevdor <chevdor@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^3.5.3",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "10.0.2",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "standard": "14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/Polkabot/polkabot-plugin-operator.git"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "ignore": [
+      "dist/"
+    ],
+    "env": [
+      "mocha"
+    ]
+  },
+  "engines": {
+     "node": ">=10.13.0",
+    "yarn": "^1.10.1"
+  }
+}
