@@ -2,6 +2,7 @@
 import BN from "bn.js";
 import { PolkabotWorker, PluginModule, PluginContext } from "@polkabot/api/src/plugin.interface";
 
+// TODO we may want to catch and alert if the network resume at a block that is not lastBlock+1
 export default class StallWatcher extends PolkabotWorker {
   private stalled: boolean;
   private lastBlockTime: Date;
