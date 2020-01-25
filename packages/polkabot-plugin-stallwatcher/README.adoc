@@ -1,0 +1,10 @@
+
+= StallWatcher
+
+StallWatcher issues a warning when the network did not issue a block for more than N seconds.
+
+Messages look like:
+
+----
+CRITICAL: Network seems to be stalled !!! The last block (#1184813) was 8.002s ago.
+----
