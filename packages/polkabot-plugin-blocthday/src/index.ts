@@ -5,9 +5,8 @@ import {
   NotifierSpecs,
   PluginModule,
   PluginContext
-} from "../../polkabot-api/src/plugin.interface";
+} from "@polkabot/api/src/plugin.interface";
 
-// TODO: we want that to extends PolkabotPlugin
 export default class Blocthday extends PolkabotWorker {
   private NB_BLOCKS: number
 
