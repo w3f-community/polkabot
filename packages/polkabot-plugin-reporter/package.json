@@ -2,14 +2,14 @@
   "name": "polkabot-plugin-reporter",
   "version": "0.4.4",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
+    "build": "tsc --build tsconfig.json",
     "lint": "standard",
     "start": "babel-node ./src/index.js",
-    "build": "babel src --out-dir dist",
     "prepublishOnly": "npm run build",
     "postinstall": "npm run build",
-    "clean": "rm -rf dist node_modules"
+    "clean": "rm -rf dist build node_modules"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",

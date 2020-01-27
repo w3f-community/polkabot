@@ -1,4 +1,4 @@
 
 = Reporter
 
-This plugin acts as a Polkadot citizen reporter. It inspects mainly governance aspects of the Polkadot network and informs the crowd about noticable events.
+This plugin acts as a Polkadot citizen reporter. It inspects mainly governance aspects of the Polkadot network and informs the crowd about noticeable events.

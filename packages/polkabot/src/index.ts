@@ -93,7 +93,7 @@ export default class Polkabot {
 
     console.log("Filtering plugins...");
     plugins = plugins.filter(
-      (p: PluginModule) => p.name.indexOf("matrix") > 0 || p.name.indexOf("stall") > 0 // || p.name.indexOf("demo") > 0
+      (p: PluginModule) => p.name.indexOf("matrix") > 0 || p.name.indexOf("reporter") > 0 // || p.name.indexOf("demo") > 0
     );
     console.log(`Found ${plugins.length} plugins`);
     // console.log(`${JSON.stringify(plugins, null, 2)}`);
