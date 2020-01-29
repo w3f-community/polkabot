@@ -43,6 +43,13 @@ export default class PluginScanner {
     });
   }
 
+  /** input: polkabot-plugin-foo-bar
+   * output: FOO_BAR
+   */
+  public static getShortName(name: string) {
+    return  name.replace('polkabot-plugin-', '').replace('-', '_').toUpperCase()
+  }
+
   public async scan() {
     return new Promise<PluginModule[]>(resolve => {
       // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
@@ -70,6 +77,7 @@ export default class PluginScanner {
             // console.log('Plugin detected:', plugin);
             const mod: PluginModule = {
               name: plugin,
+              shortName: PluginScanner.getShortName(plugin),
               path: path.join(p, plugin)
             };
             modules.push(mod);

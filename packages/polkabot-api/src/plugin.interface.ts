@@ -1,14 +1,16 @@
 import { packageJson } from "package-json";
 import * as path from "path";
 import { assert } from "./utils";
+
 /**
  * A plugin module before the package has been loaded.
  * Before loading the patch we know only the path and the name
  * of the package.
  */
 export type PluginModule = {
-  name: string;
-  path: string;
+  name: string; // polkabot-plugin-foobar
+  shortName: string; // foobar
+  path: string; // /some/path/to/module
 };
 
 export enum Type {
@@ -17,12 +19,46 @@ export enum Type {
   Chatbot
 }
 
+export type CommandHandlerOutput = {
+  code: number;
+  msg: string;
+};
+
+export type PluginCommand = {
+  name: string; // ie: start
+  description: string; // what does this command do
+  argsRegexp: string; // regexp to validate the expected args
+  handler: (...args: any[]) => CommandHandlerOutput;
+};
+
+export type PluginCommands = {
+  name: string; // ie: Identity Registrar
+  alias: string; // ie: reg
+  commands: Array<PluginCommand>;
+};
+
+// export interface IPolkabotPlugin {
+//   start(): void;
+//   stop(): void;
+// }
+
+/**
+ * Something implementing IControllable must expose commands and handlers that can
+ * be called to control the thing.
+ */
+export interface IControllable {
+  commands?: PluginCommands;
+}
+
 export class PolkabotPluginBase {
   public module: PluginModule;
   public config: any; // TODO
   public context: any; // TODO
   public package: packageJson;
   public type: Type;
+  public commands?: PluginCommands;
+
+  // public description: string; // some blabla about the plugin, we dont have this field, we use the package.json/description
 
   constructor(type: Type, mod: PluginModule, context: PluginContext, config?) {
     // console.log(`++ PolkabotPluginBase/${type} ${mod.name}: ${mod.path}`);
@@ -44,7 +80,7 @@ export abstract class PolkabotWorker extends PolkabotPluginBase {
     super(Type.Worker, mod, context, config);
   }
   public abstract start();
-  // TODO add stop()
+  public abstract stop();
 }
 
 export abstract class PolkabotChatbot extends PolkabotPluginBase {

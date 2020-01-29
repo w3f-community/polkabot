@@ -1,4 +1,7 @@
 import BN from "bn.js";
+import moment from "moment";
+// import "moment-duration-format";
+
 import {
   PolkabotWorker,
   NotifierMessage,
@@ -19,20 +22,70 @@ enum Severity {
 }
 
 type Announcement = {
-  severity: Severity;  
+  severity: Severity;
   message: string;
-}
-  
+};
+
+type BlockMoment = {
+  future: boolean; // is the block in the future
+  duration: number; // in/for how many seconds
+  date: Date; // what is the estimated date
+  message: string; // formated date string that will be removed
+};
+
 export default class Reporter extends PolkabotWorker {
   private cache: any; // TODO FIXME
   private notifierSpecs: NotifierSpecs = {
     notifiers: ["matrix"]
   };
 
+  private consts: any;
+
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
     this.cache = {};
     this.config = {};
+    this.consts = this.context.polkadot.consts;
+  }
+
+  /** Check the last blocks and figure out the block time.
+   * This should gives around 6.0 seconds on Kusama.
+   */
+  async getAverageBlockTime() {
+    const NB_SAMPLES = 3; // less is faster
+    const STEP = 10; // sample over a longer period
+    let last = undefined;
+    let durations = [];
+    const api = this.context.polkadot;
+
+    for (let i = this.cache.block, j = 0; j < NB_SAMPLES; j++, i -= STEP) {
+      const h = await api.rpc.chain.getBlockHash(i);
+      const now = new Date((await api.query.timestamp.now.at(h)).toNumber()).getTime() * 1.0;
+      if (last) {
+        durations.push((last - now) / 1000.0);
+      }
+      last = now;
+    }
+    return durations.reduce((a, b) => a + b) / durations.length / STEP;
+  }
+
+  /** Returns an object telling us when a block will/did show up */
+  async getBlockMoment(block: BN) {
+    // const currentBlock = (await this.context.polkadot.rpc.chain.getBlock()).block.header.number.toNumber();
+    const blockTime = await this.getAverageBlockTime();
+
+    const h = await this.context.polkadot.rpc.chain.getBlockHash(this.cache.blockNumber);
+    const now = new Date((await this.context.polkadot.query.timestamp.now.at(h)).toNumber());
+    const future = block > this.cache.blockNumber;
+    const other = new Date(now.getTime() + (this.cache.blockNumber as BN).sub(block).toNumber() * blockTime * 1000);
+    const duration = Math.abs(now.getTime() - other.getTime()) / 1000;
+
+    return {
+      future,
+      duration,
+      date: other,
+      msg: `${future ? "in" : "for"} ${duration} seconds` // TODO with Moment.js we dont need that
+    };
   }
 
   public start(): void {
@@ -42,9 +95,13 @@ export default class Reporter extends PolkabotWorker {
     });
   }
 
+  public stop(): void {
+    console.log("Reporter - STOPPING");
+    // TODO: do all the unsub here
+  }
 
   // TODO: switch from string to Announcement
-  private announce(message: string ) {
+  private announce(message: string) {
     this.context.polkabot.notify(
       {
         message
@@ -146,6 +203,34 @@ export default class Reporter extends PolkabotWorker {
     });
   }
 
+  async watchPublicProposalCount() {
+    await this.context.polkadot.query.democracy.publicPropCount(async (publicPropCount: BN) => {
+      const KEY = "publicPropCount";
+      console.log("Reporter - publicPropCount:", publicPropCount.toString(10));
+
+      const count = publicPropCount;
+      if (!this.cache[KEY]) this.cache[KEY] = count;
+      if (this.cache[KEY] && !this.cache[KEY].eq(count)) {
+        this.cache[KEY] = count;
+        const deadline = this.cache.blockNumber.add(this.consts.democracy.votingPeriod) as BN;
+        const blockMoment = await this.getBlockMoment(deadline);
+        // const votingTimeInMinutes =
+        //   parseInt(this.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
+        console.log("Reporter - Proposal count changed:", count.toString(10));
+        const id = count.sub(new BN(1)).toString(10);
+
+        this.announce(
+          `@room New Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
+  You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(10)} blocks. 
+  That means a deadline at block #${deadline.toString(10)}, don't miss it! 
+  the deadline to vote is ${moment(blockMoment.date).fromNow()}.`
+        );
+      } else {
+        console.log(`Reporter - Proposal count: ${count.toString(10)}`);
+      }
+    });
+  }
+
   async watchReferendumCount() {
     await this.context.polkadot.query.democracy.referendumCount(referendumCount => {
       const KEY = "referendumCount";
@@ -155,14 +240,17 @@ export default class Reporter extends PolkabotWorker {
       if (!this.cache[KEY]) this.cache[KEY] = count;
       if (this.cache[KEY] && !this.cache[KEY].eq(count)) {
         this.cache[KEY] = count;
-        const deadline = this.cache.blockNumber.add(this.cache.votingPeriod);
-        const votingTimeInMinutes = parseInt(this.cache.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
+        const deadline = this.cache.blockNumber.add(this.context.polkadot.consts.democracy.votingPeriod);
+        const votingTimeInMinutes =
+          parseInt(this.context.polkadot.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
         console.log("Reporter - Referendum count changed:", count.toString(10));
         const id = count.sub(new BN(1)).toString(10);
 
         this.announce(
           `@room New referendum (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
-  You can vote for referendum #${id} during the next ${this.cache.votingPeriod.toString(10)} blocks. 
+  You can vote for referendum #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(
+            10
+          )} blocks. 
   That means a deadline at block #${deadline.toString(10)}, don't miss it! 
   You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`
         );
@@ -174,10 +262,19 @@ export default class Reporter extends PolkabotWorker {
 
   async watchChain() {
     await this.subscribeChainBlockHeader();
+
+    // Validators
     await this.watchActiveValidatorCount();
     await this.watchValidatorSlotCount();
+
+    // Runtime
     await this.watchRuntimeCode();
+
+    // Council
     await this.watchCouncilMotionsProposalCount();
+
+    // Democracy
+    await this.watchPublicProposalCount();
     await this.watchReferendumCount();
   }
 }

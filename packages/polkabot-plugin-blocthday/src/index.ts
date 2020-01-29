@@ -4,23 +4,52 @@ import {
   NotifierMessage,
   NotifierSpecs,
   PluginModule,
-  PluginContext
+  PluginContext,
+  CommandHandlerOutput,
+  IControllable
 } from "@polkabot/api/src/plugin.interface";
+// import commands from "./commands";
 
-export default class Blocthday extends PolkabotWorker {
-  private NB_BLOCKS: number
+export default class Blocthday extends PolkabotWorker implements IControllable {
+  private NB_BLOCKS: number;
+
+  private cmdStatus(...args: any[]): CommandHandlerOutput {
+    console.log("Called cmdStatus with:", args);
+
+    return {
+      code: -1,
+      msg: "Implement me first!"
+    };
+  }
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    this.NB_BLOCKS = parseInt(process.env.POLKABOT_PLUGIN_BLOCTHDAY_NB_BLOCKS) || 1000000
+    this.NB_BLOCKS = parseInt(process.env.POLKABOT_PLUGIN_BLOCTHDAY_NB_BLOCKS) || 1000000;
+    this.commands = {
+      name: "Blocthday",
+      alias: "bday",
+      commands: [
+        {
+          name: "status",
+          description: "Show status of the plugin",
+          argsRegexp: "",
+          handler: this.cmdStatus
+        }
+      ]
+    };
   }
-
 
   public start(): void {
     console.log("Blocthday - Starting with NB_BLOCKS:", this.NB_BLOCKS);
     this.watchChain().catch(error => {
       console.error("Blocthday - Error subscribing to chain head: ", error);
     });
+  }
+
+  public stop(): void {
+    console.log("Blocthday - STOPPING");
+
+    // TODO: unsubscribe to everything here
   }
 
   async watchChain() {

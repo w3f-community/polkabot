@@ -23,8 +23,10 @@ export default class PluginLoader {
         if (err) console.log("ERR:", err);
 
         const myModule = (await import(pluginPath)).default;
+        // console.log("Module", myModule);
         let plugin;
 
+        // TODO here we should load the ENV/config of a plugin
         // let test = new myModule(mod, context)
 
         const parentClass = Object.getPrototypeOf(myModule).name;

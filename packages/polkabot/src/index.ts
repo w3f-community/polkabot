@@ -1,19 +1,15 @@
-// import 'babel-core/register'
-// import 'babel-polyfill'
 import Olm from "olm";
-import minimongo from "minimongo";
 import { ApiPromise, WsProvider } from "@polkadot/api";
+import minimongo from "minimongo";
 import Datastore from "nedb";
 
 import pkg from "../package.json";
 import PluginScanner from "./lib/plugin-scanner";
-// import PluginLoader from "./lib/plugin-loader"; // TODO wk bring that back
-// import * as path from 'path'
+import PluginLoader from "./lib/plugin-loader";
 import sdk from "matrix-js-sdk";
 import { ConfigSingleton } from "./ConfigSingleton";
-import { assert } from "@polkadot/util";
 import { IPolkabotConfig } from "./types";
-import PluginLoader from "./lib/plugin-loader";
+import { assert } from "@polkadot/util";
 import {
   PluginContext,
   PolkabotPlugin,
@@ -21,7 +17,8 @@ import {
   PolkabotNotifier,
   NotifierMessage,
   NotifierSpecs,
-  PluginModule
+  PluginModule,
+  IControllable
 } from "../../polkabot-api/src/plugin.interface";
 
 //@ts-ignore
@@ -42,17 +39,26 @@ export default class Polkabot {
   private matrix: any;
   private polkadot: any;
   private notifiersTable: INotifiersTable = {};
+  private controllablePlugins: IControllable[] = [];
 
-  public constructor(args) {
+  public constructor(..._args: any[]) {
     // this.args = args
     this.db = new Datastore({ filename: "polkabot.db" });
   }
 
   private isWorker(candidate: PolkabotPlugin): candidate is PolkabotWorker {
-    if ((candidate as PolkabotWorker).start) {
-      return true;
-    }
-    return false;
+    return (candidate as PolkabotWorker).start !== undefined;
+  }
+
+  private isNotifier(candidate: PolkabotPlugin): candidate is PolkabotNotifier {
+    return (candidate as PolkabotNotifier).notify !== undefined;
+  }
+
+  private isControllable(candidate: PolkabotPlugin): boolean {
+    console.log("Testing for controllable", candidate.package.name, candidate.commands);
+    const res = candidate.commands !== undefined;
+    assert(candidate.package.name !== "polkabot-plugin-blocthday" || res, "BUG!");
+    return res;
   }
 
   /** this method is usually called by the workers who wish to notify something
@@ -80,21 +86,32 @@ export default class Polkabot {
     // console.log("notifierTable", this.notifiersTable);
   }
 
+  /** Rwegister all the IControllable we find. They will be passed to the Operator. */
+  private registerControllable(controllable: IControllable) {
+    assert(controllable.commands, "No commands defined");
+
+    console.log("Registering controllable:", controllable);
+    this.controllablePlugins.push(controllable);
+    console.log("Controllables", this.controllablePlugins);
+  }
+
   private async loadPlugins() {
     console.log("Polkabot - Loading plugins:");
     const pluginScanner = new PluginScanner(pkg.name + "-plugin");
     let plugins = await pluginScanner.scan(); // TODO: switch back to a const
 
-    // TODO remove that, here we ignore some plugins on purpose
     console.log("Plugins found:");
     plugins.map(p => {
       console.log(`- ${p.name}`);
     });
 
     console.log("Filtering plugins...");
-    plugins = plugins.filter(
-      (p: PluginModule) => p.name.indexOf("matrix") > 0 || p.name.indexOf("reporter") > 0 // || p.name.indexOf("demo") > 0
-    );
+    plugins = plugins.filter((p: PluginModule) => {
+      const DISABLED_KEY = `POLKABOT_PLUGIN_${p.shortName}_DISABLED`;
+      const disabled: boolean = (process.env[DISABLED_KEY] || "false") === "true";
+      console.log(DISABLED_KEY, "\t", disabled);
+      return !disabled;
+    });
     console.log(`Found ${plugins.length} plugins`);
     // console.log(`${JSON.stringify(plugins, null, 2)}`);
 
@@ -110,15 +127,19 @@ export default class Polkabot {
 
       PluginLoader.load(plugin, context)
         .then(p => {
+          if (this.isControllable(p)) {
+            this.registerControllable(p);
+          } else console.log(`▶ NOT Controllable: ${p.package.name}`);
+
           if (this.isWorker(p)) {
             console.log(`Starting worker plugin ${p.package.name} v${p.package.version}`);
             p.start();
-          } else {
-            console.log(`Registering non-worker plugin ${p.package.name} v${p.package.version}`);
+          } else console.log(`NOT a Worker: ${p.package.name}`);
 
-            // todo that will become a switch case
+          if (this.isNotifier(p)) {
+            console.log(`Registering notifier plugin ${p.package.name} v${p.package.version}`);
             this.registerNotifier(p);
-          }
+          } else console.log(`NOT a Notifier: ${p.package.name}`);
         })
         .catch(e => console.log(e));
     });
