@@ -18,7 +18,11 @@ import {
   NotifierMessage,
   NotifierSpecs,
   PluginModule,
-  IControllable
+  IControllable,
+  PolkabotChatbot,
+  PolkabotPluginBase,
+  Type,
+  IChatBot
 } from "../../polkabot-api/src/plugin.interface";
 
 //@ts-ignore
@@ -40,6 +44,7 @@ export default class Polkabot {
   private polkadot: any;
   private notifiersTable: INotifiersTable = {};
   private controllablePlugins: IControllable[] = [];
+  private chatBots: PolkabotChatbot[] = [];
 
   public constructor(..._args: any[]) {
     // this.args = args
@@ -55,10 +60,13 @@ export default class Polkabot {
   }
 
   private isControllable(candidate: PolkabotPlugin): boolean {
-    console.log("Testing for controllable", candidate.package.name, candidate.commands);
     const res = candidate.commands !== undefined;
-    assert(candidate.package.name !== "polkabot-plugin-blocthday" || res, "BUG!");
+    // assert(candidate.package.name !== "polkabot-plugin-blocthday" || res, "BUG!");
     return res;
+  }
+
+  private isChatBot(candidate: PolkabotPlugin): candidate is PolkabotChatbot {
+    return (candidate as PolkabotChatbot).type === Type.Chatbot;
   }
 
   /** this method is usually called by the workers who wish to notify something
@@ -86,62 +94,89 @@ export default class Polkabot {
     // console.log("notifierTable", this.notifiersTable);
   }
 
-  /** Rwegister all the IControllable we find. They will be passed to the Operator. */
+  /** Register all the IControllable we find. They will be passed to the Operator. */
   private registerControllable(controllable: IControllable) {
     assert(controllable.commands, "No commands defined");
-
-    console.log("Registering controllable:", controllable);
+    console.log("Registering controllable:", controllable.commands.name);
     this.controllablePlugins.push(controllable);
-    console.log("Controllables", this.controllablePlugins);
+    // console.log("Controllables", this.controllablePlugins);
   }
 
-  private async loadPlugins() {
-    console.log("Polkabot - Loading plugins:");
-    const pluginScanner = new PluginScanner(pkg.name + "-plugin");
-    let plugins = await pluginScanner.scan(); // TODO: switch back to a const
+  private registerChatbot(bot: PolkabotChatbot) {
+    console.log("Registering Chat bot:", bot.module.name);
+    this.chatBots.push(bot);
+  }
 
-    console.log("Plugins found:");
-    plugins.map(p => {
-      console.log(`- ${p.name}`);
+  private async loadPlugins(): Promise<void> {
+    return new Promise(async (resolve, _reject) => {
+      console.log("Polkabot - Loading plugins: ------------------------");
+      const pluginScanner = new PluginScanner(pkg.name + "-plugin");
+      let plugins = await pluginScanner.scan(); // TODO: switch back to a const
+
+      console.log("Plugins found (incl. disabled ones):");
+      plugins.map(p => {
+        console.log(`- ${p.name}`);
+      });
+
+      // Here we check the ENV content to see if plugins should be disabled (= not loaded)
+      console.log("Filtering out disabled plugins...");
+      plugins = plugins.filter((p: PluginModule) => {
+        const DISABLED_KEY = `POLKABOT_PLUGIN_${p.shortName}_DISABLED`;
+        const disabled: boolean = (process.env[DISABLED_KEY] || "false") === "true";
+        console.log(disabled ? "❌" : "✅", p.shortName);
+
+        return !disabled;
+      });
+
+      console.log(`Found ${plugins.length} plugins`);
+
+      const loads = [];
+      plugins.map(plugin => {
+        const context: PluginContext = {
+          config: this.config,
+          pkg,
+          db: this.db,
+          matrix: this.matrix,
+          polkadot: this.polkadot,
+          polkabot: this
+        };
+
+        loads.push(
+          PluginLoader.load(plugin, context).then((p: PolkabotPlugin) => {
+            if (this.isControllable(p)) {
+              this.registerControllable(p);
+            } //else console.log(`▶ NOT Controllable: ${p.package.name}`);
+
+            if (this.isWorker(p)) {
+              console.log(`Starting worker plugin ${p.package.name} v${p.package.version}`);
+              p.start();
+            } //else console.log(`NOT a Worker: ${p.package.name}`);
+
+            if (this.isNotifier(p)) {
+              console.log(`Registering notifier plugin ${p.package.name} v${p.package.version}`);
+              this.registerNotifier(p);
+            } //else console.log(`NOT a Notifier: ${p.package.name}`);
+
+            if (this.isChatBot(p)) {
+              console.log(`Registering ChatBot plugin ${p.package.name} v${p.package.version}`);
+
+              this.registerChatbot(p);
+            }
+          })
+        );
+      });
+      Promise.all(loads).then(_ => {
+        console.log("Polkabot - Done loading plugins: ------------------------");
+        resolve();
+      });
     });
+  }
 
-    console.log("Filtering plugins...");
-    plugins = plugins.filter((p: PluginModule) => {
-      const DISABLED_KEY = `POLKABOT_PLUGIN_${p.shortName}_DISABLED`;
-      const disabled: boolean = (process.env[DISABLED_KEY] || "false") === "true";
-      console.log(DISABLED_KEY, "\t", disabled);
-      return !disabled;
-    });
-    console.log(`Found ${plugins.length} plugins`);
-    // console.log(`${JSON.stringify(plugins, null, 2)}`);
-
-    plugins.map(plugin => {
-      const context: PluginContext = {
-        config: this.config,
-        pkg,
-        db: this.db,
-        matrix: this.matrix,
-        polkadot: this.polkadot,
-        polkabot: this
-      };
-
-      PluginLoader.load(plugin, context)
-        .then(p => {
-          if (this.isControllable(p)) {
-            this.registerControllable(p);
-          } else console.log(`▶ NOT Controllable: ${p.package.name}`);
-
-          if (this.isWorker(p)) {
-            console.log(`Starting worker plugin ${p.package.name} v${p.package.version}`);
-            p.start();
-          } else console.log(`NOT a Worker: ${p.package.name}`);
-
-          if (this.isNotifier(p)) {
-            console.log(`Registering notifier plugin ${p.package.name} v${p.package.version}`);
-            this.registerNotifier(p);
-          } else console.log(`NOT a Notifier: ${p.package.name}`);
-        })
-        .catch(e => console.log(e));
+  private attachControllableToBots() {
+    console.log("Passing controllables to following bots:");
+    this.chatBots.map((bot: PolkabotChatbot) => {
+      console.log(` > ${bot.module.name}`);
+      bot.registerControllables(this.controllablePlugins);
     });
   }
 
@@ -171,7 +206,13 @@ export default class Polkabot {
     //     }
     //   )
 
-    this.loadPlugins();
+    this.loadPlugins()
+      .then(_ => {
+        return this.attachControllableToBots();
+      })
+      .then(_ => {
+        console.log("Done loading plugins");
+      });
   }
 
   public async run() {

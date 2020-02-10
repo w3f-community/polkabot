@@ -20,6 +20,11 @@ export default class Operator extends PolkabotChatbot {
     this.watchChat();
   }
 
+  public status() : void {
+    console.log('TODO: Operator Status command');
+    
+  }
+
   showInstructions() {
     // Send message to the room notifying users how to use the bot
     const notifierMessage: NotifierMessage = {

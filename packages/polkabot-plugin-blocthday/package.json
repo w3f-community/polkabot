@@ -2,7 +2,7 @@
   "name": "polkabot-plugin-blocthday",
   "version": "0.4.4",
   "description": "",
-  "main": "dist/polkabot-plugin-blocthday/src/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "lint": "standard",
     "start": "babel-node ./src/index.js",

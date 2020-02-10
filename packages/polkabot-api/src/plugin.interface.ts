@@ -50,6 +50,10 @@ export interface IControllable {
   commands?: PluginCommands;
 }
 
+export interface IChatBot {
+  controllables: IControllable[];
+}
+
 export class PolkabotPluginBase {
   public module: PluginModule;
   public config: any; // TODO
@@ -73,6 +77,12 @@ export class PolkabotPluginBase {
 
     assert(this.package, "package not loaded properly");
   }
+
+  // toString() {
+  //   const obj = this;
+  //   delete obj.context;
+  //   return JSON.stringify(obj, null, 2);
+  // }
 }
 
 export abstract class PolkabotWorker extends PolkabotPluginBase {
@@ -83,10 +93,24 @@ export abstract class PolkabotWorker extends PolkabotPluginBase {
   public abstract stop();
 }
 
-export abstract class PolkabotChatbot extends PolkabotPluginBase {
+export abstract class PolkabotChatbot extends PolkabotPluginBase implements IChatBot {
+  controllables: IControllable[] = [];
+
   constructor(mod: PluginModule, context: PluginContext, config?) {
     super(Type.Chatbot, mod, context, config);
   }
+
+  public registerControllables(controllables: IControllable[]) {
+    console.log(`Registering controllables: `);
+    controllables.map((ctrl: PolkabotPluginBase) => {
+      console.log(` >> ${ctrl.commands.name}`);
+      const commandObject: PluginCommands = (ctrl as IControllable).commands;
+      const commands: PluginCommand[] = commandObject.commands;
+      console.log(commands.map(c => c.name));
+    });
+    this.controllables = controllables;
+  }
+
   public abstract start();
   // TODO add stop()
 
@@ -112,7 +136,7 @@ export abstract class PolkabotNotifier extends PolkabotPluginBase {
   }
 }
 
-export type PolkabotPlugin = PolkabotWorker | PolkabotNotifier;
+export type PolkabotPlugin = PolkabotWorker | PolkabotNotifier | PolkabotChatbot;
 
 /**
  * This is the context Polkabot passes to any plugin

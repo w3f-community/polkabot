@@ -1,10 +1,11 @@
 import { PluginCommands } from "@polkabot/api/src/plugin.interface";
 import Blocthday from ".";
+import Operator from ".";
 
-export default function getCommands(ref: Blocthday): PluginCommands {
+export default function getCommands(ref: Operator): PluginCommands {
   return {
-    name: "Blocthday",
-    alias: "bday",
+    name: "Operator",
+    alias: "op",
     commands: [
       {
         name: "status",
