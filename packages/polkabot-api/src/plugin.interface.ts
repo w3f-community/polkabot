@@ -2,6 +2,7 @@ import { packageJson } from "package-json";
 import * as path from "path";
 import { assert } from "./utils";
 
+
 /**
  * A plugin module before the package has been loaded.
  * Before loading the patch we know only the path and the name
@@ -28,10 +29,11 @@ export type PluginCommand = {
   name: string; // ie: start
   description: string; // what does this command do
   argsRegexp: string; // regexp to validate the expected args
+  adminOnly: boolean; // is the command only for admins ?
   handler: (...args: any[]) => CommandHandlerOutput;
 };
 
-export type PluginCommands = {
+export type PluginCommandSet = {
   name: string; // ie: Identity Registrar
   alias: string; // ie: reg
   commands: Array<PluginCommand>;
@@ -47,7 +49,7 @@ export type PluginCommands = {
  * be called to control the thing.
  */
 export interface IControllable {
-  commands?: PluginCommands;
+  commandSet?: PluginCommandSet;
 }
 
 export interface IChatBot {
@@ -60,7 +62,7 @@ export class PolkabotPluginBase {
   public context: any; // TODO
   public package: packageJson;
   public type: Type;
-  public commands?: PluginCommands;
+  public commandSet?: PluginCommandSet;
 
   // public description: string; // some blabla about the plugin, we dont have this field, we use the package.json/description
 
@@ -85,6 +87,13 @@ export class PolkabotPluginBase {
   // }
 }
 
+export type BotCommand = {
+  module: string; // op, id, bday, etc...
+  command: string; // status, help, etc, ...
+  args?: string[];
+};
+
+// TODO: get this class out!
 export abstract class PolkabotWorker extends PolkabotPluginBase {
   constructor(mod: PluginModule, context: PluginContext, config?) {
     super(Type.Worker, mod, context, config);
@@ -102,13 +111,15 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements ICha
 
   public registerControllables(controllables: IControllable[]) {
     console.log(`Registering controllables: `);
+    // console.log(`controllables: ${JSON.stringify(controllables, null, 2)}`);
+
     controllables.map((ctrl: PolkabotPluginBase) => {
-      console.log(` >> ${ctrl.commands.name}`);
-      const commandObject: PluginCommands = (ctrl as IControllable).commands;
+      console.log(` >> ${ctrl.commandSet.name} (!${ctrl.commandSet.alias})`);
+      const commandObject: PluginCommandSet = (ctrl as IControllable).commandSet;
       const commands: PluginCommand[] = commandObject.commands;
       console.log(commands.map(c => c.name));
     });
-    this.controllables = controllables;
+    this.controllables = controllables
   }
 
   public abstract start();
@@ -121,6 +132,37 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements ICha
    */
   protected isPrivate(senderRoomId, roomIdWithBot) {
     return senderRoomId === roomIdWithBot;
+  }
+
+   /**
+   * Get a string from the chat and extract a BotCommand or none
+   * See https://regex101.com/r/1EDFsV/1/tests
+   * TODO: That should be a factory creating an instance of a BotCommand class
+   * TODO: add unit test for that
+   */
+  public static getBotCommand(str: string): BotCommand | null {
+    let capture = str.match(/^!(?<module>\w+)(\s+(?<command>\w+))(\s+(?<args>.*))?$/i) || [];
+    console.log("Operator:getBotCommand() - capture from Bot Master: ", capture);
+    if (capture.length > 0 && capture.groups.module && capture.groups.command) {
+      const { module, command, args } = capture.groups;
+      // const command: string = capture.groups.command;
+      const argList: string[] = args === undefined ? null : args.split(" ").map(i => i.replace(" ", "")); // TODO a smarter regexp would do that
+
+      // console.log("Operator - module: ", module);
+      // console.log("Operator - command: ", command);
+      // console.log("Operator - args: ", args);
+
+      const obj: BotCommand = {
+        module,
+        command,
+        args: argList
+      };
+      console.log("obj", obj);
+      return obj;
+    } else {
+      console.log("FAILED PARSING COMMAND", str);
+      return null;
+    }
   }
 }
 

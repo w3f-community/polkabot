@@ -7,27 +7,17 @@ import {
   PluginContext,
   CommandHandlerOutput,
   IControllable,
-  PluginCommands
+  PluginCommandSet
 } from "@polkabot/api/src/plugin.interface";
-// import commands from "./commands";
+import getCommandSet from "./commandSet";
 
 export default class Blocthday extends PolkabotWorker implements IControllable {
   private NB_BLOCKS: number;
-  public commands: PluginCommands = {
-    name: "Blocthday",
-    alias: "bday",
-    commands: [
-      {
-        name: "status",
-        description: "Show status of the plugin",
-        argsRegexp: "",
-        handler: this.cmdStatus
-      }
-    ]
-  };
+  public commandSet: PluginCommandSet;
 
   public cmdStatus(...args: any[]): CommandHandlerOutput {
-    console.log("Called cmdStatus with:", args);
+    console.log(`Blocthday.cmdStatus()`);
+    // console.log("Called cmdStatus with:", args);
 
     return {
       code: -1,
@@ -38,18 +28,7 @@ export default class Blocthday extends PolkabotWorker implements IControllable {
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
     this.NB_BLOCKS = parseInt(process.env.POLKABOT_PLUGIN_BLOCTHDAY_NB_BLOCKS) || 1000000;
-    this.commands = {
-      name: "Blocthday",
-      alias: "bday",
-      commands: [
-        {
-          name: "status",
-          description: "Show status of the plugin",
-          argsRegexp: "",
-          handler: this.cmdStatus
-        }
-      ]
-    };
+    this.commandSet = getCommandSet(this);
   }
 
   public start(): void {

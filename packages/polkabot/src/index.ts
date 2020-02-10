@@ -60,7 +60,7 @@ export default class Polkabot {
   }
 
   private isControllable(candidate: PolkabotPlugin): boolean {
-    const res = candidate.commands !== undefined;
+    const res = candidate.commandSet !== undefined;
     // assert(candidate.package.name !== "polkabot-plugin-blocthday" || res, "BUG!");
     return res;
   }
@@ -96,8 +96,8 @@ export default class Polkabot {
 
   /** Register all the IControllable we find. They will be passed to the Operator. */
   private registerControllable(controllable: IControllable) {
-    assert(controllable.commands, "No commands defined");
-    console.log("Registering controllable:", controllable.commands.name);
+    assert(controllable.commandSet, "No commands defined");
+    console.log("Registering controllable:", controllable.commandSet.name);
     this.controllablePlugins.push(controllable);
     // console.log("Controllables", this.controllablePlugins);
   }
@@ -145,23 +145,22 @@ export default class Polkabot {
           PluginLoader.load(plugin, context).then((p: PolkabotPlugin) => {
             if (this.isControllable(p)) {
               this.registerControllable(p);
-            } //else console.log(`▶ NOT Controllable: ${p.package.name}`);
+            } else console.log(`▶ NOT Controllable: ${p.package.name}`);
 
             if (this.isWorker(p)) {
               console.log(`Starting worker plugin ${p.package.name} v${p.package.version}`);
               p.start();
-            } //else console.log(`NOT a Worker: ${p.package.name}`);
+            } //else console.log(`▶ NOT a Worker: ${p.package.name}`);
 
             if (this.isNotifier(p)) {
               console.log(`Registering notifier plugin ${p.package.name} v${p.package.version}`);
               this.registerNotifier(p);
-            } //else console.log(`NOT a Notifier: ${p.package.name}`);
+            } //else console.log(`▶ NOT a Notifier: ${p.package.name}`);
 
             if (this.isChatBot(p)) {
               console.log(`Registering ChatBot plugin ${p.package.name} v${p.package.version}`);
-
               this.registerChatbot(p);
-            }
+            } // else console.log(`▶ NOT a ChatBot: ${p.package.name}`);
           })
         );
       });
