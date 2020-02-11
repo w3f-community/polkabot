@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import {
-  PolkabotChatbot,
   NotifierMessage,
   NotifierSpecs,
   PluginModule,
@@ -11,27 +10,19 @@ import {
   PolkabotPluginBase,
   PluginCommandSet,
   PolkabotPlugin,
-  PluginCommand
+  PluginCommand,
+  Room,
+  SenderId,
 } from "@polkabot/api/src/plugin.interface";
 import moment from "moment";
 import getCommandSet from "./commandSet";
-
-type RoomId = string;
-type Message = string;
-type SenderId = string;
-
-type Room = {
-  name: string;
-  roomId: RoomId;
-  currentState: {
-    members: Member[];
-  };
-};
-
-type Member = any;
+import { PolkabotChatbot } from "@polkabot/api/src/PolkabotChatbot";
 
 export default class Operator extends PolkabotChatbot implements IControllable {
   public commandSet: PluginCommandSet;
+  package: any;
+  controllables: any;
+  context: any;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
@@ -46,19 +37,59 @@ export default class Operator extends PolkabotChatbot implements IControllable {
     this.watchChat();
   }
 
+  // TODO: move all handlers to a separate file
   public cmdStatus(event: any, room: Room, ...args: any): CommandHandlerOutput {
     const uptime_sec: number = process.uptime();
-    const m = moment.duration(uptime_sec, 'seconds');
-    
-    this.answer(
-      room.roomId,
-      `I am still here! I've been running ${capitalize(this.package.name)} v${capitalize(this.package.version
-      )} for ${m.humanize()}.\nCheck out the project at https://gitlab.com/Polkabot`
-    );
+    const m = moment.duration(uptime_sec, "seconds");
+
+    // this.answer(room.roomId);
 
     return {
       code: 0,
-      msg: null
+      msg: null,
+      answers: [
+        {
+          room,
+          message: `I am still here! I've been running ${capitalize(this.package.name)} v${capitalize(
+            this.package.version
+          )} for ${m.humanize()}.\nCheck out the project at https://gitlab.com/Polkabot`
+        }
+      ]
+    };
+  }
+
+  public cmdHelp(event: any, room: Room): CommandHandlerOutput {
+    // TODO: later we could parse the msg below for keywords and try to make good guesses to focus the help a bit better
+    // const msg: string = event.getContent().body;
+    // fetch all the controllable, show their commands and deescriptions.
+    let message = `Here is also a list of all the loaded modules and their commands:<br/><ul>`;
+    this.controllables.map((controllable: IControllable) => {
+      message += `<li>${controllable.commandSet.name}:</li><ul>`;
+      controllable.commandSet.commands.map((command: PluginCommand) => {
+        message += `<li><code>!${controllable.commandSet.alias} ${command.name}</code>: ${command.description} !${
+          command.adminOnly ? " (Master only)" : ""
+        }</li>`;
+      });
+      message += "</ul>";
+    });
+    message += "</ul>";
+    // this.answer( {
+    //   room,
+    //   message
+    // });
+    return {
+      code: 0,
+      msg: null,
+      answers: [
+        {
+          room,
+          message: `Hi there, I am happy you got in touch, let me see if I can help.<br/>First of all, you probably should checkout the documentation at https://gitlab.com/Polkabot`
+        },
+        {
+          room,
+          message
+        }
+      ]
     };
   }
 
@@ -71,6 +102,8 @@ export default class Operator extends PolkabotChatbot implements IControllable {
     const hits = this.controllables.filter((c: PolkabotPluginBase) => c.commandSet.alias === cmd.module);
     const controllable = hits.length > 0 ? (hits[0] as PolkabotPlugin) : null;
 
+    if (!controllable) return null
+    
     console.log(`${controllable.module.name} could be able to do the job... checking supported commands`);
     const handler: PluginCommand = controllable.commandSet.commands.find(c => c.name === cmd.command);
     console.log(`Handler found: ${handler ? handler.name : null}`);
@@ -99,135 +132,173 @@ export default class Operator extends PolkabotChatbot implements IControllable {
       // };
 
       // console.log('Operator - event.getContent()', event.getContent())
-      const msg = event.getContent().body;
+      const msg: string = event.getContent().body;
       const senderId = event.getSender();
 
       // If we see our own message, we skip
       if (this.isSelf(senderId)) return;
 
-      const botCommand: BotCommand = PolkabotChatbot.getBotCommand(msg);
-      // console.log(" *** bot command:", JSON.stringify(botCommand, null, 2));
-      const cmdHandler = this.matchCommand(botCommand);
-
-      // console.log(" *** bot command handler:", JSON.stringify(cmdHandler, null, 2));
-
-      if (cmdHandler) {
-        console.log(`handler found, running ${cmdHandler.name}`);
-        const output = cmdHandler.handler.bind(this)(event, room, botCommand.args);
-        console.log(`RET: ${output.code} : ${output.msg}`);
-      } else {
-        console.log(`No handler found`);
+      // If there is no ! and the string contains help, we try to help
+      if (msg.indexOf("!") < 0 && msg.toLowerCase().indexOf("help") > 0) {
+        console.log("Mentioning help in natural language");
+        const output = this.cmdHelp(event, room);
+        if (output.answers) {
+          // this.answer(output.answers[0])
+          output.answers.map(a => {
+            this.answer(a);
+          });
+        }
+        return;
       }
-      // console.log("msg", msg);
 
-      // TODO FIXME - this still triggers an error in the logs when the Bot Master
-      // sends a message without an argument in the public room (i.e. `!say`)
-      // if (!msg) {
-      //   return;
-      // }
+      const botCommand: BotCommand | null = PolkabotChatbot.getBotCommand(msg);
+      // console.log(" *** bot command:", JSON.stringify(botCommand, null, 2));
+      if (!botCommand) {
+        console.log(`No bot command found in: >${msg}<`);
+        this.answer({
+          room,
+          message: "I was tought to smile when I don't get it. 😁"
+        });
+      } else {
+        const cmdHandler = this.matchCommand(botCommand);
 
-      const senderRoomId = event.sender.roomId;
-      const roomIdWithBot = room.roomId;
+        // console.log(" *** bot command handler:", JSON.stringify(cmdHandler, null, 2));
 
-      console.log(senderId, senderRoomId, roomIdWithBot);
+        if (cmdHandler) {
+          console.log(`handler found, running ${cmdHandler.name}`);
+          const output: CommandHandlerOutput = cmdHandler.handler.bind(this)(event, room, botCommand.args);
+          console.log(`RET: ${output.code} : ${output.msg}`);
+          if (output.answers) {
+            // this.answer(output.answers[0])
+            output.answers.map(a => {
+              this.answer(a);
+            });
+          }
+        } else {
+          console.log(`No handler found`);
+          this.answer({
+            room,
+            message: "Hmmm no one told me about that command. 😁"
+          });
+          return;
+        }
+        // console.log("msg", msg);
 
-      // console.log('Operator - msg: ', msg)
-      // console.log('Operator - senderId: ', senderId)
-      // console.log('Operator - senderRoomId', senderRoomId)
-      // console.log('Operator - roomIdWithBot', roomIdWithBot)
+        // TODO FIXME - this still triggers an error in the logs when the Bot Master
+        // sends a message without an argument in the public room (i.e. `!say`)
+        // if (!msg) {
+        //   return;
+        // }
 
-      // console.log("isPrivate", this.isPrivate(senderRoomId, roomIdWithBot));
-      // console.log("isMaster", this.isMaster(senderId));
-      // console.log("isBotMasterAndBotInRoom", this.isBotMasterAndBotInRoom(room));
-      // console.log("isBotMessageRecipient", this.isBotMessageRecipient(room));
+        const senderRoomId = event.sender.roomId;
+        const roomIdWithBot = room.roomId;
 
-      if (this.isPrivate(senderRoomId, roomIdWithBot)) {
-        /**
-         * Check that the senderId is the Bot Master with isOperator
-         * Also check that the message is from a direct message between
-         * the Bot Master and the Bot by checking that isBotMasterAndBotInRoom
-         * and isBotMessageRecipient are both true since if the user
-         * is the Bot Master they can ask the Bot to do more actions than
-         * public users, and we do not want to show error messages
-         * from the Bot Master in the public room due to entry of invalid
-         * commands, we only want them to appears in the direct message.
-         **/
-        if (
-          this.isMaster(senderId) &&
-          this.isBotMasterAndBotInRoom(room)
-          // && isBotMessageRecipient
-        ) {
-          console.log("Operator - Bot received message from Bot Master in direct message");
+        console.log(senderId, senderRoomId, roomIdWithBot);
+
+        // console.log('Operator - msg: ', msg)
+        // console.log('Operator - senderId: ', senderId)
+        // console.log('Operator - senderRoomId', senderRoomId)
+        // console.log('Operator - roomIdWithBot', roomIdWithBot)
+
+        // console.log("isPrivate", this.isPrivate(senderRoomId, roomIdWithBot));
+        // console.log("isMaster", this.isMaster(senderId));
+        // console.log("isBotMasterAndBotInRoom", this.isBotMasterAndBotInRoom(room));
+        // console.log("isBotMessageRecipient", this.isBotMessageRecipient(room));
+
+        if (this.isPrivate(senderRoomId, roomIdWithBot)) {
           /**
-           * Detect if the command received from the Bot Master is in
-           * the following form: `!say <MESSAGE>` or `!status`
-           */
-          let capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
-          // console.log("Operator - captured from Bot Master: ", capture);
-          if (capture.length > 0 && capture.groups.cmd) {
-            const cmd: string = capture.groups.cmd;
-            const args = capture.groups.args;
+           * Check that the senderId is the Bot Master with isOperator
+           * Also check that the message is from a direct message between
+           * the Bot Master and the Bot by checking that isBotMasterAndBotInRoom
+           * and isBotMessageRecipient are both true since if the user
+           * is the Bot Master they can ask the Bot to do more actions than
+           * public users, and we do not want to show error messages
+           * from the Bot Master in the public room due to entry of invalid
+           * commands, we only want them to appears in the direct message.
+           **/
+          if (
+            this.isMaster(senderId) &&
+            this.isBotMasterAndBotInRoom(room)
+            // && isBotMessageRecipient
+          ) {
+            console.log("Operator - Bot received message from Bot Master in direct message");
+            /**
+             * Detect if the command received from the Bot Master is in
+             * the following form: `!say <MESSAGE>` or `!status`
+             */
+            let capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
+            // console.log("Operator - captured from Bot Master: ", capture);
+            if (capture.length > 0 && capture.groups.cmd) {
+              const cmd: string = capture.groups.cmd;
+              const args = capture.groups.args;
 
-            //   console.log("Operator - cmd: ", cmd);
-            //   console.log("Operator - args: ", args);
-            //   switch (cmd) {
-            //     case "status":
-            //       const uptime = (process.uptime() / 60 / 60).toFixed(2);
-            //       this.answer(
-            //         room.roomId,
-            //         `Hey ${
-            //           this.context.config.matrix.botMasterId
-            //         }, I am still here, running for ${uptime} hours. Check out the project at https://gitlab.com/Polkabot`
-            //       );
-            //       break;
-            //     case "say":
-            //       console.log("Operator - Received command !say:", cmd, args);
-            //       const notifierMessage: NotifierMessage = {
-            //         message: args
-            //       };
+              //   console.log("Operator - cmd: ", cmd);
+              //   console.log("Operator - args: ", args);
+              //   switch (cmd) {
+              //     case "status":
+              //       const uptime = (process.uptime() / 60 / 60).toFixed(2);
+              //       this.answer(
+              //         room.roomId,
+              //         `Hey ${
+              //           this.context.config.matrix.botMasterId
+              //         }, I am still here, running for ${uptime} hours. Check out the project at https://gitlab.com/Polkabot`
+              //       );
+              //       break;
+              //     case "say":
+              //       console.log("Operator - Received command !say:", cmd, args);
+              //       const notifierMessage: NotifierMessage = {
+              //         message: args
+              //       };
 
-            //       const notifierSpecs: NotifierSpecs = {
-            //         notifiers: ["matrix", "demo", "all"]
-            //       };
+              //       const notifierSpecs: NotifierSpecs = {
+              //         notifiers: ["matrix", "demo", "all"]
+              //       };
 
-            //       this.context.polkabot.notify(notifierMessage, notifierSpecs);
-            //       break;
-            //     default:
-            //       this.answer(
-            //         room.roomId,
-            //         `Operator - Command **!${cmd}** is not supported. You can use commands:
-            //       !status OR !say <MESSAGE>`
-            //       );
-            //   }
-            // }
-          } else {
-            console.log(`Operator - Bot received message from non-Bot Master (sender: ${senderId}) in direct message`);
-            // const re = new RegExp('')
+              //       this.context.polkabot.notify(notifierMessage, notifierSpecs);
+              //       break;
+              //     default:
+              //       this.answer(
+              //         room.roomId,
+              //         `Operator - Command **!${cmd}** is not supported. You can use commands:
+              //       !status OR !say <MESSAGE>`
+              //       );
+              //   }
+              // }
+            } else {
+              console.log(`Operator - Bot received message from non-Bot Master (sender: ${senderId}) in direct message`);
+              // const re = new RegExp('')
 
-            //           let capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
-            //           console.log("Operator - captured from non-Bot Master: ", capture);
-            //           if (capture.length > 0 && capture.groups.cmd) {
-            //             const cmd: string = capture.groups.cmd;
+              //           let capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
+              //           console.log("Operator - captured from non-Bot Master: ", capture);
+              //           if (capture.length > 0 && capture.groups.cmd) {
+              //             const cmd: string = capture.groups.cmd;
 
-            //             switch (cmd) {
-            //               case "status":
-            //                 const uptime = (process.uptime() / 60 / 60).toFixed(2);
-            //                 this.answer(
-            //                   room.roomId,
-            //                   `I am still here! I've been running ${capitalize(this.context.pkg.name)} v${
-            //                     this.context.pkg.version
-            //                   } for ${uptime} hours.
-            // Check out the project at https://gitlab.com/Polkabot`
-            //                 );
-            //                 break;
-            //               default:
-            //                 this.answer(room.roomId, `Operator - Command **!${cmd}** is not supported. You can use command: !status`);
-            //             }
-            //           }
+              //             switch (cmd) {
+              //               case "status":
+              //                 const uptime = (process.uptime() / 60 / 60).toFixed(2);
+              //                 this.answer(
+              //                   room.roomId,
+              //                   `I am still here! I've been running ${capitalize(this.context.pkg.name)} v${
+              //                     this.context.pkg.version
+              //                   } for ${uptime} hours.
+              // Check out the project at https://gitlab.com/Polkabot`
+              //                 );
+              //                 break;
+              //               default:
+              //                 this.answer(room.roomId, `Operator - Command **!${cmd}** is not supported. You can use command: !status`);
+              //             }
+              //           }
+            }
           }
         }
       }
     });
+  }
+  
+  // TODO: not implemented!
+  public isPrivate(senderRoomId: any, roomIdWithBot: any): boolean {
+    return false;
+    // throw new Error("Method not implemented.");
   }
 
   private isSelf(senderId) {
@@ -247,10 +318,6 @@ export default class Operator extends PolkabotChatbot implements IControllable {
 
   //   this.context.polkabot.notify(notifierMessage, notifierSpecs);
   // }
-
-  private answer(roomId: RoomId, msg: Message) {
-    this.context.matrix.sendTextMessage(roomId, msg);
-  }
 
   /**
    * Check if the sender id of the user that sent the message

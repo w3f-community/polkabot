@@ -7,7 +7,8 @@ import {
   PluginContext,
   CommandHandlerOutput,
   IControllable,
-  PluginCommandSet
+  PluginCommandSet,
+  Room
 } from "@polkabot/api/src/plugin.interface";
 import getCommandSet from "./commandSet";
 
@@ -15,13 +16,17 @@ export default class Blocthday extends PolkabotWorker implements IControllable {
   private NB_BLOCKS: number;
   public commandSet: PluginCommandSet;
 
-  public cmdStatus(...args: any[]): CommandHandlerOutput {
+  public cmdStatus(event, room:Room): CommandHandlerOutput {
     console.log(`Blocthday.cmdStatus()`);
     // console.log("Called cmdStatus with:", args);
-
+   
     return {
       code: -1,
-      msg: "Implement me first!"
+      msg: "Implement me first!",
+      answers: [{
+        room,
+        message: 'Oups! I am not implmented yet 🥴'
+      }]
     };
   }
 

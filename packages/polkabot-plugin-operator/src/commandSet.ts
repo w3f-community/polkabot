@@ -1,5 +1,4 @@
 import { PluginCommandSet } from "@polkabot/api/src/plugin.interface";
-import Blocthday from ".";
 import Operator from ".";
 
 export default function getCommandSet(ref: Operator): PluginCommandSet {
@@ -13,6 +12,13 @@ export default function getCommandSet(ref: Operator): PluginCommandSet {
         argsRegexp: "",
         adminOnly: false,
         handler: ref.cmdStatus
+      },
+       {
+        name: "help",
+        description: "Show some help",
+        argsRegexp: "",
+        adminOnly: false,
+        handler: ref.cmdHelp
       }
     ]
   };

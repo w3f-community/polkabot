@@ -1,7 +1,9 @@
 import { packageJson } from "package-json";
 import * as path from "path";
 import { assert } from "./utils";
-
+import { PolkabotWorker } from "./PolkabotWorker";
+import { PolkabotChatbot } from "./PolkabotChatbot";
+import { PolkabotNotifier } from "./PolkabotNotifier";
 
 /**
  * A plugin module before the package has been loaded.
@@ -20,10 +22,31 @@ export enum Type {
   Chatbot
 }
 
+export type RoomAnswer = {
+  room: Room;
+  message: string;
+  html?: boolean; // If we don't pass HTML it is assumed that it is
+};
+
 export type CommandHandlerOutput = {
   code: number;
   msg: string;
+  answers?: RoomAnswer[];
 };
+
+export type RoomId = string;
+export type Message = string;
+export type SenderId = string;
+
+export type Room = {
+  name: string;
+  roomId: RoomId;
+  currentState: {
+    members: Member[];
+  };
+};
+
+export type Member = any;
 
 export type PluginCommand = {
   name: string; // ie: start
@@ -92,91 +115,6 @@ export type BotCommand = {
   command: string; // status, help, etc, ...
   args?: string[];
 };
-
-// TODO: get this class out!
-export abstract class PolkabotWorker extends PolkabotPluginBase {
-  constructor(mod: PluginModule, context: PluginContext, config?) {
-    super(Type.Worker, mod, context, config);
-  }
-  public abstract start();
-  public abstract stop();
-}
-
-export abstract class PolkabotChatbot extends PolkabotPluginBase implements IChatBot {
-  controllables: IControllable[] = [];
-
-  constructor(mod: PluginModule, context: PluginContext, config?) {
-    super(Type.Chatbot, mod, context, config);
-  }
-
-  public registerControllables(controllables: IControllable[]) {
-    console.log(`Registering controllables: `);
-    // console.log(`controllables: ${JSON.stringify(controllables, null, 2)}`);
-
-    controllables.map((ctrl: PolkabotPluginBase) => {
-      console.log(` >> ${ctrl.commandSet.name} (!${ctrl.commandSet.alias})`);
-      const commandObject: PluginCommandSet = (ctrl as IControllable).commandSet;
-      const commands: PluginCommand[] = commandObject.commands;
-      console.log(commands.map(c => c.name));
-    });
-    this.controllables = controllables
-  }
-
-  public abstract start();
-  // TODO add stop()
-
-  /**
-   * Check that the room id where the sender of the message
-   * sent the message from is the same as the room id where
-   * that the bot is in.
-   */
-  protected isPrivate(senderRoomId, roomIdWithBot) {
-    return senderRoomId === roomIdWithBot;
-  }
-
-   /**
-   * Get a string from the chat and extract a BotCommand or none
-   * See https://regex101.com/r/1EDFsV/1/tests
-   * TODO: That should be a factory creating an instance of a BotCommand class
-   * TODO: add unit test for that
-   */
-  public static getBotCommand(str: string): BotCommand | null {
-    let capture = str.match(/^!(?<module>\w+)(\s+(?<command>\w+))(\s+(?<args>.*))?$/i) || [];
-    console.log("Operator:getBotCommand() - capture from Bot Master: ", capture);
-    if (capture.length > 0 && capture.groups.module && capture.groups.command) {
-      const { module, command, args } = capture.groups;
-      // const command: string = capture.groups.command;
-      const argList: string[] = args === undefined ? null : args.split(" ").map(i => i.replace(" ", "")); // TODO a smarter regexp would do that
-
-      // console.log("Operator - module: ", module);
-      // console.log("Operator - command: ", command);
-      // console.log("Operator - args: ", args);
-
-      const obj: BotCommand = {
-        module,
-        command,
-        args: argList
-      };
-      console.log("obj", obj);
-      return obj;
-    } else {
-      console.log("FAILED PARSING COMMAND", str);
-      return null;
-    }
-  }
-}
-
-export abstract class PolkabotNotifier extends PolkabotPluginBase {
-  public abstract channel: string; // 'twitter', 'matrix', 'email', ....
-
-  constructor(mod: PluginModule, context: PluginContext, config?) {
-    super(Type.Notifier, mod, context, config);
-  }
-
-  public notify(message: NotifierMessage, specs: NotifierSpecs): void {
-    // console.log("Notifier - notify()", message, specs);
-  }
-}
 
 export type PolkabotPlugin = PolkabotWorker | PolkabotNotifier | PolkabotChatbot;
 

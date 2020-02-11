@@ -13,17 +13,15 @@ import { assert } from "@polkadot/util";
 import {
   PluginContext,
   PolkabotPlugin,
-  PolkabotWorker,
-  PolkabotNotifier,
   NotifierMessage,
   NotifierSpecs,
   PluginModule,
   IControllable,
-  PolkabotChatbot,
-  PolkabotPluginBase,
   Type,
-  IChatBot
 } from "../../polkabot-api/src/plugin.interface";
+import { PolkabotNotifier } from "../../polkabot-api/src/PolkabotNotifier.js";
+import { PolkabotChatbot } from "../../polkabot-api/src/PolkabotChatbot.js";
+import { PolkabotWorker } from "../../polkabot-api/src/PolkabotWorker.js";
 
 //@ts-ignore
 global.Olm = Olm;

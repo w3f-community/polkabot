@@ -4,10 +4,10 @@ import {
   PluginModule,
   PluginContext,
   PolkabotPlugin,
-  PolkabotNotifier,
-  PolkabotWorker,
-  PolkabotChatbot
 } from "../../../polkabot-api/src/plugin.interface";
+import { PolkabotNotifier } from "../../../polkabot-api/src/PolkabotNotifier";
+import { PolkabotWorker } from "../../../polkabot-api/src/PolkabotWorker";
+import { PolkabotChatbot } from "../../../polkabot-api/src/PolkabotChatbot";
 
 export default class PluginLoader {
   // private static getType(mod: PluginModule) {
