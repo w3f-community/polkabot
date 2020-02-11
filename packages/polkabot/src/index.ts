@@ -19,9 +19,9 @@ import {
   IControllable,
   Type,
 } from "../../polkabot-api/src/plugin.interface";
-import { PolkabotNotifier } from "../../polkabot-api/src/PolkabotNotifier.js";
-import { PolkabotChatbot } from "../../polkabot-api/src/PolkabotChatbot.js";
-import { PolkabotWorker } from "../../polkabot-api/src/PolkabotWorker.js";
+import { PolkabotNotifier } from "../../polkabot-api/src/PolkabotNotifier";
+import { PolkabotChatbot } from "../../polkabot-api/src/PolkabotChatbot";
+import { PolkabotWorker } from "../../polkabot-api/src/PolkabotWorker";
 
 //@ts-ignore
 global.Olm = Olm;

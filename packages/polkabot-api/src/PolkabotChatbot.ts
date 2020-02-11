@@ -44,7 +44,6 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements ICha
    * Get a string from the chat and extract a BotCommand or none
    * See https://regex101.com/r/1EDFsV/1/tests
    * TODO: That should be a factory creating an instance of a BotCommand class
-   * TODO: add unit test for that
    */
   public static getBotCommand(str: string): BotCommand | null {
     let capture = str.match(/^!(?<module>\w+)(\s+(?<command>\w+))(\s+(?<args>.*))?$/i) || [];
@@ -56,11 +55,11 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements ICha
         command,
         args: argList
       };
-      console.log("obj", obj);
+    //   console.log("obj", obj);
       return obj;
     }
     else {
-      console.log("FAILED PARSING COMMAND", str);
+    //   console.log("FAILED PARSING COMMAND", str); // TODO: make this a silly logger message so it does not bother
       return null;
     }
   }
