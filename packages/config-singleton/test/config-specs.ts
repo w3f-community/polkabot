@@ -20,5 +20,6 @@ factory.appendSpec(factory.getSpec('SECRET', 'some secret', { masked: true }));
 factory.appendSpec(factory.getSpec('REGEXP', 'some regexp', { regexp: /^\d{2}_\d{2}/ }));
 factory.appendSpec(factory.getSpec('MANDAT1', 'some mandatory param', { mandatory: true }));
 // specs = factory.appendSpec(specs, factory.getSpec('REGEXP', 'some regexp', /^\d{2}_\d{2}/));
+const specs = factory.getSpecs()
 
-export default factory.getSpecs();
+export default specs;

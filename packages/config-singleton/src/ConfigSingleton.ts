@@ -1,7 +1,7 @@
 import process = require('process');
 import dotenv from 'dotenv';
 import * as path from 'path';
-import { ConfigSpecs, ConfigDictionnaryRaw, ConfigDictionnarySimple } from './types';
+import { ConfigSpecs, ConfigDictionnaryRaw, ConfigDictionnarySimple, ConfigItem } from './types';
 
 interface IConfig {
   Validate(): boolean;
@@ -11,6 +11,10 @@ type GetterOpts = {
   specs?: ConfigSpecs;
   clean?: boolean;
 };
+
+function clone(object: any): any {
+  return JSON.parse(JSON.stringify(object))
+}
 
 export class ConfigSingleton {
   private static fullConfig?: ConfigDictionnaryRaw;
@@ -30,8 +34,7 @@ export class ConfigSingleton {
   // we need however to store the full config for validate
   public static getInstance(specs?: ConfigSpecs): ConfigSingleton {
     if (!this.instance && !specs) {
-      throw new Error("Missing specs");
-       
+      throw new Error('Missing specs');
     }
     if (!this.instance && specs) {
       this.instance = new ConfigSingleton(specs);
@@ -46,16 +49,12 @@ export class ConfigSingleton {
     // return ConfigSingleton.cleanConfig;
   }
 
-  // TODO: remove the argument, when we get the config, it is always clean
-  public getConfig(clean: boolean = true): ConfigDictionnarySimple {
-    const stuff: any = this.specs.config; //process.env;
+  public getConfig(): ConfigDictionnarySimple {
+    // here we clone the config specs so we dont lose the specs
+    const stuff: any = clone(this.specs.config); //process.env;
 
     Object.entries(stuff).map(([key, _val]) => {
-      if (clean) {
-        stuff[key] = process.env[key];
-      } else {
-        stuff[key].value = process.env[key];
-      }
+      stuff[key] = process.env[key];
     });
     // Hook up functions
     stuff.Validate = this.Validate.bind(this);
@@ -63,9 +62,16 @@ export class ConfigSingleton {
     return stuff;
   }
 
-  // public getSpecs(): ConfigSpecs {
-  //   return this.specs;
-  // }
+  public getSpecs(): ConfigDictionnaryRaw {
+    const stuff: any = this.specs.config; //process.env;
+    // console.log('stuff1', stuff)
+    
+    // Object.entries(stuff).map(([key, _val]) => {
+    //   stuff[key].value = process.env[key];
+    // });
+    // console.log('stuff2', stuff)
+    return stuff;
+  }
 
   private static getEnvFile(): string {
     const profile = process.env.NODE_ENV || 'production';
@@ -108,11 +114,13 @@ export class ConfigSingleton {
   /** Validate the config and return wheather it is valid or not */
   public Validate(): boolean {
     let result = true;
-    console.log(this.specs);
-    Object.entries(this.specs.config).map(([_key, env]) => {
-      if (env.options) {
+    // console.log('specs:', this.specs);
+    const configSpecs = this.getSpecs(); 
+    Object.entries(configSpecs).map(([_key, env]: [string, ConfigItem]) => {
+      if (env && env.options) {
         const value = process.env[env.name] || '';
         if (env.options.regexp != undefined) {
+          // console.log('env', env);
           const regex = RegExp(env.options.regexp);
           const testResult = regex.test(value);
           // console.log(
@@ -123,7 +131,10 @@ export class ConfigSingleton {
           result = result && testResult;
         }
         result = result && (!env.options.mandatory || (env.options.mandatory && value.length > 0));
-      }
+      } 
+      // else {
+      //   console.log('no env');
+      // }
     });
     return result;
   }

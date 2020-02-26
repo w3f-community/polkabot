@@ -35,7 +35,7 @@ describe('ConfigSingleton', () => {
   });
 
   it('Should properly fetch params', function() {
-    const config = ConfigSingleton.getInstance(specs);
+    const config = ConfigSingleton.getInstance(specs).getConfig();
     // console.log(JSON.stringify(config, null, 2));
     expect(config['SAMPLE_MODULE_PARAM1']).to.equal(param1);
     expect(config['SAMPLE_MODULE_PARAM2']).to.equal(param2);
@@ -44,8 +44,16 @@ describe('ConfigSingleton', () => {
     expect(() => ConfigSingleton.getInstance()).to.not.throw();
   });
 
+  it('Should properly fetch config specs', function() {
+    const configSpecs = ConfigSingleton.getInstance(specs).getSpecs();
+    // console.log('configSpecs', JSON.stringify(configSpecs, null, 2));
+    expect(configSpecs['SAMPLE_MODULE_PARAM1'].description).to.have.length.above(3);
+
+    // expect(() => ConfigSingleton.getInstance()).to.not.throw();
+  });
+
   it('Should return clean config', function() {
-    const config = ConfigSingleton.getInstance(specs);
+    const config = ConfigSingleton.getInstance(specs).getConfig();
     // console.log(JSON.stringify(config, null, 2));
     expect(config['SAMPLE_MODULE_PARAM1']).to.equal(param1);
     expect(config['SAMPLE_MODULE_PARAM2']).to.equal(param2);
@@ -56,17 +64,22 @@ describe('ConfigSingleton', () => {
 
   it('Should fail regexp validation', function() {
     process.env.SAMPLE_MODULE_REGEXP = '123_45';
-    const res = ConfigSingleton.getInstance(specs).Validate();
+    const configSpecs = ConfigSingleton.getInstance(specs).getSpecs();
+    // console.log('specs', configSpecs);
+    const config = ConfigSingleton.getInstance(specs).getConfig();
+    // console.log('config', config);
+
+    const res = ConfigSingleton.getInstance().Validate();
     expect(res).to.be.false;
   });
 
-  xit('Should fail is a mandatory field is missing', function() {
+  it('Should fail is a mandatory field is missing', function() {
     delete process.env.SAMPLE_MODULE_MANDAT1; // just in case
     const res = ConfigSingleton.getInstance(specs).Validate();
     expect(res).to.be.false;
   });
 
-  xit('Should not fail is a non mandatory field is missing', function() {
+  it('Should not fail is a non mandatory field is missing', function() {
     delete process.env.SAMPLE_MODULE_PARAM2;
     const config = ConfigSingleton.getInstance(specs);
     const res = config.Validate();
