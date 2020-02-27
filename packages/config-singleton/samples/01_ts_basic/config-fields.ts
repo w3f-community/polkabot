@@ -1,4 +1,4 @@
-import { EnvDictionnary } from "../src/types";
+import { EnvDictionnary } from "../../../src/types";
 
 const PREFIX = "SAMPLE_";
 

@@ -16,6 +16,7 @@
         "envfile",
         "minimongo",
         "msgsype",
+        "typedoc",
         "upsert",
         "xxhash"
     ]

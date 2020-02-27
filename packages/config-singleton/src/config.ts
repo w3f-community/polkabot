@@ -1,15 +1,14 @@
-import { config as dotenvConfig } from 'dotenv'
+import { config as dotenvConfig } from 'dotenv';
 
-dotenvConfig()
+dotenvConfig();
 
 module.exports = {
-
   // General Polkadot config
   polkadot: {
     // This is just for you to remember. i.e. 'Crash Override'
     nodeName: process.env.POLKADOT_NODE_NAME,
     // WebSocket host:port, usually :9944. i.e. 'ws://127.0.0.1:9944'
-    host: process.env.POLKADOT_WS_HOST || 'ws://127.0.0.1:9944'
+    host: process.env.POLKADOT_WS_HOST || 'ws://127.0.0.1:9944',
   },
 
   // General Matrix config
@@ -25,6 +24,6 @@ module.exports = {
     // Base Matrix URL. i.e. 'https://matrix.org'
     baseUrl: process.env.MATRIX_BASE_URL || 'https://matrix.org',
     loginUserId: process.env.MATRIX_LOGIN_USER_ID,
-    loginUserPassword: process.env.MATRIX_LOGIN_USER_PASSWORD
-  }
-}
+    loginUserPassword: process.env.MATRIX_LOGIN_USER_PASSWORD,
+  },
+};

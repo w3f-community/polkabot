@@ -20,7 +20,7 @@ export type ConfigDictionnarySimple = {
 };
 
 /**
- * 
+ *
  */
 // TODO: rename those
 export type ConfigDictionnaryRaw = {

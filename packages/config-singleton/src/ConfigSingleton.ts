@@ -3,22 +3,11 @@ import dotenv from 'dotenv';
 import * as path from 'path';
 import { ConfigSpecs, ConfigDictionnaryRaw, ConfigDictionnarySimple, ConfigItem } from './types';
 
-interface IConfig {
-  Validate(): boolean;
-}
-
-type GetterOpts = {
-  specs?: ConfigSpecs;
-  clean?: boolean;
-};
-
 function clone(object: any): any {
-  return JSON.parse(JSON.stringify(object))
+  return JSON.parse(JSON.stringify(object));
 }
 
 export class ConfigSingleton {
-  private static fullConfig?: ConfigDictionnaryRaw;
-  private static cleanConfig?: ConfigDictionnarySimple;
   private static instance: ConfigSingleton;
 
   private specs: ConfigSpecs;
@@ -29,9 +18,6 @@ export class ConfigSingleton {
     this.refresh();
   }
 
-  /** If you need to access the config, use this method */
-  // this method MUST return the clean config for simple usage BUT the full one to validate
-  // we need however to store the full config for validate
   public static getInstance(specs?: ConfigSpecs): ConfigSingleton {
     if (!this.instance && !specs) {
       throw new Error('Missing specs');
@@ -40,37 +26,27 @@ export class ConfigSingleton {
       this.instance = new ConfigSingleton(specs);
     }
 
-    // if (!ConfigSingleton.fullConfig && !specs) throw new Error('Missing specs');
-    // if (!ConfigSingleton.fullConfig || specs) {
-    //   ConfigSingleton.fullConfig = new ConfigSingleton(specs).getConfig(false);
-    //   ConfigSingleton.cleanConfig = new ConfigSingleton(specs).getConfig(true);
-    // }
     return this.instance;
-    // return ConfigSingleton.cleanConfig;
   }
 
   public getConfig(): ConfigDictionnarySimple {
     // here we clone the config specs so we dont lose the specs
-    const stuff: any = clone(this.specs.config); //process.env;
+    const confClone: any = clone(this.specs.config); //process.env;
 
-    Object.entries(stuff).map(([key, _val]) => {
-      stuff[key] = process.env[key];
+    Object.entries(confClone).map(([key, _val]) => {
+      confClone[key] = process.env[key];
     });
-    // Hook up functions
-    stuff.Validate = this.Validate.bind(this);
 
-    return stuff;
+    // Hook up functions
+    ['Validate', 'DumpEnv'].map((f: string) => {
+      confClone[f] = this[f].bind(this);
+    });
+
+    return confClone;
   }
 
   public getSpecs(): ConfigDictionnaryRaw {
-    const stuff: any = this.specs.config; //process.env;
-    // console.log('stuff1', stuff)
-    
-    // Object.entries(stuff).map(([key, _val]) => {
-    //   stuff[key].value = process.env[key];
-    // });
-    // console.log('stuff2', stuff)
-    return stuff;
+    return this.specs.config;
   }
 
   private static getEnvFile(): string {
@@ -92,7 +68,7 @@ export class ConfigSingleton {
     const envfile = ConfigSingleton.getEnvFile();
     // console.log('ENV file:', envfile);
     dotenv.config({ path: envfile });
-    const ENV = process.env;
+    // const ENV = process.env;
 
     // console.log(ENV);
     // this.filteredEnv = Object.entries(process.env).filter(([key, val]) => {
@@ -114,27 +90,17 @@ export class ConfigSingleton {
   /** Validate the config and return wheather it is valid or not */
   public Validate(): boolean {
     let result = true;
-    // console.log('specs:', this.specs);
-    const configSpecs = this.getSpecs(); 
+    const configSpecs = this.getSpecs();
     Object.entries(configSpecs).map(([_key, env]: [string, ConfigItem]) => {
       if (env && env.options) {
         const value = process.env[env.name] || '';
         if (env.options.regexp != undefined) {
-          // console.log('env', env);
           const regex = RegExp(env.options.regexp);
           const testResult = regex.test(value);
-          // console.log(
-          //   `  - Checking ${env.name} against ${regex} => ${testResult ? 'OK  ' : 'FAIL'}\t${
-          //     env.options.masked ? '*****' : process.env[env.name]
-          //   }`
-          // );
           result = result && testResult;
         }
         result = result && (!env.options.mandatory || (env.options.mandatory && value.length > 0));
-      } 
-      // else {
-      //   console.log('no env');
-      // }
+      }
     });
     return result;
   }
@@ -148,7 +114,7 @@ export class ConfigSingleton {
    * Display the current ENV to ensure everything that is used matches
    * the expectations.
    */
-  public dumpEnv(logger: (...args) => void): void {
+  public DumpEnv(logger: (...args) => void): void {
     const container = `${this.specs.container.prefix}_${this.specs.container.module}`;
     logger(`===> ${container} ENV:`);
     Object.entries(this.specs.config).map(([_key, env]) => {
