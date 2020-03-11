@@ -4,7 +4,9 @@
         "**/node_modules": false
     },
     "cSpell.words": [
+        "BLOCKSTATS",
         "BOTMASTER",
+        "BOTUSER",
         "Blocthday",
         "Chatbot",
         "Datastore",

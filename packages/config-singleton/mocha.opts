@@ -1,5 +1,0 @@
---ui bdd
---recursive
---require ts-node/register
---watch-extensions ts
-test/**/*.test.ts

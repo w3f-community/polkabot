@@ -7,8 +7,9 @@ import pkg from "../package.json";
 import PluginScanner from "./lib/plugin-scanner";
 import PluginLoader from "./lib/plugin-loader";
 import sdk from "matrix-js-sdk";
-import { ConfigSingleton } from "./ConfigSingleton";
-import { IPolkabotConfig } from "./types";
+// import { IPolkabotConfig } from "./types";
+import { ConfigManager } from 'confmgr';
+
 import { assert } from "@polkadot/util";
 import {
   PluginContext,
@@ -119,7 +120,7 @@ export default class Polkabot {
       // Here we check the ENV content to see if plugins should be disabled (= not loaded)
       console.log("Filtering out disabled plugins...");
       plugins = plugins.filter((p: PluginModule) => {
-        const DISABLED_KEY = `POLKABOT_PLUGIN_${p.shortName}_DISABLED`;
+        const DISABLED_KEY = `POLKABOT_${p.shortName}_DISABLED`;
         const disabled: boolean = (process.env[DISABLED_KEY] || "false") === "true";
         console.log(disabled ? "❌" : "✅", p.shortName);
 
@@ -223,18 +224,17 @@ export default class Polkabot {
 
     // this.config = require(configLocation)
 
-    let config: IPolkabotConfig = ConfigSingleton.getInstance();
-    assert(config.polkadot.host != null, "Issue with the config");
-    assert(config.matrix.botMasterId != null, "Missing bot master id");
-    ConfigSingleton.dumpEnv();
+    const config = ConfigManager.getInstance('configSpecs.yml').getConfig();
+    config.Print();
+    console.log(`Your config is${config.Validate() ? '' : ' NOT'} valid!`);
 
     this.config = config;
 
     // console.log(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`);
-    console.log(`Polkabot - Connecting to host: ${this.config.polkadot.host}`);
-    console.log(`Polkabot - Running with bot user id: ${this.config.matrix.botUserId}`);
+    console.log(`Polkabot - Connecting to host: ${this.config.values.POLKADOT.URL}`);
+    console.log(`Polkabot - Running with bot user id: ${this.config.values.MATRIX.BOTUSER_ID}`);
 
-    const provider = new WsProvider(this.config.polkadot.host);
+    const provider = new WsProvider(this.config.values.POLKADOT.URL);
     // Create the API and wait until ready
     this.polkadot = await ApiPromise.create({ provider });
 
@@ -251,26 +251,29 @@ export default class Polkabot {
     this.db = new LocalDb();
     this.db.addCollection("config");
 
-    this.db.config.upsert({ botMasterId: this.config.matrix.botMasterId }, () => {
-      this.db.config.findOne({}, {}, res => {
-        console.log("Polkabot - Matrix client bot manager id: " + res.botMasterId);
-      });
-    });
+    this.db.config.upsert(
+      { botMasterId: this.config.values.MATRIX.BOTMASTER_ID },
+      () => {
+        this.db.config.findOne({}, {}, res => {
+          console.log('Polkabot - Matrix client bot manager id: ' + res.botMasterId);
+        });
+      }
+    );
 
     // TODO - refactor using async/await. See https://github.com/matrix-org/matrix-js-sdk/issues/789
     console.log("Polkabot - creating client");
 
     this.matrix = sdk.createClient({
-      baseUrl: this.config.matrix.baseUrl,
-      accessToken: this.config.matrix.token,
-      userId: this.config.matrix.botUserId
+      baseUrl: this.config.values.MATRIX.BASE_URL,
+      accessToken: this.config.values.MATRIX.TOKEN,
+      userId: this.config.values.MATRIX.BOTUSER_ID
     });
 
     if (this.isCustomBaseUrl()) {
       const data = await this.matrix
         .login("m.login.password", {
-          user: this.config.matrix.loginUserId,
-          password: this.config.matrix.loginUserPassword
+          user: this.config.values.MATRIX.LOGIN_USER_ID,
+          password: this.config.values.MATRIX.LOGIN_USER_PASSWORD
         })
         .catch(error => {
           console.error("Polkabot: Error logging into matrix:", error);
@@ -312,12 +315,11 @@ export default class Polkabot {
     //   }
     // })
 
-    this.matrix.startClient(this.config.matrix.MESSAGES_TO_SHOW || 20);
+    this.matrix.startClient(this.config.values.MATRIX.MESSAGES_TO_SHOW);
   }
 
   private isCustomBaseUrl() {
-    const { baseUrl } = this.config.matrix;
-
+    const baseUrl = this.config.values.MATRIX.BASE_URL;
     return baseUrl && baseUrl !== "https://matrix.org";
   }
 }
