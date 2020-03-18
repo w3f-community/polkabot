@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 import {
-  NotifierMessage,
-  NotifierSpecs,
   PluginModule,
   PluginContext,
   CommandHandlerOutput,
@@ -13,16 +11,18 @@ import {
   PluginCommand,
   Room,
   SenderId,
+  RoomId,
 } from "@polkabot/api/src/plugin.interface";
 import moment from "moment";
 import getCommandSet from "./commandSet";
 import { PolkabotChatbot } from "@polkabot/api/src/PolkabotChatbot";
+import MatrixHelper from "./matrix-helper";
 
 export default class Operator extends PolkabotChatbot implements IControllable {
   public commandSet: PluginCommandSet;
   package: any;
   controllables: any;
-  context: any;
+  context: PluginContext;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
@@ -136,7 +136,7 @@ export default class Operator extends PolkabotChatbot implements IControllable {
       const senderId = event.getSender();
 
       // If we see our own message, we skip
-      if (this.isSelf(senderId)) return;
+      if (MatrixHelper.isSelf(senderId, this.config.Get('MATRIX', 'BOTUSER_ID'))) return;
 
       // If there is no ! and the string contains help, we try to help
       if (msg.indexOf("!") < 0 && msg.toLowerCase().indexOf("help") > 0) {
@@ -190,8 +190,8 @@ export default class Operator extends PolkabotChatbot implements IControllable {
         //   return;
         // }
 
-        const senderRoomId = event.sender.roomId;
-        const roomIdWithBot = room.roomId;
+        const senderRoomId: RoomId = event.sender.roomId;
+        const roomIdWithBot: RoomId = room.roomId;
 
         console.log(senderId, senderRoomId, roomIdWithBot);
 
@@ -205,7 +205,7 @@ export default class Operator extends PolkabotChatbot implements IControllable {
         // console.log("isBotMasterAndBotInRoom", this.isBotMasterAndBotInRoom(room));
         // console.log("isBotMessageRecipient", this.isBotMessageRecipient(room));
 
-        if (this.isPrivate(senderRoomId, roomIdWithBot)) {
+        if (MatrixHelper.isPrivate(senderRoomId, roomIdWithBot)) {
           /**
            * Check that the senderId is the Bot Master with isOperator
            * Also check that the message is from a direct message between
@@ -229,8 +229,8 @@ export default class Operator extends PolkabotChatbot implements IControllable {
             let capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
             // console.log("Operator - captured from Bot Master: ", capture);
             if (capture.length > 0 && capture.groups.cmd) {
-              const cmd: string = capture.groups.cmd;
-              const args = capture.groups.args;
+              const _cmd: string = capture.groups.cmd;
+              const _args = capture.groups.args;
 
               //   console.log("Operator - cmd: ", cmd);
               //   console.log("Operator - args: ", args);
@@ -294,16 +294,8 @@ export default class Operator extends PolkabotChatbot implements IControllable {
       }
     });
   }
-  
-  // TODO: not implemented!
-  public isPrivate(senderRoomId: any, roomIdWithBot: any): boolean {
-    return false;
-    // throw new Error("Method not implemented.");
-  }
 
-  private isSelf(senderId) {
-    return senderId === this.context.config.matrix.botUserId;
-  }
+
 
   // private showInstructions() {
   //   // Send message to the room notifying users how to use the bot
@@ -324,7 +316,7 @@ export default class Operator extends PolkabotChatbot implements IControllable {
    * is the Bot Master's id
    */
   private isMaster(senderId: SenderId) {
-    return senderId === this.context.config.matrix.botMasterId;
+    return senderId === this.context.config.Get('MATRIX', 'BOTMASTER_ID');
   }
 
   // Is the chat room name the same name as the Bot's name
@@ -333,7 +325,7 @@ export default class Operator extends PolkabotChatbot implements IControllable {
   public isBotMessageRecipient(room: Room) {
     return (
       room.name ===
-      this.context.config.matrix.botUserId
+      this.context.config.Get('MATRIX', 'BOTUSER_ID')
         .split(":")
         .shift()
         .substring(1)
@@ -342,7 +334,7 @@ export default class Operator extends PolkabotChatbot implements IControllable {
 
   // Has the Bot Master initiated a direct chat with the Bot
   private isBotMasterAndBotInRoom(room: Room) {
-    const expectedDirectMessageRoomMemberIds = [this.context.config.matrix.botMasterId, this.context.config.matrix.botUserId];
+    const expectedDirectMessageRoomMemberIds = [this.context.config.Get('MATRIX', 'BOTMASTER_ID'), this.context.config.Get('MATRIX', 'BOTUSER_ID')];
     const directChatRoomMemberIds = Object.keys(room.currentState.members);
     return expectedDirectMessageRoomMemberIds.every(val => directChatRoomMemberIds.includes(val));
   }

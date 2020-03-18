@@ -4,6 +4,7 @@ import { assert } from "./utils";
 import { PolkabotWorker } from "./PolkabotWorker";
 import { PolkabotChatbot } from "./PolkabotChatbot";
 import { PolkabotNotifier } from "./PolkabotNotifier";
+import { ConfigObject } from 'confmgr'
 
 /**
  * A plugin module before the package has been loaded.
@@ -80,35 +81,36 @@ export interface IChatBot {
 }
 
 export class PolkabotPluginBase {
-  public module: PluginModule;
-  public config: any; // TODO
-  public context: any; // TODO
-  public package: packageJson;
-  public type: Type;
-  public commandSet?: PluginCommandSet;
+         // TODO: fix the mess here
+         public module: PluginModule;
+         public config: ConfigObject;
+         public context: PluginContext; // TODO
+         public package: packageJson;
+         public type: Type;
+         public commandSet?: PluginCommandSet;
 
-  // public description: string; // some blabla about the plugin, we dont have this field, we use the package.json/description
+         // public description: string; // some blabla about the plugin, we dont have this field, we use the package.json/description
 
-  constructor(type: Type, mod: PluginModule, context: PluginContext, config?) {
-    // console.log(`++ PolkabotPluginBase/${type} ${mod.name}: ${mod.path}`);
-    this.type = type;
-    this.context = context;
-    this.config = config;
-    this.module = mod;
-    const packageFile = path.join(mod.path, "package.json");
+         constructor(type: Type, mod: PluginModule, context: PluginContext, config?) {
+           // console.log(`++ PolkabotPluginBase/${type} ${mod.name}: ${mod.path}`);
+           this.type = type;
+           this.context = context;
+           this.config = config;
+           this.module = mod;
+           const packageFile = path.join(mod.path, 'package.json');
 
-    // console.log("loading package from", packageFile);
-    this.package = require(packageFile);
+           // console.log("loading package from", packageFile);
+           this.package = require(packageFile);
 
-    assert(this.package, "package not loaded properly");
-  }
+           assert(this.package, 'package not loaded properly');
+         }
 
-  // toString() {
-  //   const obj = this;
-  //   delete obj.context;
-  //   return JSON.stringify(obj, null, 2);
-  // }
-}
+         // toString() {
+         //   const obj = this;
+         //   delete obj.context;
+         //   return JSON.stringify(obj, null, 2);
+         // }
+       }
 
 export type BotCommand = {
   module: string; // op, id, bday, etc...
@@ -122,7 +124,7 @@ export type PolkabotPlugin = PolkabotWorker | PolkabotNotifier | PolkabotChatbot
  * This is the context Polkabot passes to any plugin
  */
 export interface PluginContext {
-  config;
+  config: ConfigObject;
   pkg;
   db;
   matrix;

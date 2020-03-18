@@ -2,12 +2,12 @@
 
 import BN from "bn.js";
 import {
-  PolkabotWorker,
   NotifierMessage,
   NotifierSpecs,
   PluginModule,
   PluginContext
 } from "@polkabot/api/src/plugin.interface";
+import {  PolkabotWorker} from "@polkabot/api/src/PolkabotWorker"
 
 type Data = {
   tmsp: number;
@@ -16,7 +16,9 @@ type Data = {
 };
 
 export default class BlocsStats extends PolkabotWorker {
-  public config: {
+  static NAME = 'BLOCKSTATS'
+
+  public params: {
     NB_BLOCKS: number; // Size of the rolling buffer
     THRESHOLD: number; // We remain silent unless the average goes above this value
     LOG_NTH_BLOCK: number;
@@ -28,11 +30,11 @@ export default class BlocsStats extends PolkabotWorker {
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-
-    this.config = {
-      NB_BLOCKS: parseInt(process.env.POLKABOT_PLUGIN_BLOCKSTATS_NB_BLOCKS) || 100, // Size of the rolling buffer
-      THRESHOLD: parseInt(process.env.POLKABOT_PLUGIN_BLOCKSTATS_THRESHOLD) || 8.0, // We remain silent unless the average goes above this value
-      LOG_NTH_BLOCK: parseInt(process.env.POLKABOT_PLUGIN_BLOCKSTATS_LOG_NTH_BLOCK) || 1000
+    
+    this.params = {
+      NB_BLOCKS: context.config.Get(BlocsStats.NAME, 'NB_BLOCKS'), /// Size of the rolling buffer
+      THRESHOLD:  context.config.Get(BlocsStats.NAME, 'THRESHOLD'), /// We remain silent unless the average goes above this value
+      LOG_NTH_BLOCK: context.config.Get(BlocsStats.NAME, 'LOG_NTH_BLOCK')
     };
 
     this.data = [];
@@ -40,24 +42,29 @@ export default class BlocsStats extends PolkabotWorker {
   }
 
   public start(): void {
-    console.log("BlocksStats - Starting with config:", this.config);
+    console.log("BlocksStats - Starting with config:", this.params);
     this.watchChain().catch(error => {
       console.error("BlocksStats - Error subscribing to chain head: ", error);
     });
   }
 
+  public stop(): void {
+    // TODO missing impl
+    throw new Error('Not Implemented')
+  }
+  
   async watchChain() {
     // Reference: https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
     await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
       const bnBlockNumber: BN = header.number.unwrap().toBn();
 
-      if (bnBlockNumber.mod(new BN(this.config.LOG_NTH_BLOCK)).toString(10) === "0") {
+      if (bnBlockNumber.mod(new BN(this.params.LOG_NTH_BLOCK)).toString(10) === "0") {
         console.log(`BlocksStats - Chain is at block: #${header.number.unwrap().toBn()}`, this.stats);
       }
 
       this.addBlock(header);
 
-      if (bnBlockNumber.mod(new BN(this.config.NB_BLOCKS)).toString(10) === "0") {
+      if (bnBlockNumber.mod(new BN(this.params.NB_BLOCKS)).toString(10) === "0") {
         this.computeStats();
         this.alert(bnBlockNumber);
       }
@@ -72,7 +79,7 @@ export default class BlocsStats extends PolkabotWorker {
     };
     this.data.push(data);
 
-    while (this.data.length > this.config.NB_BLOCKS) {
+    while (this.data.length > this.params.NB_BLOCKS) {
       this.data.shift();
     }
     this.previousData = data;
@@ -91,10 +98,10 @@ export default class BlocsStats extends PolkabotWorker {
   }
 
   alert(bnBlockNumber) {
-    if (this.stats.averageBlockTime >= this.config.THRESHOLD) {
+    if (this.stats.averageBlockTime >= this.params.THRESHOLD) {
       const notifierMessage: NotifierMessage = {
-        message: `WARNING: Average block time exceeded ${this.config.THRESHOLD.toFixed(3)}s
-Stats for the last ${this.config.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
+        message: `WARNING: Average block time exceeded ${this.params.THRESHOLD.toFixed(3)}s
+Stats for the last ${this.params.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
     - Nb Blocks: ${this.stats.nbBlock}
     - Average Block time: ${this.stats.averageBlockTime.toFixed(3)}s`
       };
@@ -108,8 +115,8 @@ Stats for the last ${this.config.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
       //       this.context.matrix
       //         .sendTextMessage(
       //           this.context.config.matrix.roomId,
-      //           `WARNING: Average block time exceeded ${this.config.THRESHOLD.toFixed(3)}s
-      // Stats for the last ${this.config.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
+      //           `WARNING: Average block time exceeded ${this.params.THRESHOLD.toFixed(3)}s
+      // Stats for the last ${this.params.NB_BLOCKS} at #${bnBlockNumber.toString(10)}:
       //     - Nb Blocks: ${this.stats.nbBlock}
       //     - Average Block time: ${this.stats.averageBlockTime.toFixed(3)}s`
       //         )

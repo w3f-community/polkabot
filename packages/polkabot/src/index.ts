@@ -225,7 +225,7 @@ export default class Polkabot {
     // this.config = require(configLocation)
 
     const config = ConfigManager.getInstance('configSpecs.yml').getConfig();
-    config.Print();
+    config.Print({compact: true});
     console.log(`Your config is${config.Validate() ? '' : ' NOT'} valid!`);
 
     this.config = config;
