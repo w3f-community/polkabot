@@ -1,16 +1,16 @@
-import { PolkabotPluginBase, IChatBot, IControllable, PluginModule, PluginContext, Type, PluginCommandSet, PluginCommand, RoomAnswer, BotCommand } from "./plugin.interface";
+import { PolkabotPluginBase, ChatBot, Controllable, PluginModule, PluginContext, Type, PluginCommandSet, PluginCommand, RoomAnswer, BotCommand } from './plugin.interface';
 
-export abstract class PolkabotChatbot extends PolkabotPluginBase implements IChatBot {
-  controllables: IControllable[] = [];
+export abstract class PolkabotChatbot extends PolkabotPluginBase implements ChatBot {
+  controllables: Controllable[] = [];
   constructor(mod: PluginModule, context: PluginContext, config?) {
     super(Type.Chatbot, mod, context, config);
   }
-  public registerControllables(controllables: IControllable[]) {
-    console.log(`Registering controllables: `);
+  public registerControllables(controllables: Controllable[]): void {
+    console.log('Registering controllables: ');
     // console.log(`controllables: ${JSON.stringify(controllables, null, 2)}`);
     controllables.map((ctrl: PolkabotPluginBase) => {
       console.log(` >> ${ctrl.commandSet.name} (!${ctrl.commandSet.alias})`);
-      const commandObject: PluginCommandSet = (ctrl as IControllable).commandSet;
+      const commandObject: PluginCommandSet = (ctrl as Controllable).commandSet;
       const commands: PluginCommand[] = commandObject.commands;
       console.log(commands.map(c => c.name));
     });
@@ -23,14 +23,14 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements ICha
    * sent the message from is the same as the room id where
    * that the bot is in.
    */
-  protected isPrivate(senderRoomId, roomIdWithBot) {
+  protected isPrivate(senderRoomId, roomIdWithBot): boolean {
     return senderRoomId === roomIdWithBot;
   }
   // public answer(roomId: RoomId, msg: Message) {
-  public answer(data: RoomAnswer) {
+  public answer(data: RoomAnswer): void {
     // console.log("RoomAnswer", data);
     const html = data.html || true;
-    console.log(`Sending HTML: ${html ? "TRUE" : "FALSE"}`);
+    console.log(`Sending HTML: ${html ? 'TRUE' : 'FALSE'}`);
     if (!html) {
       // Pure text
       this.context.matrix.sendTextMessage(data.room.roomId, data.message);
@@ -46,16 +46,16 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements ICha
    * TODO: That should be a factory creating an instance of a BotCommand class
    */
   public static getBotCommand(str: string): BotCommand | null {
-    let capture = str.match(/^!(?<module>\w+)(\s+(?<command>\w+))(\s+(?<args>.*))?$/i) || [];
+    const capture = str.match(/^!(?<module>\w+)(\s+(?<command>\w+))(\s+(?<args>.*))?$/i) || [];
     if (capture.length > 0 && capture.groups.module && capture.groups.command) {
       const { module, command, args } = capture.groups;
-      const argList: string[] = args === undefined ? null : args.split(" ").map(i => i.replace(" ", "")); // TODO a smarter regexp would do that
+      const argList: string[] = args === undefined ? null : args.split(' ').map(i => i.replace(' ', '')); // TODO a smarter regexp would do that
       const obj: BotCommand = {
         module,
         command,
         args: argList
       };
-    //   console.log("obj", obj);
+      //   console.log("obj", obj);
       return obj;
     }
     else {

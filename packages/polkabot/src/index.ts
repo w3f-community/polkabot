@@ -1,38 +1,37 @@
-import Olm from "olm";
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import minimongo from "minimongo";
-import Datastore from "nedb";
+import Olm from 'olm';
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import minimongo from 'minimongo';
+import Datastore from 'nedb';
 
-import pkg from "../package.json";
-import PluginScanner from "./lib/plugin-scanner";
-import PluginLoader from "./lib/plugin-loader";
-import sdk from "matrix-js-sdk";
+import pkg from '../package.json';
+import PluginScanner from './lib/plugin-scanner';
+import PluginLoader from './lib/plugin-loader';
+import sdk from 'matrix-js-sdk';
 // import { IPolkabotConfig } from "./types";
 import { ConfigManager } from 'confmgr';
 
-import { assert } from "@polkadot/util";
+import { assert } from '@polkadot/util';
 import {
   PluginContext,
   PolkabotPlugin,
   NotifierMessage,
   NotifierSpecs,
   PluginModule,
-  IControllable,
+  Controllable,
   Type,
-} from "../../polkabot-api/src/plugin.interface";
-import { PolkabotNotifier } from "../../polkabot-api/src/PolkabotNotifier";
-import { PolkabotChatbot } from "../../polkabot-api/src/PolkabotChatbot";
-import { PolkabotWorker } from "../../polkabot-api/src/PolkabotWorker";
+} from '../../polkabot-api/src/plugin.interface';
+import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
+import { PolkabotChatbot } from '../../polkabot-api/src/PolkabotChatbot';
+import { PolkabotWorker } from '../../polkabot-api/src/PolkabotWorker';
 
-//@ts-ignore
-global.Olm = Olm;
+(global as any).Olm = Olm;
 
 // comment out if you need to trouble shoot matrix issues
 // matrix.on('event', function (event) {
 //   console.log(event.getType())
 // })
 
-export interface INotifiersTable {
+export interface NotifiersTable {
   [type: string]: PolkabotNotifier[];
 }
 export default class Polkabot {
@@ -41,13 +40,13 @@ export default class Polkabot {
   private config: any;
   private matrix: any;
   private polkadot: any;
-  private notifiersTable: INotifiersTable = {};
-  private controllablePlugins: IControllable[] = [];
+  private notifiersTable: NotifiersTable = {};
+  private controllablePlugins: Controllable[] = [];
   private chatBots: PolkabotChatbot[] = [];
 
   public constructor(..._args: any[]) {
     // this.args = args
-    this.db = new Datastore({ filename: "polkabot.db" });
+    this.db = new Datastore({ filename: 'polkabot.db' });
   }
 
   private isWorker(candidate: PolkabotPlugin): candidate is PolkabotWorker {
@@ -72,8 +71,8 @@ export default class Polkabot {
    * polkabot itself does nothing about it. it searches in the list of notifiers which one(s) can do the job and
    * delegate them the task
    */
-  public notify(message: NotifierMessage, specs: NotifierSpecs) {
-    console.log("Notifier requested", message, specs);
+  public notify(message: NotifierMessage, specs: NotifierSpecs): void {
+    console.log('Notifier requested', message, specs);
 
     Object.keys(this.notifiersTable)
       .filter(channel => specs.notifiers.includes(channel))
@@ -85,44 +84,44 @@ export default class Polkabot {
   }
 
   /** This adds a new notifier to those Polkabot is aware of */
-  private registerNotifier(notifier: PolkabotNotifier) {
-    assert(notifier.channel, "No channel defined");
+  private registerNotifier(notifier: PolkabotNotifier): void {
+    assert(notifier.channel, 'No channel defined');
     const channel = notifier.channel;
     if (!this.notifiersTable[channel]) this.notifiersTable[channel] = [];
     this.notifiersTable[channel].push(notifier);
     // console.log("notifierTable", this.notifiersTable);
   }
 
-  /** Register all the IControllable we find. They will be passed to the Operator. */
-  private registerControllable(controllable: IControllable) {
-    assert(controllable.commandSet, "No commands defined");
-    console.log("Registering controllable:", controllable.commandSet.name);
+  /** Register all the Controllable we find. They will be passed to the Operator. */
+  private registerControllable(controllable: Controllable): void {
+    assert(controllable.commandSet, 'No commands defined');
+    console.log('Registering controllable:', controllable.commandSet.name);
     this.controllablePlugins.push(controllable);
     // console.log("Controllables", this.controllablePlugins);
   }
 
-  private registerChatbot(bot: PolkabotChatbot) {
-    console.log("Registering Chat bot:", bot.module.name);
+  private registerChatbot(bot: PolkabotChatbot): void {
+    console.log('Registering Chat bot:', bot.module.name);
     this.chatBots.push(bot);
   }
 
   private async loadPlugins(): Promise<void> {
-    return new Promise(async (resolve, _reject) => {
-      console.log("Polkabot - Loading plugins: ------------------------");
-      const pluginScanner = new PluginScanner(pkg.name + "-plugin");
-      let plugins = await pluginScanner.scan(); // TODO: switch back to a const
+    return new Promise(async (resolve, _reject) => {  // eslint-disable-line no-async-promise-executor
+      console.log('Polkabot - Loading plugins: ------------------------');
+      const pluginScanner = new PluginScanner(pkg.name + '-plugin');
+      let plugins = await pluginScanner.scan();
 
-      console.log("Plugins found (incl. disabled ones):");
+      console.log('Plugins found (incl. disabled ones):');
       plugins.map(p => {
         console.log(`- ${p.name}`);
       });
 
       // Here we check the ENV content to see if plugins should be disabled (= not loaded)
-      console.log("Filtering out disabled plugins...");
+      console.log('Filtering out disabled plugins...');
       plugins = plugins.filter((p: PluginModule) => {
         const DISABLED_KEY = `POLKABOT_${p.shortName}_DISABLED`;
-        const disabled: boolean = (process.env[DISABLED_KEY] || "false") === "true";
-        console.log(disabled ? "❌" : "✅", p.shortName);
+        const disabled: boolean = (process.env[DISABLED_KEY] || 'false') === 'true';
+        console.log(disabled ? '❌' : '✅', p.shortName);
 
         return !disabled;
       });
@@ -164,14 +163,14 @@ export default class Polkabot {
         );
       });
       Promise.all(loads).then(_ => {
-        console.log("Polkabot - Done loading plugins: ------------------------");
+        console.log('Polkabot - Done loading plugins: ------------------------');
         resolve();
       });
     });
   }
 
-  private attachControllableToBots() {
-    console.log("Passing controllables to following bots:");
+  private attachControllableToBots(): void {
+    console.log('Passing controllables to following bots:');
     this.chatBots.map((bot: PolkabotChatbot) => {
       console.log(` > ${bot.module.name}`);
       bot.registerControllables(this.controllablePlugins);
@@ -209,13 +208,13 @@ export default class Polkabot {
         return this.attachControllableToBots();
       })
       .then(_ => {
-        console.log("Done loading plugins");
+        console.log('Done loading plugins');
       });
   }
 
-  public async run() {
+  public async run(): Promise<void> {
     console.log(`${pkg.name} v${pkg.version}`);
-    console.log("===========================");
+    console.log('===========================');
 
     // const configLocation = this.args.config
     //   ? this.args.config
@@ -249,7 +248,7 @@ export default class Polkabot {
 
     const LocalDb = minimongo.MemoryDb;
     this.db = new LocalDb();
-    this.db.addCollection("config");
+    this.db.addCollection('config');
 
     this.db.config.upsert(
       { botMasterId: this.config.values.MATRIX.BOTMASTER_ID },
@@ -261,7 +260,7 @@ export default class Polkabot {
     );
 
     // TODO - refactor using async/await. See https://github.com/matrix-org/matrix-js-sdk/issues/789
-    console.log("Polkabot - creating client");
+    console.log('Polkabot - creating client');
 
     this.matrix = sdk.createClient({
       baseUrl: this.config.values.MATRIX.BASE_URL,
@@ -271,27 +270,27 @@ export default class Polkabot {
 
     if (this.isCustomBaseUrl()) {
       const data = await this.matrix
-        .login("m.login.password", {
+        .login('m.login.password', {
           user: this.config.values.MATRIX.LOGIN_USER_ID,
           password: this.config.values.MATRIX.LOGIN_USER_PASSWORD
         })
         .catch(error => {
-          console.error("Polkabot: Error logging into matrix:", error);
+          console.error('Polkabot: Error logging into matrix:', error);
         });
 
       if (data) {
-        console.log("Polkabot - Logged in with credentials: ", data);
+        console.log('Polkabot - Logged in with credentials: ', data);
       }
     }
 
-    this.matrix.once("sync", (state, _prevState, data) => {
+    this.matrix.once('sync', (state, _prevState, data) => {
       switch (state) {
-        case "PREPARED":
+        case 'PREPARED':
           console.log(`Polkabot - Detected client sync state: ${state}`);
           this.start(state);
           break;
         default:
-          console.log("Polkabot - Error. Unable to establish client sync state, state =", state, data);
+          console.log('Polkabot - Error. Unable to establish client sync state, state =', state, data);
           process.exit(1);
       }
     });
@@ -318,8 +317,8 @@ export default class Polkabot {
     this.matrix.startClient(this.config.values.MATRIX.MESSAGES_TO_SHOW);
   }
 
-  private isCustomBaseUrl() {
+  private isCustomBaseUrl(): boolean {
     const baseUrl = this.config.values.MATRIX.BASE_URL;
-    return baseUrl && baseUrl !== "https://matrix.org";
+    return baseUrl && baseUrl !== 'https://matrix.org';
   }
 }

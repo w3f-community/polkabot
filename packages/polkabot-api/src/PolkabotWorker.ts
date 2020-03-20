@@ -1,4 +1,4 @@
-import { PolkabotPluginBase, PluginModule, PluginContext, Type } from "./plugin.interface";
+import { PolkabotPluginBase, PluginModule, PluginContext, Type } from './plugin.interface';
 
 export abstract class PolkabotWorker extends PolkabotPluginBase {
   constructor(mod: PluginModule, context: PluginContext, config?) {

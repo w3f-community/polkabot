@@ -1,29 +1,29 @@
-import BN from "bn.js";
+import BN from 'bn.js';
 import {
   NotifierMessage,
   NotifierSpecs,
   PluginModule,
   PluginContext,
   CommandHandlerOutput,
-  IControllable,
+  Controllable,
   PluginCommandSet,
   Room
-} from "@polkabot/api/src/plugin.interface";
-import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker'
+} from '@polkabot/api/src/plugin.interface';
+import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 
-import getCommandSet from "./commandSet";
+import getCommandSet from './commandSet';
 
-export default class Blocthday extends PolkabotWorker implements IControllable {
+export default class Blocthday extends PolkabotWorker implements Controllable {
   private NB_BLOCKS: number;
   public commandSet: PluginCommandSet;
 
-  public cmdStatus(_event, room:Room): CommandHandlerOutput {
-    console.log(`Blocthday.cmdStatus()`);
+  public cmdStatus(_event, room: Room): CommandHandlerOutput {
+    console.log('Blocthday.cmdStatus()');
     // console.log("Called cmdStatus with:", args);
    
     return {
       code: -1,
-      msg: "Implement me first!",
+      msg: 'Implement me first!',
       answers: [{
         room,
         message: 'Oups! I am not implmented yet 🥴'
@@ -38,32 +38,32 @@ export default class Blocthday extends PolkabotWorker implements IControllable {
   }
 
   public start(): void {
-    console.log("Blocthday - Starting with NB_BLOCKS:", this.NB_BLOCKS);
+    console.log('Blocthday - Starting with NB_BLOCKS:', this.NB_BLOCKS);
     this.watchChain().catch(error => {
-      console.error("Blocthday - Error subscribing to chain head: ", error);
+      console.error('Blocthday - Error subscribing to chain head: ', error);
     });
   }
 
   public stop(): void {
-    console.log("Blocthday - STOPPING");
+    console.log('Blocthday - STOPPING');
 
     // TODO: unsubscribe to everything here
   }
 
-  async watchChain() {
+  async watchChain(): Promise<void> {
     // Reference: https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
     await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
       // console.log(`Blocthday - Chain is at block: #${header.number}`);
       const bnBlockNumber: BN = header.number.unwrap().toBn();
       const bnNumberOfBlocks: BN = new BN(this.NB_BLOCKS);
 
-      if (bnBlockNumber.mod(bnNumberOfBlocks).toString(10) === "0") {
+      if (bnBlockNumber.mod(bnNumberOfBlocks).toString(10) === '0') {
         const notifierMessage: NotifierMessage = {
           message: `Happy ${this.NB_BLOCKS}-BlocthDay!!! Polkadot is now at #${header.number}`
         };
 
         const notifierSpecs: NotifierSpecs = {
-          notifiers: ["matrix", "twitter"]
+          notifiers: ['matrix', 'twitter']
         };
 
         this.context.polkabot.notify(notifierMessage, notifierSpecs);

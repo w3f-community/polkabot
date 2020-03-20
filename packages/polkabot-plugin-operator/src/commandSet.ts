@@ -1,22 +1,22 @@
-import { PluginCommandSet } from "@polkabot/api/src/plugin.interface";
-import Operator from ".";
+import { PluginCommandSet } from '@polkabot/api/src/plugin.interface';
+import Operator from '.';
 
 export default function getCommandSet(ref: Operator): PluginCommandSet {
   return {
-    name: "Operator",
-    alias: "op",
+    name: 'Operator',
+    alias: 'op',
     commands: [
       {
-        name: "status",
-        description: "Show status of the plugin",
-        argsRegexp: "",
+        name: 'status',
+        description: 'Show status of the plugin',
+        argsRegexp: '',
         adminOnly: false,
         handler: ref.cmdStatus
       },
-       {
-        name: "help",
-        description: "Show some help",
-        argsRegexp: "",
+      {
+        name: 'help',
+        description: 'Show some help',
+        argsRegexp: '',
         adminOnly: false,
         handler: ref.cmdHelp
       }

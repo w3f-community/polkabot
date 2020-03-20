@@ -11,11 +11,11 @@ export interface EnvDictionnary {
 
 /** This interface describes how the Polkabot Config
  * object looks like. */
-export interface IPolkabotConfig {
+export interface PolkabotConfig {
   polkadot: {
     nodeName: string; // This is just for you to remember. i.e. 'Crash Override'
     host: string;    // WebSocket host:port, usually :9944. i.e. 'ws://127.0.0.1:9944'
-  },
+  };
   matrix: {
     botMasterId: string;    // Who is managing the bot. i.e. '@you:matrix.org'
     roomId: string;    // In what room is the bot active by default. i.e. '!<someid>:matrix.org'

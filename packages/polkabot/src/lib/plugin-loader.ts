@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import * as fs from "fs";
+import * as fs from 'fs';
 import {
   PluginModule,
   PluginContext,
   PolkabotPlugin,
-} from "../../../polkabot-api/src/plugin.interface";
-import { PolkabotNotifier } from "../../../polkabot-api/src/PolkabotNotifier";
-import { PolkabotWorker } from "../../../polkabot-api/src/PolkabotWorker";
-import { PolkabotChatbot } from "../../../polkabot-api/src/PolkabotChatbot";
+} from '../../../polkabot-api/src/plugin.interface';
+import { PolkabotNotifier } from '../../../polkabot-api/src/PolkabotNotifier';
+import { PolkabotWorker } from '../../../polkabot-api/src/PolkabotWorker';
+import { PolkabotChatbot } from '../../../polkabot-api/src/PolkabotChatbot';
 
 export default class PluginLoader {
   // private static getType(mod: PluginModule) {
@@ -20,7 +20,7 @@ export default class PluginLoader {
     console.log(`Loading ${mod.name} from ${mod.path}`);
     return new Promise((resolve, _reject) => {
       fs.realpath(mod.path, async (err, pluginPath) => {
-        if (err) console.log("ERR:", err);
+        if (err) console.log('ERR:', err);
 
         const myModule = (await import(pluginPath)).default;
         // console.log("Module", myModule);
@@ -43,7 +43,7 @@ export default class PluginLoader {
             plugin = new myModule(mod, context) as PolkabotChatbot;
             break;
           default:
-            throw new Error("Plugin type not supported");
+            throw new Error('Plugin type not supported');
         }
 
         console.log(

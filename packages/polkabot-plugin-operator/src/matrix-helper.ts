@@ -1,4 +1,4 @@
-import { RoomId } from "@polkabot/api/src/plugin.interface";
+import { RoomId } from '@polkabot/api/src/plugin.interface';
 
 export default class MatrixHelper {
 
@@ -8,7 +8,7 @@ export default class MatrixHelper {
     // throw new Error("Method not implemented.");
   }
 
-  public static isSelf(senderId, botUserId) {
+  public static isSelf(senderId, botUserId): boolean {
     return senderId === botUserId;
   }
 }

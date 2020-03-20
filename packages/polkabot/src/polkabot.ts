@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import Polkabot from './index'
+import Polkabot from './index';
 
 // TODO: swap index.ts and polkabot.ts
 
@@ -8,8 +8,8 @@ const argv = require('yargs')
   .help('h')
   .alias('h', 'help')
   .epilog('chevdor-(C) 2018-2020')
-  .argv
+  .argv;
 
-const polkabot = new Polkabot(argv)
+const polkabot = new Polkabot(argv);
 
-polkabot.run()
+polkabot.run();

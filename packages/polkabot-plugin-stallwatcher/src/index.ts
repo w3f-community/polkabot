@@ -1,6 +1,11 @@
 #!/usr/bin/env node
-import BN from "bn.js";
-import { PolkabotWorker, PluginModule, PluginContext } from "@polkabot/api/src/plugin.interface";
+import BN from 'bn.js';
+import {  PluginModule, PluginContext } from '@polkabot/api/src/plugin.interface';
+import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
+
+type StallWatcherConfig = {
+  duration: number;
+}
 
 // TODO we may want to catch and alert if the network resume at a block that is not lastBlock+1
 export default class StallWatcher extends PolkabotWorker {
@@ -8,24 +13,29 @@ export default class StallWatcher extends PolkabotWorker {
   private lastBlockTime: Date;
   private lastBlockNumber: BN;
   private watchdogId: NodeJS.Timeout;
+  private params: StallWatcherConfig;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    this.config = {
-      duration: parseInt(process.env.POLKABOT_PLUGIN_STALLWATCHER_DURATION) || 30 // If a block takes longer than n seconds, we trigger the alert
+    this.params = {
+      duration: this.config.Get('STALLWATCHER', 'DURATION')
     };
     this.stalled = null;
   }
 
   public start(): void {
-    console.log("StallWatcher - Starting with config:", this.config);
+    console.log('StallWatcher - Starting with config:', this.params);
     this.watchChain().catch(error => {
-      console.error("StallWatcher - Error subscribing to chain head: ", error);
+      console.error('StallWatcher - Error subscribing to chain head: ', error);
     });
 
     // this.watchChat();
   }
 
+  // TODO: missing impl.
+  public stop(): void  {
+    throw new Error('Missing impl.')
+  }
   // showInstructions() {
   //   // Send message to the room notifying users how to use the bot
   //   const messageBody =
@@ -39,12 +49,12 @@ export default class StallWatcher extends PolkabotWorker {
   //   );
   // }
 
-  async watchChain() {
+  async watchChain(): Promise<void> {
     // Reference: https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
     await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
       clearTimeout(this.watchdogId);
       // console.log('StallWatcher: ' + this.getDuration().toFixed(2) + 's')
-      this.watchdogId = setTimeout(this.alert.bind(this), this.config.duration * 1000);
+      this.watchdogId = setTimeout(this.alert.bind(this), this.params.duration * 1000);
       this.lastBlockNumber = header.number.unwrap().toBn();
       if (this.stalled) {
         this.context.polkabot.notify(
@@ -53,7 +63,7 @@ export default class StallWatcher extends PolkabotWorker {
               10
             )} came in after ${this.getDuration().toFixed(2)}s`
           },
-          { notifiers: ["matrix"] }
+          { notifiers: ['matrix'] }
         );
 
         this.stalled = false;
@@ -62,20 +72,20 @@ export default class StallWatcher extends PolkabotWorker {
     });
   }
 
-  private getDuration() {
+  private getDuration(): number {
     return (new Date().getTime() - this.lastBlockTime.getTime()) / 1000;
   }
 
-  private alert() {
+  private alert(): void {
     this.stalled = true;
 
     this.context.polkabot.notify(
       {
         message: `CRITICAL: Network seems to be stalled !!! Block #${this.lastBlockNumber.toString(10)} was seen ${
-          this.config.duration
+          this.params.duration
         }s ago.`
       },
-      { notifiers: ["matrix"] }
+      { notifiers: ['matrix'] }
     );
   }
 
@@ -175,9 +185,9 @@ export default class StallWatcher extends PolkabotWorker {
   //               case "duration":
   //                 const val = parseFloat(args);
   //                 if (!isNaN(val)) {
-  //                   this.config.duration = val;
+  //                   this.params.duration = val;
   //                 }
-  //                 this.answer(room.roomId, `Threshold changed to ${this.config.duration}s`);
+  //                 this.answer(room.roomId, `Threshold changed to ${this.params.duration}s`);
   //                 break;
   //               default:
   //                 this.answer(

@@ -1,7 +1,7 @@
-import * as path from "path";
-import * as fs from "fs";
-import findNodeModules from "find-node-modules";
-import { PluginModule } from "../../../polkabot-api/src/plugin.interface";
+import * as path from 'path';
+import * as fs from 'fs';
+import findNodeModules from 'find-node-modules';
+import { PluginModule } from '../../../polkabot-api/src/plugin.interface';
 
 export default class PluginScanner {
   private name: string;
@@ -12,13 +12,13 @@ export default class PluginScanner {
 
   public scanold(cb, done): void {
     // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
-    const scriptLocation = path.join(path.dirname(process.argv[1]), "..");
-    console.log("script loc", scriptLocation);
+    const scriptLocation = path.join(path.dirname(process.argv[1]), '..');
+    console.log('script loc', scriptLocation);
     const searchPaths: string[] = findNodeModules({ cwd: scriptLocation, relative: false });
     // path.join(scriptLocation, "../lib/node_modules"),
     // path.join(__dirname, '../../../node_modules')
 
-    console.log("PluginScanner scanning searchPaths for Polkabot plugins: ", searchPaths);
+    console.log('PluginScanner scanning searchPaths for Polkabot plugins: ', searchPaths);
     const modules = [];
 
     searchPaths.map(p => {
@@ -30,7 +30,7 @@ export default class PluginScanner {
           items
             .filter(i => i.indexOf(this.name) === 0)
             .map(plugin => {
-              console.log("Plugin detected:", plugin);
+              console.log('Plugin detected:', plugin);
               const mod = {
                 name: plugin,
                 path: path.join(p, plugin)
@@ -46,20 +46,20 @@ export default class PluginScanner {
   /** input: polkabot-plugin-foo-bar
    * output: FOO_BAR
    */
-  public static getShortName(name: string) {
-    return  name.replace('polkabot-plugin-', '').replace('-', '_').toUpperCase()
+  public static getShortName(name: string): string {
+    return  name.replace('polkabot-plugin-', '').replace('-', '_').toUpperCase();
   }
 
-  public async scan() {
+  public async scan(): Promise<PluginModule[]> {
     return new Promise<PluginModule[]>(resolve => {
       // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
-      const scriptLocation = path.join(path.dirname(process.argv[1]), "..");
-      console.log("script loc", scriptLocation);
+      const scriptLocation = path.join(path.dirname(process.argv[1]), '..');
+      console.log('script loc', scriptLocation);
       const searchPaths: string[] = findNodeModules({ cwd: scriptLocation, relative: false });
       // path.join(scriptLocation, "../lib/node_modules"),
       // path.join(__dirname, '../../../node_modules')
 
-      const pattern = "polkabot";
+      const pattern = 'polkabot';
       const modules = [];
       
       // TODO the following helps find the @polkabot/stuff

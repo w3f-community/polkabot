@@ -10,7 +10,7 @@
   "scripts": {
     "analyze": "yarn run build",
     "check": "yarn lint",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx . && tsc --noEmit --pretty",
+    "lint": "eslint --ext .ts,.tsx .",
     "test": "echo \"skipping tests\"",
     "start": "cd packages/polkabot && yarn start",
     "build": "cd packages/polkabot && yarn build"

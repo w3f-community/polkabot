@@ -4,7 +4,7 @@ import {
   PluginContext,
   CommandHandlerOutput,
   BotCommand,
-  IControllable,
+  Controllable,
   PolkabotPluginBase,
   PluginCommandSet,
   PolkabotPlugin,
@@ -12,13 +12,18 @@ import {
   Room,
   SenderId,
   RoomId,
-} from "@polkabot/api/src/plugin.interface";
-import moment from "moment";
-import getCommandSet from "./commandSet";
-import { PolkabotChatbot } from "@polkabot/api/src/PolkabotChatbot";
-import MatrixHelper from "./matrix-helper";
+} from '@polkabot/api/src/plugin.interface';
+import moment from 'moment';
+import getCommandSet from './commandSet';
+import { PolkabotChatbot } from '@polkabot/api/src/PolkabotChatbot';
+import MatrixHelper from './matrix-helper';
+// TODO: move that away
+const capitalize: (string) => string = (s: string) => {
+  if (typeof s !== 'string') return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
 
-export default class Operator extends PolkabotChatbot implements IControllable {
+export default class Operator extends PolkabotChatbot implements Controllable {
   public commandSet: PluginCommandSet;
   package: any;
   controllables: any;
@@ -38,9 +43,9 @@ export default class Operator extends PolkabotChatbot implements IControllable {
   }
 
   // TODO: move all handlers to a separate file
-  public cmdStatus(event: any, room: Room, ...args: any): CommandHandlerOutput {
-    const uptime_sec: number = process.uptime();
-    const m = moment.duration(uptime_sec, "seconds");
+  public cmdStatus(_event: any, room: Room, ..._args: any): CommandHandlerOutput {
+    const uptimeSec: number = process.uptime();
+    const m = moment.duration(uptimeSec, 'seconds');
 
     // this.answer(room.roomId);
 
@@ -62,17 +67,17 @@ export default class Operator extends PolkabotChatbot implements IControllable {
     // TODO: later we could parse the msg below for keywords and try to make good guesses to focus the help a bit better
     // const msg: string = event.getContent().body;
     // fetch all the controllable, show their commands and deescriptions.
-    let message = `Here is also a list of all the loaded modules and their commands:<br/><ul>`;
-    this.controllables.map((controllable: IControllable) => {
+    let message = 'Here is also a list of all the loaded modules and their commands:<br/><ul>';
+    this.controllables.map((controllable: Controllable) => {
       message += `<li>${controllable.commandSet.name}:</li><ul>`;
       controllable.commandSet.commands.map((command: PluginCommand) => {
         message += `<li><code>!${controllable.commandSet.alias} ${command.name}</code>: ${command.description} !${
-          command.adminOnly ? " (Master only)" : ""
+          command.adminOnly ? ' (Master only)' : ''
         }</li>`;
       });
-      message += "</ul>";
+      message += '</ul>';
     });
-    message += "</ul>";
+    message += '</ul>';
     // this.answer( {
     //   room,
     //   message
@@ -83,7 +88,7 @@ export default class Operator extends PolkabotChatbot implements IControllable {
       answers: [
         {
           room,
-          message: `Hi there, I am happy you got in touch, let me see if I can help.<br/>First of all, you probably should checkout the documentation at https://gitlab.com/Polkabot`
+          message: 'Hi there, I am happy you got in touch, let me see if I can help.<br/>First of all, you probably should checkout the documentation at https://gitlab.com/Polkabot'
         },
         {
           room,
@@ -102,7 +107,7 @@ export default class Operator extends PolkabotChatbot implements IControllable {
     const hits = this.controllables.filter((c: PolkabotPluginBase) => c.commandSet.alias === cmd.module);
     const controllable = hits.length > 0 ? (hits[0] as PolkabotPlugin) : null;
 
-    if (!controllable) return null
+    if (!controllable) return null;
     
     console.log(`${controllable.module.name} could be able to do the job... checking supported commands`);
     const handler: PluginCommand = controllable.commandSet.commands.find(c => c.name === cmd.command);
@@ -112,8 +117,8 @@ export default class Operator extends PolkabotChatbot implements IControllable {
   }
 
   private watchChat(): void {
-    this.context.matrix.on("Room.timeline", (event, room, _toStartOfTimeline) => {
-      if (event.getType() !== "m.room.message") {
+    this.context.matrix.on('Room.timeline', (event, room, _toStartOfTimeline) => {
+      if (event.getType() !== 'm.room.message') {
         return;
       }
 
@@ -139,8 +144,8 @@ export default class Operator extends PolkabotChatbot implements IControllable {
       if (MatrixHelper.isSelf(senderId, this.config.Get('MATRIX', 'BOTUSER_ID'))) return;
 
       // If there is no ! and the string contains help, we try to help
-      if (msg.indexOf("!") < 0 && msg.toLowerCase().indexOf("help") > 0) {
-        console.log("Mentioning help in natural language");
+      if (msg.indexOf('!') < 0 && msg.toLowerCase().indexOf('help') > 0) {
+        console.log('Mentioning help in natural language');
         const output = this.cmdHelp(event, room);
         if (output.answers) {
           // this.answer(output.answers[0])
@@ -157,7 +162,7 @@ export default class Operator extends PolkabotChatbot implements IControllable {
         console.log(`No bot command found in: >${msg}<`);
         this.answer({
           room,
-          message: "I was tought to smile when I don't get it. 😁"
+          message: 'I was tought to smile when I don\'t get it. 😁'
         });
       } else {
         const cmdHandler = this.matchCommand(botCommand);
@@ -175,10 +180,10 @@ export default class Operator extends PolkabotChatbot implements IControllable {
             });
           }
         } else {
-          console.log(`No handler found`);
+          console.log('No handler found');
           this.answer({
             room,
-            message: "Hmmm no one told me about that command. 😁"
+            message: 'Hmmm no one told me about that command. 😁'
           });
           return;
         }
@@ -221,12 +226,12 @@ export default class Operator extends PolkabotChatbot implements IControllable {
             this.isBotMasterAndBotInRoom(room)
             // && isBotMessageRecipient
           ) {
-            console.log("Operator - Bot received message from Bot Master in direct message");
+            console.log('Operator - Bot received message from Bot Master in direct message');
             /**
              * Detect if the command received from the Bot Master is in
              * the following form: `!say <MESSAGE>` or `!status`
              */
-            let capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
+            const capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
             // console.log("Operator - captured from Bot Master: ", capture);
             if (capture.length > 0 && capture.groups.cmd) {
               const _cmd: string = capture.groups.cmd;
@@ -315,33 +320,27 @@ export default class Operator extends PolkabotChatbot implements IControllable {
    * Check if the sender id of the user that sent the message
    * is the Bot Master's id
    */
-  private isMaster(senderId: SenderId) {
+  private isMaster(senderId: SenderId): boolean {
     return senderId === this.context.config.Get('MATRIX', 'BOTMASTER_ID');
   }
 
   // Is the chat room name the same name as the Bot's name
   // After string manipulation to get just the username from the Bot's
   // user id (i.e. @mybot:matrix.org ---> mybot)
-  public isBotMessageRecipient(room: Room) {
+  public isBotMessageRecipient(room: Room): boolean {
     return (
       room.name ===
       this.context.config.Get('MATRIX', 'BOTUSER_ID')
-        .split(":")
+        .split(':')
         .shift()
         .substring(1)
     );
   }
 
   // Has the Bot Master initiated a direct chat with the Bot
-  private isBotMasterAndBotInRoom(room: Room) {
+  private isBotMasterAndBotInRoom(room: Room): boolean {
     const expectedDirectMessageRoomMemberIds = [this.context.config.Get('MATRIX', 'BOTMASTER_ID'), this.context.config.Get('MATRIX', 'BOTUSER_ID')];
     const directChatRoomMemberIds = Object.keys(room.currentState.members);
     return expectedDirectMessageRoomMemberIds.every(val => directChatRoomMemberIds.includes(val));
   }
 }
-
-// TODO: move that away
-const capitalize = s => {
-  if (typeof s !== "string") return "";
-  return s.charAt(0).toUpperCase() + s.slice(1);
-};

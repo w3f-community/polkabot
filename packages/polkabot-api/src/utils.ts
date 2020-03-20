@@ -1,3 +1,3 @@
-export function assert(val, msg) {
-  if (!val) throw new Error(msg || "Assertion failed");
+export function assert(val, msg): void {
+  if (!val) throw new Error(msg || 'Assertion failed');
 }
