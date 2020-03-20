@@ -1,6 +1,5 @@
 import BN from "bn.js";
 import {
-  PolkabotWorker,
   NotifierMessage,
   NotifierSpecs,
   PluginModule,
@@ -10,13 +9,15 @@ import {
   PluginCommandSet,
   Room
 } from "@polkabot/api/src/plugin.interface";
+import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker'
+
 import getCommandSet from "./commandSet";
 
 export default class Blocthday extends PolkabotWorker implements IControllable {
   private NB_BLOCKS: number;
   public commandSet: PluginCommandSet;
 
-  public cmdStatus(event, room:Room): CommandHandlerOutput {
+  public cmdStatus(_event, room:Room): CommandHandlerOutput {
     console.log(`Blocthday.cmdStatus()`);
     // console.log("Called cmdStatus with:", args);
    
