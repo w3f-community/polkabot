@@ -6,14 +6,13 @@ import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 type StallWatcherConfig = {
   duration: number;
 }
-
-// TODO we may want to catch and alert if the network resume at a block that is not lastBlock+1
 export default class StallWatcher extends PolkabotWorker {
   private stalled: boolean;
   private lastBlockTime: Date;
   private lastBlockNumber: BN;
   private watchdogId: NodeJS.Timeout;
   private params: StallWatcherConfig;
+  private unsubFn: Function;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
@@ -32,26 +31,13 @@ export default class StallWatcher extends PolkabotWorker {
     // this.watchChat();
   }
 
-  // TODO: missing impl.
   public stop(): void  {
-    throw new Error('Missing impl.')
+    if (this.unsubFn) this.unsubFn();
   }
-  // showInstructions() {
-  //   // Send message to the room notifying users how to use the bot
-  //   const messageBody =
-  //     "Polkabot StallWatcher Plugin private (Bot Master Only) user usage instructions:\n  1) Ask Polkabot StallWatcher to change how frequently in blocks it should expect to receive new blocks prior to publishing an alert with command: !sw duration <MAX_DURATION_IN_SECONDS>";
-  //   // this.announce(messageBody);
-  //   this.context.polkabot.notify(
-  //     {
-  //       message: messageBody
-  //     },
-  //     { notifiers: ["matrix"] }
-  //   );
-  // }
 
   async watchChain(): Promise<void> {
     // Reference: https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
-    await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
+    this.unsubFn = await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
       clearTimeout(this.watchdogId);
       // console.log('StallWatcher: ' + this.getDuration().toFixed(2) + 's')
       this.watchdogId = setTimeout(this.alert.bind(this), this.params.duration * 1000);
@@ -104,9 +90,6 @@ export default class StallWatcher extends PolkabotWorker {
   //       if (event.getType() !== "m.room.message") {
   //         return;
   //       }
-
-  //       // TODO - refactor into a common utility plugin or similar since this code
-  //       // is duplicate of that in polkadot-plugin-operator.
   //       const directChatRoomMemberIds = Object.keys(room.currentState.members);
 
   //       const expectedDirectMessageRoomMemberIds = [this.context.config.matrix.botMasterId, this.context.config.matrix.botUserId];

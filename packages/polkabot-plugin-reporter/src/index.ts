@@ -34,7 +34,7 @@ type BlockMoment = {
 };
 
 export default class Reporter extends PolkabotWorker {
-  private cache: any; // TODO FIXME
+  private cache: any;
   private notifierSpecs: NotifierSpecs = {
     notifiers: ['matrix'],
   };
@@ -108,8 +108,7 @@ export default class Reporter extends PolkabotWorker {
     // TODO: do all the unsub here
   }
 
-  // TODO: switch from string to Announcement
-  private announce(message: string): void {
+  private announce(message: Announcement): void {
     this.context.polkabot.notify(
       {
         message,

@@ -7,8 +7,7 @@ import pkg from '../package.json';
 import PluginScanner from './lib/plugin-scanner';
 import PluginLoader from './lib/plugin-loader';
 import sdk from 'matrix-js-sdk';
-// import { IPolkabotConfig } from "./types";
-import { ConfigManager } from 'confmgr';
+import { ConfigManager, ConfigObject } from 'confmgr';
 
 import { assert } from '@polkadot/util';
 import {
@@ -24,7 +23,11 @@ import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
 import { PolkabotChatbot } from '../../polkabot-api/src/PolkabotChatbot';
 import { PolkabotWorker } from '../../polkabot-api/src/PolkabotWorker';
 
-(global as any).Olm = Olm;
+type PolkabotGlobal = {
+  Olm: Olm;
+}
+
+((global as unknown) as PolkabotGlobal).Olm = Olm;
 
 // comment out if you need to trouble shoot matrix issues
 // matrix.on('event', function (event) {
@@ -37,7 +40,7 @@ export interface NotifiersTable {
 export default class Polkabot {
   // private args: any;
   private db: any;
-  private config: any;
+  private config: ConfigObject;
   private matrix: any;
   private polkadot: any;
   private notifiersTable: NotifiersTable = {};

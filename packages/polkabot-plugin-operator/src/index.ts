@@ -17,7 +17,8 @@ import moment from 'moment';
 import getCommandSet from './commandSet';
 import { PolkabotChatbot } from '@polkabot/api/src/PolkabotChatbot';
 import MatrixHelper from './matrix-helper';
-// TODO: move that away
+import { packageJson } from 'package-json';
+
 const capitalize: (string) => string = (s: string) => {
   if (typeof s !== 'string') return '';
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -25,8 +26,8 @@ const capitalize: (string) => string = (s: string) => {
 
 export default class Operator extends PolkabotChatbot implements Controllable {
   public commandSet: PluginCommandSet;
-  package: any;
-  controllables: any;
+  package: packageJson;
+  controllables: Controllable[];
   context: PluginContext;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
@@ -38,12 +39,11 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     // Todo: this should be done in private and on demand
     // ideally, each plugin report its commands and the bot
     // provide the instructions instead of having each plugin to the work.
-    // this.showInstructions()
     this.watchChat();
   }
 
   // TODO: move all handlers to a separate file
-  public cmdStatus(_event: any, room: Room, ..._args: any): CommandHandlerOutput {
+  public cmdStatus(_event: unknown, room: Room, ..._args: unknown): CommandHandlerOutput {
     const uptimeSec: number = process.uptime();
     const m = moment.duration(uptimeSec, 'seconds');
 
