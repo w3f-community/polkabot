@@ -2,6 +2,7 @@ import { PolkabotPluginBase, PluginModule, PluginContext, Type, NotifierMessage,
 
 export abstract class PolkabotNotifier extends PolkabotPluginBase {
   public abstract channel: string; // 'twitter', 'matrix', 'email', ....
+  
   constructor(mod: PluginModule, context: PluginContext, config?) {
     super(Type.Notifier, mod, context, config);
   }

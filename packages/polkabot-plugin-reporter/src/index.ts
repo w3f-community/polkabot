@@ -34,7 +34,7 @@ export default class Reporter extends PolkabotWorker {
   private notifierSpecs: NotifierSpecs = {
     notifiers: ['matrix'],
   };
-
+  // TODO: bring params and loadParams here
   private consts: any;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
@@ -87,7 +87,7 @@ export default class Reporter extends PolkabotWorker {
   }
 
   public start(): void {
-    console.log('Reporter - Starting with config:', this.config);
+    // console.log('Reporter - Starting with config:', this.config);
     this.watchChain().catch(error => {
       console.error('Reporter - Error subscribing to chain: ', error);
     });

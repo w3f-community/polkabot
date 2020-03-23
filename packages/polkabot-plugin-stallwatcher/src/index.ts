@@ -17,7 +17,7 @@ export default class StallWatcher extends PolkabotWorker {
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
     this.params = {
-      duration: this.config.Get('STALLWATCHER', 'DURATION')
+      duration: this.context.config.Get('STALLWATCHER', 'DURATION')
     };
     this.stalled = null;
   }
