@@ -43,7 +43,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
   }
 
   // TODO: move all handlers to a separate file
-  public cmdStatus(_event: unknown, room: Room, ..._args: unknown): CommandHandlerOutput {
+  public cmdStatus(_event: unknown, room: Room, ..._args: any): CommandHandlerOutput {
     const uptimeSec: number = process.uptime();
     const m = moment.duration(uptimeSec, 'seconds');
 
