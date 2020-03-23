@@ -232,8 +232,8 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
         this.announce({
           message: `@room New Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
           You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(
-            10
-          )} blocks. 
+  10
+)} blocks. 
             That means a deadline at block #${deadline.toString(10)}, don't miss it! 
             the deadline to vote is ${moment(blockMoment.date).fromNow()}.`,
           severity: Severity.INFO,
@@ -268,8 +268,8 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
         this.announce({
           message: `@room New referendum (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
 You can vote for referendum #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(
-            10
-          )} blocks. 
+  10
+)} blocks. 
 That means a deadline at block #${deadline.toString(10)}, don't miss it! 
 You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
           severity: Severity.INFO,

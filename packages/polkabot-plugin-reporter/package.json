@@ -5,7 +5,7 @@
   "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "lint": "standard",
+    "lint": "eslint --ext .ts,.tsx .",
     "start": "babel-node ./src/index.js",
     "prepublishOnly": "npm run build",
     "postinstall": "npm run build",
