@@ -11,7 +11,8 @@ before_script:
   # # WARNING: use only in docker container, if you use it with shell you will overwrite your user's ssh config
   # - mkdir -p ~/.ssh
   # - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-  - npm install
+  - npm install -g yarn
+  - yarn install
 
 stages:
   - lint
@@ -26,7 +27,7 @@ cache:
 lint:
   stage: lint
   script:
-    - npm run lint
+    - yarn lint
 
 # Supported node versions can be found here:
 # https://github.com/nodejs/LTS#lts_schedule
@@ -66,7 +67,7 @@ lint:
 
 build:doc:
   stage: build
-  script: npm run build:doc
+  script: yarn build:doc
 
 # build:docker:
 #   image: docker:git
