@@ -12,12 +12,16 @@ import {
   Room,
   SenderId,
   RoomId,
+  NotifierMessage,
+  NotifierSpecs,
 } from '@polkabot/api/src/plugin.interface';
 import moment from 'moment';
 import getCommandSet from './commandSet';
 import { PolkabotChatbot } from '@polkabot/api/src/PolkabotChatbot';
 import MatrixHelper from './matrix-helper';
 import { packageJson } from 'package-json';
+import { assert } from '@polkadot/util';
+import { OperatorParams } from './types';
 
 const capitalize: (string) => string = (s: string) => {
   if (typeof s !== 'string') return '';
@@ -29,17 +33,30 @@ export default class Operator extends PolkabotChatbot implements Controllable {
   package: packageJson;
   controllables: Controllable[];
   context: PluginContext;
+  params: OperatorParams;
+  matrixHelper: MatrixHelper
+
+  /**
+   * This function reads the config and populate the params object of
+   * this plugin as it should. The config object should not be used after that.
+   */
+  private loadParams() : OperatorParams {
+    return {
+      botMasterId: this.context.config.Get('MATRIX', 'BOTMASTER_ID'),
+      botUserId: this.context.config.Get('MATRIX', 'BOTUSER_ID'),
+    }
+  }
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
     this.commandSet = getCommandSet(this);
+    assert(this.context.config, "The config seems to be missing")
+    this.params = this.loadParams();
+    this.matrixHelper = new MatrixHelper(this.params)
   }
 
   public start(): void {
-    // Todo: this should be done in private and on demand
-    // ideally, each plugin report its commands and the bot
-    // provide the instructions instead of having each plugin to the work.
-    this.watchChat();
+    this.watchChat();    
   }
 
   // TODO: move all handlers to a separate file
@@ -138,10 +155,10 @@ export default class Operator extends PolkabotChatbot implements Controllable {
 
       // console.log('Operator - event.getContent()', event.getContent())
       const msg: string = event.getContent().body;
-      const senderId = event.getSender();
+      const senderId: SenderId = event.getSender();
 
       // If we see our own message, we skip
-      if (MatrixHelper.isSelf(senderId, this.config.Get('MATRIX', 'BOTUSER_ID'))) return;
+      if (this.matrixHelper.isBot(senderId)) return;
 
       // If there is no ! and the string contains help, we try to help
       if (msg.indexOf('!') < 0 && msg.toLowerCase().indexOf('help') > 0) {
@@ -187,7 +204,6 @@ export default class Operator extends PolkabotChatbot implements Controllable {
           });
           return;
         }
-        // console.log("msg", msg);
 
         // TODO FIXME - this still triggers an error in the logs when the Bot Master
         // sends a message without an argument in the public room (i.e. `!say`)
@@ -198,19 +214,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
         const senderRoomId: RoomId = event.sender.roomId;
         const roomIdWithBot: RoomId = room.roomId;
 
-        console.log(senderId, senderRoomId, roomIdWithBot);
-
-        // console.log('Operator - msg: ', msg)
-        // console.log('Operator - senderId: ', senderId)
-        // console.log('Operator - senderRoomId', senderRoomId)
-        // console.log('Operator - roomIdWithBot', roomIdWithBot)
-
-        // console.log("isPrivate", this.isPrivate(senderRoomId, roomIdWithBot));
-        // console.log("isMaster", this.isMaster(senderId));
-        // console.log("isBotMasterAndBotInRoom", this.isBotMasterAndBotInRoom(room));
-        // console.log("isBotMessageRecipient", this.isBotMessageRecipient(room));
-
-        if (MatrixHelper.isPrivate(senderRoomId, roomIdWithBot)) {
+        if (this.matrixHelper.isPrivate(senderRoomId, roomIdWithBot)) {
           /**
            * Check that the senderId is the Bot Master with isOperator
            * Also check that the message is from a direct message between
@@ -222,8 +226,8 @@ export default class Operator extends PolkabotChatbot implements Controllable {
            * commands, we only want them to appears in the direct message.
            **/
           if (
-            this.isMaster(senderId) &&
-            this.isBotMasterAndBotInRoom(room)
+            this.matrixHelper.isMaster(senderId) &&
+            this.matrixHelper.isBotMasterAndBotInRoom(room)
             // && isBotMessageRecipient
           ) {
             console.log('Operator - Bot received message from Bot Master in direct message');
@@ -298,49 +302,5 @@ export default class Operator extends PolkabotChatbot implements Controllable {
         }
       }
     });
-  }
-
-
-
-  // private showInstructions() {
-  //   // Send message to the room notifying users how to use the bot
-  //   const notifierMessage: NotifierMessage = {
-  //     message:
-  //       "Polkabot Operator Plugin public user usage instructions:\n  1) Ask Polkabot Operator to provide node info with command: !status"
-  //   };
-
-  //   const notifierSpecs: NotifierSpecs = {
-  //     notifiers: ["matrix", "demo", "all"]
-  //   };
-
-  //   this.context.polkabot.notify(notifierMessage, notifierSpecs);
-  // }
-
-  /**
-   * Check if the sender id of the user that sent the message
-   * is the Bot Master's id
-   */
-  private isMaster(senderId: SenderId): boolean {
-    return senderId === this.context.config.Get('MATRIX', 'BOTMASTER_ID');
-  }
-
-  // Is the chat room name the same name as the Bot's name
-  // After string manipulation to get just the username from the Bot's
-  // user id (i.e. @mybot:matrix.org ---> mybot)
-  public isBotMessageRecipient(room: Room): boolean {
-    return (
-      room.name ===
-      this.context.config.Get('MATRIX', 'BOTUSER_ID')
-        .split(':')
-        .shift()
-        .substring(1)
-    );
-  }
-
-  // Has the Bot Master initiated a direct chat with the Bot
-  private isBotMasterAndBotInRoom(room: Room): boolean {
-    const expectedDirectMessageRoomMemberIds = [this.context.config.Get('MATRIX', 'BOTMASTER_ID'), this.context.config.Get('MATRIX', 'BOTUSER_ID')];
-    const directChatRoomMemberIds = Object.keys(room.currentState.members);
-    return expectedDirectMessageRoomMemberIds.every(val => directChatRoomMemberIds.includes(val));
   }
 }

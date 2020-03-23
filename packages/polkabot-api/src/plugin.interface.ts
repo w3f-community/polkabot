@@ -83,7 +83,7 @@ export interface ChatBot {
 export class PolkabotPluginBase {
   // TODO: fix the mess here
   public module: PluginModule;
-  public config: ConfigObject;
+  // public config: ConfigObject;
   public context: PluginContext; // TODO
   public package: packageJson;
   public type: Type;
@@ -95,7 +95,7 @@ export class PolkabotPluginBase {
     // console.log(`++ PolkabotPluginBase/${type} ${mod.name}: ${mod.path}`);
     this.type = type;
     this.context = context;
-    this.config = config;
+    // this.config = config;
     this.module = mod;
     const packageFile = path.join(mod.path, 'package.json');
 
@@ -125,7 +125,7 @@ export type PolkabotPlugin = PolkabotWorker | PolkabotNotifier | PolkabotChatbot
  */
 export interface PluginContext {
   config: ConfigObject;
-  pkg;
+  pkg: packageJson;
   db;
   matrix;
   polkadot;
