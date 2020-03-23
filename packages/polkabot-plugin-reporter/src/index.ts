@@ -2,11 +2,7 @@ import BN from 'bn.js';
 import moment from 'moment';
 // import "moment-duration-format";
 
-import {
-  NotifierSpecs,
-  PluginModule,
-  PluginContext
-} from '@polkabot/api/src/plugin.interface';
+import { NotifierSpecs, PluginModule, PluginContext } from '@polkabot/api/src/plugin.interface';
 
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 
@@ -18,7 +14,7 @@ enum Severity {
   INFO,
   WARNING,
   IMPORTANT,
-  CRITICAL
+  CRITICAL,
 }
 
 type Announcement = {
@@ -49,8 +45,8 @@ export default class Reporter extends PolkabotWorker {
   }
 
   /** Check the last blocks and figure out the block time.
-  * This should gives around 6.0 seconds on Kusama.
-  */
+   * This should gives around 6.0 seconds on Kusama.
+   */
   async getAverageBlockTime(): Promise<number> {
     const NB_SAMPLES = 3; // less is faster
     const STEP = 10; // sample over a longer period
@@ -60,8 +56,7 @@ export default class Reporter extends PolkabotWorker {
 
     for (let i = this.cache.block, j = 0; j < NB_SAMPLES; j++, i -= STEP) {
       const h = await api.rpc.chain.getBlockHash(i);
-      const now =
-        new Date((await api.query.timestamp.now.at(h)).toNumber()).getTime() * 1.0;
+      const now = new Date((await api.query.timestamp.now.at(h)).toNumber()).getTime() * 1.0;
       if (last) {
         durations.push((last - now) / 1000.0);
       }
@@ -75,16 +70,11 @@ export default class Reporter extends PolkabotWorker {
     // const currentBlock = (await this.context.polkadot.rpc.chain.getBlock()).block.header.number.toNumber();
     const blockTime = await this.getAverageBlockTime();
 
-    const h = await this.context.polkadot.rpc.chain.getBlockHash(
-      this.cache.blockNumber
-    );
-    const now = new Date(
-      (await this.context.polkadot.query.timestamp.now.at(h)).toNumber()
-    );
+    const h = await this.context.polkadot.rpc.chain.getBlockHash(this.cache.blockNumber);
+    const now = new Date((await this.context.polkadot.query.timestamp.now.at(h)).toNumber());
     const future = block > this.cache.blockNumber;
     const other = new Date(
-      now.getTime() +
-        (this.cache.blockNumber as BN).sub(block).toNumber() * blockTime * 1000
+      now.getTime() + (this.cache.blockNumber as BN).sub(block).toNumber() * blockTime * 1000
     );
     const duration = Math.abs(now.getTime() - other.getTime()) / 1000;
 
@@ -141,9 +131,11 @@ export default class Reporter extends PolkabotWorker {
       if (!this.cache[KEY]) this.cache[KEY] = validators;
       if (this.cache[KEY] && this.cache[KEY].length !== validators.length) {
         console.log('Reporter - Active Validator count: ', validators.length);
-        this.announce(
-          `Active Validator count has changed from ${this.cache[KEY].length} to ${validators.length}`
-        );
+
+        this.announce({
+          message: `Active Validator count has changed from ${this.cache[KEY].length} to ${validators.length}`,
+          severity: Severity.INFO,
+        });
         this.cache[KEY] = validators;
       } else {
         console.log(`Reporter - Active Validator count: ${validators.length}`);
@@ -159,11 +151,12 @@ export default class Reporter extends PolkabotWorker {
       if (this.cache[KEY] && this.cache[KEY] !== validatorCount) {
         this.cache[KEY] = validatorCount;
         console.log('Reporter - Validator count:', validatorCount.toString(10));
-        this.announce(
-          `The number of validator slots has changed. It is now ${validatorCount.toString(
+        this.announce({
+          message: `The number of validator slots has changed. It is now ${validatorCount.toString(
             10
-          )}`
-        );
+          )}`,
+          severity: Severity.IMPORTANT,
+        });
       }
     });
   }
@@ -181,11 +174,12 @@ export default class Reporter extends PolkabotWorker {
         // const codeInHex = '0x' + this.buf2hex(code)
         // console.log('Runtime Code hex changed', codeInHex)
 
-        this.announce(
-          `Runtime code hash has changed. The hash is now ${hash}. The runtime is now ${
+        this.announce({
+          message: `Runtime code hash has changed. The hash is now ${hash}. The runtime is now ${
             code ? (code.length / 1024).toFixed(2) : '???'
-          } kb.`
-        );
+          } kb.`,
+          severity: Severity.CRITICAL,
+        });
       } else {
         console.log(`Reporter - Runtime Code hash: ${hash}`);
       }
@@ -208,10 +202,11 @@ export default class Reporter extends PolkabotWorker {
 
         console.log('Reporter - Proposal count changed:', count.toString(10));
         const id = count.sub(new BN(1));
-        this.announce(
-          `A new council motion proposal is available (#${id}), check your UI at https://polkadot.js.org/apps/#/democracy.
-You will be able to vote shortly, a new referendum will show up in the UI.`
-        );
+        this.announce({
+          message: `A new council motion proposal is available (#${id}), check your UI at https://polkadot.js.org/apps/#/democracy.
+You will be able to vote shortly, a new referendum will show up in the UI.`,
+          severity: Severity.INFO,
+        });
       } else {
         console.log(`Reporter - Proposal count: ${count.toString(10)}`);
       }
@@ -219,37 +214,34 @@ You will be able to vote shortly, a new referendum will show up in the UI.`
   }
 
   async watchPublicProposalCount(): Promise<void> {
-    await this.context.polkadot.query.democracy.publicPropCount(
-      async (publicPropCount: BN) => {
-        const KEY = 'publicPropCount';
-        console.log('Reporter - publicPropCount:', publicPropCount.toString(10));
+    await this.context.polkadot.query.democracy.publicPropCount(async (publicPropCount: BN) => {
+      const KEY = 'publicPropCount';
+      console.log('Reporter - publicPropCount:', publicPropCount.toString(10));
 
-        const count = publicPropCount;
-        if (!this.cache[KEY]) this.cache[KEY] = count;
-        if (this.cache[KEY] && !this.cache[KEY].eq(count)) {
-          this.cache[KEY] = count;
-          const deadline = this.cache.blockNumber.add(
-            this.consts.democracy.votingPeriod
-          ) as BN;
-          const blockMoment = await this.getBlockMoment(deadline);
-          // const votingTimeInMinutes =
-          //   parseInt(this.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
-          console.log('Reporter - Proposal count changed:', count.toString(10));
-          const id = count.sub(new BN(1)).toString(10);
+      const count = publicPropCount;
+      if (!this.cache[KEY]) this.cache[KEY] = count;
+      if (this.cache[KEY] && !this.cache[KEY].eq(count)) {
+        this.cache[KEY] = count;
+        const deadline = this.cache.blockNumber.add(this.consts.democracy.votingPeriod) as BN;
+        const blockMoment = await this.getBlockMoment(deadline);
+        // const votingTimeInMinutes =
+        //   parseInt(this.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
+        console.log('Reporter - Proposal count changed:', count.toString(10));
+        const id = count.sub(new BN(1)).toString(10);
 
-          this.announce(
-            `@room New Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
-You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(
-  10
-)} blocks. 
-That means a deadline at block #${deadline.toString(10)}, don't miss it! 
-the deadline to vote is ${moment(blockMoment.date).fromNow()}.`
-          );
-        } else {
-          console.log(`Reporter - Proposal count: ${count.toString(10)}`);
-        }
+        this.announce({
+          message: `@room New Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
+          You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(
+            10
+          )} blocks. 
+            That means a deadline at block #${deadline.toString(10)}, don't miss it! 
+            the deadline to vote is ${moment(blockMoment.date).fromNow()}.`,
+          severity: Severity.INFO,
+        });
+      } else {
+        console.log(`Reporter - Proposal count: ${count.toString(10)}`);
       }
-    );
+    });
   }
 
   async watchReferendumCount(): Promise<void> {
@@ -273,14 +265,15 @@ the deadline to vote is ${moment(blockMoment.date).fromNow()}.`
         console.log('Reporter - Referendum count changed:', count.toString(10));
         const id = count.sub(new BN(1)).toString(10);
 
-        this.announce(
-          `@room New referendum (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
+        this.announce({
+          message: `@room New referendum (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
 You can vote for referendum #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(
-  10
-)} blocks. 
+            10
+          )} blocks. 
 That means a deadline at block #${deadline.toString(10)}, don't miss it! 
-You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`
-        );
+You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
+          severity: Severity.INFO,
+        });
       } else {
         console.log(`Reporter - Referendum count: ${count.toString(10)}`);
       }
