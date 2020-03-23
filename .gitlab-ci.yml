@@ -11,7 +11,7 @@ before_script:
   # # WARNING: use only in docker container, if you use it with shell you will overwrite your user's ssh config
   # - mkdir -p ~/.ssh
   # - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-  - npm install -g yarn
+  # - npm install -g yarn
   - yarn install
 
 stages:
