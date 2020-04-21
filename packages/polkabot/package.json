@@ -33,7 +33,7 @@
     "Matrix.org"
   ],
   "dependencies": {
-    "@babel/runtime": "^7.8.7",
+    "@babel/runtime": "^7.9.2",
     "@polkadot/api": "1.8.1",
     "bn.js": "5.1.1",
     "confmgr": "^1.0.5",
@@ -47,14 +47,14 @@
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
     "@types/mocha": "^7.0.2",
-    "@typescript-eslint/eslint-plugin": "2.24.0",
-    "@typescript-eslint/parser": "2.24.0",
+    "@typescript-eslint/eslint-plugin": "2.25.0",
+    "@typescript-eslint/parser": "2.25.0",
     "chai": "4.2.0",
     "chai-http": "4.3.0",
     "dotenv": "8.2.0",
     "eslint": "6.8.0",
-    "eslint-config-prettier": "6.10.0",
-    "eslint-config-standard": "14.1.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-config-standard": "14.1.1",
     "eslint-plugin-import": "2.20.1",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "4.2.1",
