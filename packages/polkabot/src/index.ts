@@ -22,10 +22,11 @@ import {
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
 import { PolkabotChatbot } from '../../polkabot-api/src/PolkabotChatbot';
 import { PolkabotWorker } from '../../polkabot-api/src/PolkabotWorker';
+import { MatrixClient } from './types';
 
 type PolkabotGlobal = {
   Olm: Olm;
-}
+};
 
 ((global as unknown) as PolkabotGlobal).Olm = Olm;
 
@@ -41,8 +42,8 @@ export default class Polkabot {
   // private args: any;
   private db: any;
   private config: ConfigObject;
-  private matrix: any;
-  private polkadot: any;
+  private matrix: MatrixClient;
+  private polkadot: ApiPromise;
   private notifiersTable: NotifiersTable = {};
   private controllablePlugins: Controllable[] = [];
   private chatBots: PolkabotChatbot[] = [];
@@ -109,7 +110,8 @@ export default class Polkabot {
   }
 
   private async loadPlugins(): Promise<void> {
-    return new Promise(async (resolve, _reject) => {  // eslint-disable-line no-async-promise-executor
+    return new Promise(async (resolve, _reject) => {
+      // eslint-disable-line no-async-promise-executor
       console.log('Polkabot - Loading plugins: ------------------------');
       const pluginScanner = new PluginScanner(pkg.name + '-plugin');
       let plugins = await pluginScanner.scan();
@@ -139,7 +141,7 @@ export default class Polkabot {
           db: this.db,
           matrix: this.matrix,
           polkadot: this.polkadot,
-          polkabot: this
+          polkabot: this,
         };
 
         loads.push(
@@ -227,7 +229,7 @@ export default class Polkabot {
     // this.config = require(configLocation)
 
     const config = ConfigManager.getInstance('configSpecs.yml').getConfig();
-    config.Print({compact: true});
+    config.Print({ compact: true });
     console.log(`Your config is${config.Validate() ? '' : ' NOT'} valid!`);
 
     this.config = config;
@@ -244,7 +246,7 @@ export default class Polkabot {
     const [chain, nodeName, nodeVersion] = await Promise.all([
       this.polkadot.rpc.system.chain(),
       this.polkadot.rpc.system.name(),
-      this.polkadot.rpc.system.version()
+      this.polkadot.rpc.system.version(),
     ]);
 
     console.log(`Polkabot - You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
@@ -253,14 +255,11 @@ export default class Polkabot {
     this.db = new LocalDb();
     this.db.addCollection('config');
 
-    this.db.config.upsert(
-      { botMasterId: this.config.values.MATRIX.BOTMASTER_ID },
-      () => {
-        this.db.config.findOne({}, {}, res => {
-          console.log('Polkabot - Matrix client bot manager id: ' + res.botMasterId);
-        });
-      }
-    );
+    this.db.config.upsert({ botMasterId: this.config.values.MATRIX.BOTMASTER_ID }, () => {
+      this.db.config.findOne({}, {}, res => {
+        console.log('Polkabot - Matrix client bot manager id: ' + res.botMasterId);
+      });
+    });
 
     // TODO - refactor using async/await. See https://github.com/matrix-org/matrix-js-sdk/issues/789
     console.log('Polkabot - creating client');
@@ -268,14 +267,14 @@ export default class Polkabot {
     this.matrix = sdk.createClient({
       baseUrl: this.config.values.MATRIX.BASE_URL,
       accessToken: this.config.values.MATRIX.TOKEN,
-      userId: this.config.values.MATRIX.BOTUSER_ID
+      userId: this.config.values.MATRIX.BOTUSER_ID,
     });
 
     if (this.isCustomBaseUrl()) {
       const data = await this.matrix
         .login('m.login.password', {
           user: this.config.values.MATRIX.LOGIN_USER_ID,
-          password: this.config.values.MATRIX.LOGIN_USER_PASSWORD
+          password: this.config.values.MATRIX.LOGIN_USER_PASSWORD,
         })
         .catch(error => {
           console.error('Polkabot: Error logging into matrix:', error);
@@ -293,7 +292,11 @@ export default class Polkabot {
           this.start(state);
           break;
         default:
-          console.log('Polkabot - Error. Unable to establish client sync state, state =', state, data);
+          console.log(
+            'Polkabot - Error. Unable to establish client sync state, state =',
+            state,
+            data
+          );
           process.exit(1);
       }
     });

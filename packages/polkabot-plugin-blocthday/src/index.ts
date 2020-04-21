@@ -33,7 +33,7 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    this.NB_BLOCKS = parseInt(process.env.POLKABOT_PLUGIN_BLOCTHDAY_NB_BLOCKS) || 1000000;
+    this.NB_BLOCKS = parseInt(process.env.POLKABOT_BLOCTHDAY_NB_BLOCKS) || 1000000;
     this.commandSet = getCommandSet(this);
   }
 
@@ -53,7 +53,7 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
   async watchChain(): Promise<void> {
     // Reference: https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
     await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
-      // console.log(`Blocthday - Chain is at block: #${header.number}`);
+      //console.log(`Blocthday - Chain is at block: #${header.number}`);
       const bnBlockNumber: BN = header.number.unwrap().toBn();
       const bnNumberOfBlocks: BN = new BN(this.NB_BLOCKS);
 
