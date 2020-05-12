@@ -1,6 +1,6 @@
 import Olm from 'olm';
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import minimongo from 'minimongo';
+import minimongo, { MemoryDb } from 'minimongo';
 import Datastore from 'nedb';
 
 import pkg from '../package.json';
@@ -40,7 +40,7 @@ export interface NotifiersTable {
 }
 export default class Polkabot {
   // private args: any;
-  private db: any;
+  private db: minimongo.MemoryDb;
   private config: ConfigObject;
   private matrix: MatrixClient;
   private polkadot: ApiPromise;
@@ -48,7 +48,7 @@ export default class Polkabot {
   private controllablePlugins: Controllable[] = [];
   private chatBots: PolkabotChatbot[] = [];
 
-  public constructor(..._args: any[]) {
+  public constructor(..._args: string[]) {
     // this.args = args
     this.db = new Datastore({ filename: 'polkabot.db' });
   }
@@ -110,12 +110,10 @@ export default class Polkabot {
   }
 
   private async loadPlugins(): Promise<void> {
-    return new Promise(async (resolve, _reject) => {
-      // eslint-disable-line no-async-promise-executor
-      console.log('Polkabot - Loading plugins: ------------------------');
-      const pluginScanner = new PluginScanner(pkg.name + '-plugin');
-      let plugins = await pluginScanner.scan();
-
+    console.log('Polkabot - Loading plugins: ------------------------');
+    const pluginScanner = new PluginScanner(pkg.name + '-plugin');
+    let plugins = await pluginScanner.scan();
+    return new Promise((resolve, _reject) => {
       console.log('Plugins found (incl. disabled ones):');
       plugins.map(p => {
         console.log(`- ${p.name}`);
@@ -183,31 +181,6 @@ export default class Polkabot {
   }
 
   private start(_syncState): void {
-    // Send message to the room notifying users of the bot's state
-
-    // TODO we don't want to bother users, the following should be removed
-    // TODO: if the state is not PREPARED, we could log and error or tell the bot
-    // owner as private message.
-    //   const messageBody = `Polkadot - sync state with Matrix client is: ${syncState}.`
-    //   const sendEventArgs = {
-    //     roomId: this.config.matrix.roomId,
-    //     eventType: 'm.room.message',
-    //     content: {
-    //       'body': messageBody,
-    //       'msgsype': 'm.text'
-    //     },
-    //     txnId: ''
-    //   }
-
-    //   this.matrix.sendEvent(
-    //     sendEventArgs.roomId,
-    //     sendEventArgs.eventType,
-    //     sendEventArgs.content,
-    //     sendEventArgs.txnId, (err, res) => {
-    //       if (err) { console.log(err) };
-    //     }
-    //   )
-
     this.loadPlugins()
       .then(_ => {
         return this.attachControllableToBots();
@@ -253,15 +226,15 @@ export default class Polkabot {
 
     const LocalDb = minimongo.MemoryDb;
     this.db = new LocalDb();
-    this.db.addCollection('config');
+    const ConfigCollection = 'config';
+    this.db.addCollection(ConfigCollection);
 
-    this.db.config.upsert({ botMasterId: this.config.values.MATRIX.BOTMASTER_ID }, () => {
-      this.db.config.findOne({}, {}, res => {
+    this.db[ConfigCollection].upsert({ botMasterId: this.config.values.MATRIX.BOTMASTER_ID }, () => {
+      this.db[ConfigCollection].findOne({}, {}, res => {
         console.log('Polkabot - Matrix client bot manager id: ' + res.botMasterId);
       });
     });
 
-    // TODO - refactor using async/await. See https://github.com/matrix-org/matrix-js-sdk/issues/789
     console.log('Polkabot - creating client');
 
     this.matrix = sdk.createClient({
@@ -300,25 +273,6 @@ export default class Polkabot {
           process.exit(1);
       }
     });
-
-    // // Event emitted when member's membership changes
-    // this.matrix.on('RoomMember.membership', (event, member) => {
-    //   if (member.membership === 'invite') {
-    //     // TODO: Fix the following to get the latest activity in the room
-    //     // const roomState = new sdk.RoomState(member.roomId)
-    //     // const inactivityInDays = (new Date() - new Date(roomState._modified)) / 1000 / 60 / 60
-    //     // console.log(roomState.events)
-
-    //     // if (inactivityInDays < 7) {
-    //     this.matrix.joinRoom(member.roomId).done(() => {
-    //       console.log('Polkabot - Auto-joined %s', member.roomId)
-    //       console.log(` - ${event.event.membership} from ${event.event.sender}`)
-    //       // console.log(` - modified ${new Date(roomState._modified)})`)
-    //       // console.log(` - last activity for ${(inactivityInDays / 24).toFixed(3)} days (${(inactivityInDays).toFixed(2)}h)`)
-    //     })
-    //     // }
-    //   }
-    // })
 
     this.matrix.startClient(this.config.values.MATRIX.MESSAGES_TO_SHOW);
   }

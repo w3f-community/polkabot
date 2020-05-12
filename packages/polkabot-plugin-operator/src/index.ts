@@ -161,7 +161,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
       if (this.matrixHelper.isBot(senderId)) return;
 
       // If there is no ! and the string contains help, we try to help
-      if (msg.indexOf('!') < 0 && msg.toLowerCase().indexOf('help') > 0) {
+      if (msg.indexOf('!') < 0 && msg.toLowerCase().indexOf('help') >= 0) {
         console.log('Mentioning help in natural language');
         const output = this.cmdHelp(event, room);
         if (output.answers) {

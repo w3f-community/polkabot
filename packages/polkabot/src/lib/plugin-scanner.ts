@@ -61,13 +61,7 @@ export default class PluginScanner {
 
       const pattern = 'polkabot';
       const modules = [];
-      
-      // TODO the following helps find the @polkabot/stuff
-      // but some more work need to be done as the name should be found as
-      // @polkabot/stuff and not just stuff
-      // searchPaths.map(p => {
-      //   searchPaths.push(`${p}/@${pattern}`)
-      // })
+
       console.log(`PluginScanner scanning searchPaths for ${pattern} plugins: `, searchPaths);
 
       searchPaths.map(p => {

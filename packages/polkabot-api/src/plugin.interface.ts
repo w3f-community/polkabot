@@ -29,10 +29,21 @@ export type RoomAnswer = {
   html?: boolean; // If we don't pass HTML it is assumed that it is
 };
 
+/**
+ * Some error code
+ */
+export enum ErrorCode {
+  /** Some error occured */
+  GenericError= -1, 
+  Ok=0
+}
+
 export type CommandHandlerOutput = {
-  code: number;
-  msg: string;
-  answers?: RoomAnswer[];
+  code: ErrorCode;
+  /** This is a message sent to the room */
+  msg: string; 
+  /** Those are answers directed to the room where we got the request */
+  answers?: RoomAnswer[]; 
 };
 
 export type RoomId = string;

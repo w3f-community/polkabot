@@ -26,7 +26,7 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
       msg: 'Implement me first!',
       answers: [{
         room,
-        message: 'Oups! I am not implmented yet 🥴'
+        message: 'Oups! This is BlockDay, this command is not implmented yet 🥴'
       }]
     };
   }

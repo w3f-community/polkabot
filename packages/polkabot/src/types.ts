@@ -35,5 +35,5 @@ export interface MatrixClient {
   //on: (string, (event, room, _toStartOfTimeline) => void) => void;
   once: (event: string, handler: Function) => void;
   startClient(msgToSHow: number);
-  login: (pass: string, options: any) => Promise<MatrixClient>;
+  login: (pass: string, options: Record<string, unknown>) => Promise<MatrixClient>;
 }

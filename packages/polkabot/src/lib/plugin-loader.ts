@@ -10,12 +10,6 @@ import { PolkabotWorker } from '../../../polkabot-api/src/PolkabotWorker';
 import { PolkabotChatbot } from '../../../polkabot-api/src/PolkabotChatbot';
 
 export default class PluginLoader {
-  // private static getType(mod: PluginModule) {
-  //   // TODO this is not a great option, the type should be part of the plugin and not guessed from the name
-  //   if (mod.name.includes("notifier")) return PolkabotNotifier.name;
-  //   return PolkabotWorker.name;
-  // }
-
   public static async load(mod: PluginModule, context: PluginContext): Promise<PolkabotPlugin> {
     console.log(`Loading ${mod.name} from ${mod.path}`);
     return new Promise((resolve, _reject) => {
@@ -23,14 +17,8 @@ export default class PluginLoader {
         if (err) console.log('ERR:', err);
 
         const myModule = (await import(pluginPath)).default;
-        // console.log("Module", myModule);
         let plugin;
-
-        // TODO here we should load the ENV/config of a plugin
-        // let test = new myModule(mod, context)
-
         const parentClass = Object.getPrototypeOf(myModule).name;
-        // console.log('+++',PolkabotNotifier.name);
 
         switch (parentClass) {
           case PolkabotNotifier.name:

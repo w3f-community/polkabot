@@ -1,5 +1,7 @@
 = Polkabot
 :toc:
+:sectnums:
+:sectanchors:
 :proj: PolkaBOT
 :exe: polkabot
 
@@ -16,63 +18,25 @@ Polkabot is an extensible bot for http://polkadot.network[Polkadot], running on 
 
 NOTE: {proj} aims as being *as silent as possible* so don't expect lots of fuzz and action!
 
+include::doc/config.adoc[leveloffset=+1]
+
 == Install & Run
 
 	git clone https://gitlab.com/chevdor/polkabot.git
 	cd polkabot
 	nvm use
 	yarn
-
-Before you can start {proj}, you will have to configure a few things. {proj} is using https://gitlab.com/chevdor/confmgr[confmgr]. 
-
-You will need to create a file under packages/polkabot. This file should be named `.env` or `.env.foobar` if you start with `NODE_ENV=foobar`. As a test, you may start {proj} without any config and it will tell you what is missing. Many values have default, so you can get started with a very minimal configuration.
-
-Look for the sample file under `packages/polkabot/.env-sample`.
-
 	yarn start
 
-For devs, the command is typically:
+NOTE: For devs, the command is typically:
 
 	NODE_ENV=dev LOG_LEVEL=silly yarn start
 
-== Docker images
+include::doc/docker.adoc[leveloffset=+1]
 
-To build the base and the custom:
+include::CONTRIBUTING.adoc[leveloffset=+1]
 
-	yarn build:docker
-
-This will build the {proj} main image.
-
-Then, test with :
-
-----
-docker run --rm -it -v ~/path/to/your/config.js:/data/config.js chevdor/polkabot npm start -- --config /data/config.js
-----
-
-== Configuration
-
-{proj} uses 2 levels of configuration:
-- the main config in src/config.js
-- the plugin specific config in `src/plugins/.../config.js`
-
-
-include::CONTRIBUTING.adoc[]
-
-
-=== Create plugins
-
-Once you picked a name for your plugin, create a folder in `src/plugin`.
-
-Your plugin can start with code similar to:
-
-[source, js, indent=0, linenums]
-----
-include::doc/plugin.js[]
-----
-
-== Plugins
-
-You can all the plugins in https://gitlab.com/Polkabot
+include::doc/plugins.adoc[leveloffset=+1]
 
 == Dev notes
 
