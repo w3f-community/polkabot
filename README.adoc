@@ -20,11 +20,20 @@ NOTE: {proj} aims as being *as silent as possible* so don't expect lots of fuzz 
 
 	git clone https://gitlab.com/chevdor/polkabot.git
 	cd polkabot
+	nvm use
 	yarn
 
-At that point, you will need to search for the `config-sample.js` files. Everywhere you find one, create a `config.js` and make sure you adapt the content. Once you think you are good:
+Before you can start {proj}, you will have to configure a few things. {proj} is using https://gitlab.com/chevdor/confmgr[confmgr]. 
+
+You will need to create a file under packages/polkabot. This file should be named `.env` or `.env.foobar` if you start with `NODE_ENV=foobar`. As a test, you may start {proj} without any config and it will tell you what is missing. Many values have default, so you can get started with a very minimal configuration.
+
+Look for the sample file under `packages/polkabot/.env-sample`.
 
 	yarn start
+
+For devs, the command is typically:
+
+	NODE_ENV=dev LOG_LEVEL=silly yarn start
 
 == Docker images
 

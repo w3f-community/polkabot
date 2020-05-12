@@ -34,11 +34,11 @@
   ],
   "dependencies": {
     "@babel/runtime": "^7.9.2",
-    "@polkadot/api": "1.11.1",
+    "@polkadot/api": "^1.13.1",
     "bn.js": "5.1.1",
     "confmgr": "^1.0.5",
     "find-node-modules": "^2.0.0",
-    "matrix-js-sdk": "^5.2.0",
+    "matrix-js-sdk": "^6.0.0",
     "minimongo": "6.5.0",
     "nedb": "^1.8.0",
     "olm": "https://matrix.org/packages/npm/olm/olm-3.1.0.tgz",
