@@ -11,3 +11,4 @@ package-lock.json
 yarn-error.log
 *.db
 polkabot.code-workspace
+*.log

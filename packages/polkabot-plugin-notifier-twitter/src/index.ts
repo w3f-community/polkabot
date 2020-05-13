@@ -6,7 +6,6 @@ import {
 } from '../../polkabot-api/src/plugin.interface';
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
 
-// TODO: we want that to extends PolkabotPlugin
 export default class TwitterNotifier extends PolkabotNotifier {
   public channel = 'twitter';
 

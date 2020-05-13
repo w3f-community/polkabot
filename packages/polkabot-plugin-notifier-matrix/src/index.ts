@@ -8,10 +8,8 @@ import {
   ErrorCode
 } from '../../polkabot-api/src/plugin.interface';
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
-
 import getCommandSet from './commandSet';
 
-// TODO: we want that to extends PolkabotPlugin
 export default class MatrixNotifier extends PolkabotNotifier {
   public channel = 'matrix';
   public constructor(mod: PluginModule, context: PluginContext, config?) {

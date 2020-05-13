@@ -7,7 +7,8 @@ import {
   PluginModule,
   PluginContext
 } from '@polkabot/api/src/plugin.interface';
-import {  PolkabotWorker} from '@polkabot/api/src/PolkabotWorker';
+import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
+import { HeaderExtended } from '@polkadot/api-derive/type'
 
 type Data = {
   tmsp: number;
@@ -27,13 +28,16 @@ export default class BlocsStats extends PolkabotWorker {
   private data: Data[];
   private previousData?: Data;
   private stats;
+  private unsubHandler = {
+    newHead: null
+  };
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    
+
     this.params = {
       NB_BLOCKS: context.config.Get(BlocsStats.NAME, 'NB_BLOCKS'), /// Size of the rolling buffer
-      THRESHOLD:  context.config.Get(BlocsStats.NAME, 'THRESHOLD'), /// We remain silent unless the average goes above this value
+      THRESHOLD: context.config.Get(BlocsStats.NAME, 'THRESHOLD'), /// We remain silent unless the average goes above this value
       LOG_NTH_BLOCK: context.config.Get(BlocsStats.NAME, 'LOG_NTH_BLOCK')
     };
 
@@ -49,13 +53,13 @@ export default class BlocsStats extends PolkabotWorker {
   }
 
   public stop(): void {
-    // TODO missing impl
-    throw new Error('Not Implemented');
+    if (this.unsubHandler.newHead)
+      this.unsubHandler.newHead()
   }
-  
+
   async watchChain(): Promise<void> {
     // Reference: https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
-    await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
+    this.unsubHandler.newHead = await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
       const bnBlockNumber: BN = header.number.unwrap().toBn();
 
       if (bnBlockNumber.mod(new BN(this.params.LOG_NTH_BLOCK)).toString(10) === '0') {
@@ -71,7 +75,7 @@ export default class BlocsStats extends PolkabotWorker {
     });
   }
 
-  addBlock(header): void {
+  addBlock(header: HeaderExtended): void {
     const data: Data = {
       tmsp: new Date().getTime(),
       blockTime: this.previousData ? new Date().getTime() - this.previousData.tmsp : null,

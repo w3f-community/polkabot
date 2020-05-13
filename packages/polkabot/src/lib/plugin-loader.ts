@@ -8,13 +8,16 @@ import {
 import { PolkabotNotifier } from '../../../polkabot-api/src/PolkabotNotifier';
 import { PolkabotWorker } from '../../../polkabot-api/src/PolkabotWorker';
 import { PolkabotChatbot } from '../../../polkabot-api/src/PolkabotChatbot';
+import LoggerSingleton from '../../../polkabot-api/src/logger';
+
+const Logger = LoggerSingleton.getInstance()
 
 export default class PluginLoader {
   public static async load(mod: PluginModule, context: PluginContext): Promise<PolkabotPlugin> {
-    console.log(`Loading ${mod.name} from ${mod.path}`);
+    Logger.debug(` - Loading ${mod.name} from ${mod.path}`);
     return new Promise((resolve, _reject) => {
       fs.realpath(mod.path, async (err, pluginPath) => {
-        if (err) console.log('ERR:', err);
+        if (err) Logger.error('ERR:', err);
 
         const myModule = (await import(pluginPath)).default;
         let plugin;
@@ -34,7 +37,7 @@ export default class PluginLoader {
             throw new Error('Plugin type not supported');
         }
 
-        console.log(
+        Logger.info(
           ` - ${plugin.constructor.name}: ${plugin.package.name} version ${plugin.package.version} from ${plugin.package.author
             .name || plugin.package.author}`
         );

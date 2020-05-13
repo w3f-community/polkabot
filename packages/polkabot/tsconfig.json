@@ -22,6 +22,6 @@
     "suppressImplicitAnyIndexErrors": true,
     "outDir": "./build"
   },
-  "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json"],
+  "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json", "../polkabot-api/src/logger.ts"],
   "compileOnSave": true
 }

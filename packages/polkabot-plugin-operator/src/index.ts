@@ -12,8 +12,6 @@ import {
   Room,
   SenderId,
   RoomId,
-  NotifierMessage,
-  NotifierSpecs,
 } from '@polkabot/api/src/plugin.interface';
 import moment from 'moment';
 import getCommandSet from './commandSet';
@@ -29,6 +27,7 @@ const capitalize: (string) => string = (s: string) => {
 };
 
 export default class Operator extends PolkabotChatbot implements Controllable {
+
   public commandSet: PluginCommandSet;
   package: packageJson;
   controllables: Controllable[];
@@ -40,31 +39,34 @@ export default class Operator extends PolkabotChatbot implements Controllable {
    * This function reads the config and populate the params object of
    * this plugin as it should. The config object should not be used after that.
    */
-  private loadParams() : OperatorParams {
+  private loadParams(): OperatorParams {
     return {
       botMasterId: this.context.config.Get('MATRIX', 'BOTMASTER_ID'),
       botUserId: this.context.config.Get('MATRIX', 'BOTUSER_ID'),
-    }
+    };
   }
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
     this.commandSet = getCommandSet(this);
-    assert(this.context.config, "The config seems to be missing")
+    assert(this.context.config, 'The config seems to be missing');
     this.params = this.loadParams();
-    this.matrixHelper = new MatrixHelper(this.params)
+    this.matrixHelper = new MatrixHelper(this.params);
   }
 
   public start(): void {
     this.watchChat();    
   }
 
-  // TODO: move all handlers to a separate file
-  public cmdStatus(_event: unknown, room: Room, ..._args: any): CommandHandlerOutput {
+  public stop() {
+    // clean up here
+  }
+
+  public cmdStatus(_event: unknown, room: Room, ..._args: string[]): CommandHandlerOutput {
     const uptimeSec: number = process.uptime();
     const m = moment.duration(uptimeSec, 'seconds');
 
-    // this.answer(room.roomId);
+    console.log(' XXXX room:', room);
 
     return {
       code: 0,

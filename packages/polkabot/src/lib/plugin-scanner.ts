@@ -2,6 +2,9 @@ import * as path from 'path';
 import * as fs from 'fs';
 import findNodeModules from 'find-node-modules';
 import { PluginModule } from '../../../polkabot-api/src/plugin.interface';
+import LoggerSingleton from '../../../polkabot-api/src/logger';
+
+const Logger = LoggerSingleton.getInstance()
 
 export default class PluginScanner {
   private name: string;
@@ -10,38 +13,38 @@ export default class PluginScanner {
     this.name = name;
   }
 
-  public scanold(cb, done): void {
-    // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
-    const scriptLocation = path.join(path.dirname(process.argv[1]), '..');
-    console.log('script loc', scriptLocation);
-    const searchPaths: string[] = findNodeModules({ cwd: scriptLocation, relative: false });
-    // path.join(scriptLocation, "../lib/node_modules"),
-    // path.join(__dirname, '../../../node_modules')
+  // public scanold(cb, done): void {
+  //   // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
+  //   const scriptLocation = path.join(path.dirname(process.argv[1]), '..');
+  //   console.log('script loc', scriptLocation);
+  //   const searchPaths: string[] = findNodeModules({ cwd: scriptLocation, relative: false });
+  //   // path.join(scriptLocation, "../lib/node_modules"),
+  //   // path.join(__dirname, '../../../node_modules')
 
-    console.log('PluginScanner scanning searchPaths for Polkabot plugins: ', searchPaths);
-    const modules = [];
+  //   console.log('PluginScanner scanning searchPaths for Polkabot plugins: ', searchPaths);
+  //   const modules = [];
 
-    searchPaths.map(p => {
-      // const p = searchPaths[0]
-      fs.readdir(p, (err, items) => {
-        if (err) console.error(err);
-        done(
-          null,
-          items
-            .filter(i => i.indexOf(this.name) === 0)
-            .map(plugin => {
-              console.log('Plugin detected:', plugin);
-              const mod = {
-                name: plugin,
-                path: path.join(p, plugin)
-              };
-              modules.push(mod);
-              cb(null, mod);
-            })
-        );
-      });
-    });
-  }
+  //   searchPaths.map(p => {
+  //     // const p = searchPaths[0]
+  //     fs.readdir(p, (err, items) => {
+  //       if (err) console.error(err);
+  //       done(
+  //         null,
+  //         items
+  //           .filter(i => i.indexOf(this.name) === 0)
+  //           .map(plugin => {
+  //             console.log('Plugin detected:', plugin);
+  //             const mod = {
+  //               name: plugin,
+  //               path: path.join(p, plugin)
+  //             };
+  //             modules.push(mod);
+  //             cb(null, mod);
+  //           })
+  //       );
+  //     });
+  //   });
+  // }
 
   /** input: polkabot-plugin-foo-bar
    * output: FOO_BAR
@@ -54,7 +57,7 @@ export default class PluginScanner {
     return new Promise<PluginModule[]>(resolve => {
       // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
       const scriptLocation = path.join(path.dirname(process.argv[1]), '..');
-      console.log('script loc', scriptLocation);
+      Logger.debug('script loc', scriptLocation);
       const searchPaths: string[] = findNodeModules({ cwd: scriptLocation, relative: false });
       // path.join(scriptLocation, "../lib/node_modules"),
       // path.join(__dirname, '../../../node_modules')
@@ -62,7 +65,7 @@ export default class PluginScanner {
       const pattern = 'polkabot';
       const modules = [];
 
-      console.log(`PluginScanner scanning searchPaths for ${pattern} plugins: `, searchPaths);
+      Logger.debug(`PluginScanner scanning searchPaths for ${pattern} plugins: `, searchPaths);
 
       searchPaths.map(p => {
         fs.readdirSync(p)

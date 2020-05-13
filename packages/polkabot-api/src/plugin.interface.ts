@@ -5,7 +5,10 @@ import { PolkabotWorker } from './PolkabotWorker';
 import { PolkabotChatbot } from './PolkabotChatbot';
 import { PolkabotNotifier } from './PolkabotNotifier';
 import { ConfigObject } from 'confmgr';
+import type Room from 'matrix-js-sdk';
+import type MatrixClient from 'matrix-js-sdk';
 
+export { Room, MatrixClient };
 /**
  * A plugin module before the package has been loaded.
  * Before loading the patch we know only the path and the name
@@ -34,38 +37,30 @@ export type RoomAnswer = {
  */
 export enum ErrorCode {
   /** Some error occured */
-  GenericError= -1, 
-  Ok=0
+  GenericError = -1,
+  Ok = 0
 }
 
 export type CommandHandlerOutput = {
   code: ErrorCode;
   /** This is a message sent to the room */
-  msg: string; 
+  msg: string;
   /** Those are answers directed to the room where we got the request */
-  answers?: RoomAnswer[]; 
+  answers?: RoomAnswer[];
 };
 
 export type RoomId = string;
 export type Message = string;
 export type SenderId = string;
 
-export type Room = {
-  name: string;
-  roomId: RoomId;
-  currentState: {
-    members: Member[];
-  };
-};
-
-export type Member = any;
+// export type Member = any;
 
 export type PluginCommand = {
   name: string; // ie: start
   description: string; // what does this command do
   argsRegexp: string; // regexp to validate the expected args
   adminOnly: boolean; // is the command only for admins ?
-  handler: (...args: any[]) => CommandHandlerOutput;
+  handler: (...args: unknown[]) => CommandHandlerOutput;
 };
 
 export type PluginCommandSet = {
@@ -92,21 +87,15 @@ export interface ChatBot {
 }
 
 export class PolkabotPluginBase {
-  // TODO: fix the mess here
   public module: PluginModule;
-  // public config: ConfigObject;
-  public context: PluginContext; // TODO
+  public context: PluginContext;
   public package: packageJson;
   public type: Type;
   public commandSet?: PluginCommandSet;
 
-  // public description: string; // some blabla about the plugin, we dont have this field, we use the package.json/description
-
-  constructor(type: Type, mod: PluginModule, context: PluginContext, config?) {
-    // console.log(`++ PolkabotPluginBase/${type} ${mod.name}: ${mod.path}`);
+  constructor(type: Type, mod: PluginModule, context: PluginContext, _config?) {
     this.type = type;
     this.context = context;
-    // this.config = config;
     this.module = mod;
     const packageFile = path.join(mod.path, 'package.json');
 
@@ -138,7 +127,7 @@ export interface PluginContext {
   config: ConfigObject;
   pkg: packageJson;
   db;
-  matrix;
+  matrix: MatrixClient;
   polkadot;
   polkabot;
 }
