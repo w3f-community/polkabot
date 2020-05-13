@@ -25,6 +25,8 @@ import { PolkabotWorker } from '../../polkabot-api/src/PolkabotWorker';
 import { MatrixClient } from './types';
 import LoggerSingleton, { winston } from '../../polkabot-api/src/logger';
 
+const Logger = LoggerSingleton.getInstance();
+
 type PolkabotGlobal = {
   Olm: Olm;
 };
@@ -40,17 +42,16 @@ type PolkabotGlobal = {
 import { logger as mxLogger } from 'matrix-js-sdk/lib/logger';
 
 // rewrite matrix logger
-mxLogger.info = (...msg) => Logger.log({ level: 'info', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
-mxLogger.log = (...msg) => Logger.log({ level: 'info', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
+mxLogger.info = (...msg) => Logger.log({ level: 'debug', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
+mxLogger.log = (...msg) => Logger.log({ level: 'debug', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
 mxLogger.warn = (...msg) => Logger.log({ level: 'warn', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
 mxLogger.error = (...msg) => Logger.log({ level: 'error', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
-mxLogger.trace = (...msg) => Logger.log({ level: 'debug', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
+mxLogger.trace = (...msg) => Logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
 
 export interface NotifiersTable {
   [type: string]: PolkabotNotifier[];
 }
 
-const Logger = LoggerSingleton.getInstance()
 
 export default class Polkabot {
   // private args: any;
@@ -108,13 +109,13 @@ export default class Polkabot {
     const channel = notifier.channel;
     if (!this.notifiersTable[channel]) this.notifiersTable[channel] = [];
     this.notifiersTable[channel].push(notifier);
-    Logger.silly("notifierTable", this.notifiersTable);
+    Logger.silly('notifierTable', this.notifiersTable);
   }
 
   /** Register all the Controllable we find. They will be passed to the Operator. */
   private registerControllable(controllable: Controllable): void {
     assert(controllable.commandSet, 'No commands defined');
-    Logger.info('Registering controllable:', controllable.commandSet.name);
+    Logger.debug('Registering controllable:', controllable.commandSet.name);
     this.controllablePlugins.push(controllable);
     // Logger.info("Controllables", this.controllablePlugins);
   }
@@ -125,7 +126,7 @@ export default class Polkabot {
   }
 
   private async loadPlugins(): Promise<void> {
-    Logger.info('Loading plugins', { meta: { source: 'Polkabot' } })
+    Logger.info('Loading plugins', { meta: { source: 'Polkabot' } });
 
     const pluginScanner = new PluginScanner(pkg.name + '-plugin');
     let plugins = await pluginScanner.scan();
@@ -156,6 +157,7 @@ export default class Polkabot {
           matrix: this.matrix,
           polkadot: this.polkadot,
           polkabot: this,
+          logger: LoggerSingleton.getInstance(plugin.shortName),
         };
 
         loads.push(
@@ -189,9 +191,9 @@ export default class Polkabot {
   }
 
   private attachControllableToBots(): void {
-    Logger.info('Passing controllables to following bots:');
+    Logger.debug('Passing controllables to following bots:');
     this.chatBots.map((bot: PolkabotChatbot) => {
-      Logger.info(` > ${bot.module.name}`);
+      Logger.debug(` ${bot.module.name}`);
       bot.registerControllables(this.controllablePlugins);
     });
   }
@@ -218,11 +220,11 @@ export default class Polkabot {
 
     this.config = ConfigManager.getInstance('configSpecs.yml').getConfig();
     this.config.Print({ compact: true, logger: (msg) => Logger.debug(msg) });
-    const isConfigValid = this.config.Validate()
+    const isConfigValid = this.config.Validate();
     if (!isConfigValid) {
-      Logger.error('Config is NOT valid')
+      Logger.error('Config is NOT valid');
       this.config.Print({ compact: true, logger: (msg) => Logger.error(msg) });
-      process.exit(1)
+      process.exit(1);
       // this.Logger[ isConfigValid ? 'info': 'error'] (`Your config is${ isConfigValid? '' : ' NOT'} valid!`);
     }
 

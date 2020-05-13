@@ -8,12 +8,12 @@ import {
   PluginContext
 } from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
-import { HeaderExtended } from '@polkadot/api-derive/type'
+import { HeaderExtended } from '@polkadot/api-derive/type';
 
 type Data = {
   tmsp: number;
   blockTime: number;
-  header: any;
+  header: HeaderExtended;
 };
 
 export default class BlocsStats extends PolkabotWorker {
@@ -54,7 +54,7 @@ export default class BlocsStats extends PolkabotWorker {
 
   public stop(): void {
     if (this.unsubHandler.newHead)
-      this.unsubHandler.newHead()
+      this.unsubHandler.newHead();
   }
 
   async watchChain(): Promise<void> {

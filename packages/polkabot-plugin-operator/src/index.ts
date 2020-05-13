@@ -58,15 +58,13 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     this.watchChat();    
   }
 
-  public stop() {
+  public stop(): void {
     // clean up here
   }
 
   public cmdStatus(_event: unknown, room: Room, ..._args: string[]): CommandHandlerOutput {
     const uptimeSec: number = process.uptime();
     const m = moment.duration(uptimeSec, 'seconds');
-
-    console.log(' XXXX room:', room);
 
     return {
       code: 0,
@@ -82,7 +80,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     };
   }
 
-  public cmdHelp(event: any, room: Room): CommandHandlerOutput {
+  public cmdHelp(_event: Event, room: Room): CommandHandlerOutput {
     // TODO: later we could parse the msg below for keywords and try to make good guesses to focus the help a bit better
     // const msg: string = event.getContent().body;
     // fetch all the controllable, show their commands and deescriptions.
@@ -128,9 +126,9 @@ export default class Operator extends PolkabotChatbot implements Controllable {
 
     if (!controllable) return null;
     
-    console.log(`${controllable.module.name} could be able to do the job... checking supported commands`);
+    this.context.logger.info(`${controllable.module.name} could be able to do the job... checking supported commands`);
     const handler: PluginCommand = controllable.commandSet.commands.find(c => c.name === cmd.command);
-    console.log(`Handler found: ${handler ? handler.name : null}`);
+    this.context.logger.info(`Handler found: ${handler ? handler.name : null}`);
 
     return handler;
   }
@@ -148,14 +146,14 @@ export default class Operator extends PolkabotChatbot implements Controllable {
 
       // // Has the Bot Master initiated a direct chat with the Bot
       // const isBotMasterAndBotInRoom = expectedDirectMessageRoomMemberIds.every(val => directChatRoomMemberIds.includes(val));
-      // console.log('Operator - isBotMasterAndBotInRoom: ', isBotMasterAndBotInRoom)
+      // this.context.logger.info('Operator - isBotMasterAndBotInRoom: ', isBotMasterAndBotInRoom)
 
       // In general we don´t want the bot to react to its own messages!
       // const isSelf = senderId => {
       //   return senderId === this.context.config.matrix.botUserId;
       // };
 
-      // console.log('Operator - event.getContent()', event.getContent())
+      // this.context.logger.info('Operator - event.getContent()', event.getContent())
       const msg: string = event.getContent().body;
       const senderId: SenderId = event.getSender();
 
@@ -164,7 +162,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
 
       // If there is no ! and the string contains help, we try to help
       if (msg.indexOf('!') < 0 && msg.toLowerCase().indexOf('help') >= 0) {
-        console.log('Mentioning help in natural language');
+        this.context.logger.info('Mentioning help in natural language');
         const output = this.cmdHelp(event, room);
         if (output.answers) {
           // this.answer(output.answers[0])
@@ -176,9 +174,9 @@ export default class Operator extends PolkabotChatbot implements Controllable {
       }
 
       const botCommand: BotCommand | null = PolkabotChatbot.getBotCommand(msg);
-      // console.log(" *** bot command:", JSON.stringify(botCommand, null, 2));
+      // this.context.logger.info(" *** bot command:", JSON.stringify(botCommand, null, 2));
       if (!botCommand) {
-        console.log(`No bot command found in: >${msg}<`);
+        this.context.logger.info(`No bot command found in: >${msg}<`);
         this.answer({
           room,
           message: 'I was tought to smile when I don\'t get it. 😁'
@@ -186,12 +184,12 @@ export default class Operator extends PolkabotChatbot implements Controllable {
       } else {
         const cmdHandler = this.matchCommand(botCommand);
 
-        // console.log(" *** bot command handler:", JSON.stringify(cmdHandler, null, 2));
+        // this.context.logger.info(" *** bot command handler:", JSON.stringify(cmdHandler, null, 2));
 
         if (cmdHandler) {
-          console.log(`handler found, running ${cmdHandler.name}`);
+          this.context.logger.info(`handler found, running ${cmdHandler.name}`);
           const output: CommandHandlerOutput = cmdHandler.handler.bind(this)(event, room, botCommand.args);
-          console.log(`RET: ${output.code} : ${output.msg}`);
+          this.context.logger.info(`RET: ${output.code} : ${output.msg}`);
           if (output.answers) {
             // this.answer(output.answers[0])
             output.answers.map(a => {
@@ -199,7 +197,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
             });
           }
         } else {
-          console.log('No handler found');
+          this.context.logger.info('No handler found');
           this.answer({
             room,
             message: 'Hmmm no one told me about that command. 😁'
@@ -232,19 +230,19 @@ export default class Operator extends PolkabotChatbot implements Controllable {
             this.matrixHelper.isBotMasterAndBotInRoom(room)
             // && isBotMessageRecipient
           ) {
-            console.log('Operator - Bot received message from Bot Master in direct message');
+            this.context.logger.info('Operator - Bot received message from Bot Master in direct message');
             /**
              * Detect if the command received from the Bot Master is in
              * the following form: `!say <MESSAGE>` or `!status`
              */
             const capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
-            // console.log("Operator - captured from Bot Master: ", capture);
+            // this.context.logger.info("Operator - captured from Bot Master: ", capture);
             if (capture.length > 0 && capture.groups.cmd) {
               const _cmd: string = capture.groups.cmd;
               const _args = capture.groups.args;
 
-              //   console.log("Operator - cmd: ", cmd);
-              //   console.log("Operator - args: ", args);
+              //   this.context.logger.info("Operator - cmd: ", cmd);
+              //   this.context.logger.info("Operator - args: ", args);
               //   switch (cmd) {
               //     case "status":
               //       const uptime = (process.uptime() / 60 / 60).toFixed(2);
@@ -256,7 +254,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
               //       );
               //       break;
               //     case "say":
-              //       console.log("Operator - Received command !say:", cmd, args);
+              //       this.context.logger.info("Operator - Received command !say:", cmd, args);
               //       const notifierMessage: NotifierMessage = {
               //         message: args
               //       };
@@ -276,11 +274,11 @@ export default class Operator extends PolkabotChatbot implements Controllable {
               //   }
               // }
             } else {
-              console.log(`Operator - Bot received message from non-Bot Master (sender: ${senderId}) in direct message`);
+              this.context.logger.info(`Operator - Bot received message from non-Bot Master (sender: ${senderId}) in direct message`);
               // const re = new RegExp('')
 
               //           let capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
-              //           console.log("Operator - captured from non-Bot Master: ", capture);
+              //           this.context.logger.info("Operator - captured from non-Bot Master: ", capture);
               //           if (capture.length > 0 && capture.groups.cmd) {
               //             const cmd: string = capture.groups.cmd;
 

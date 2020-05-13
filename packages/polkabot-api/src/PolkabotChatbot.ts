@@ -4,7 +4,7 @@ import {
 } from './plugin.interface';
 import LoggerSingleton from './logger';
 
-const Logger = LoggerSingleton.getInstance()
+const Logger = LoggerSingleton.getInstance();
 
 export abstract class PolkabotChatbot extends PolkabotPluginBase implements ChatBot {
   controllables: Controllable[] = [];
@@ -13,13 +13,13 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
     super(Type.Chatbot, mod, context, config);
   }
   public registerControllables(controllables: Controllable[]): void {
-    Logger.info('Registering controllables: ');
+    Logger.debug('Registering controllables: ');
 
     controllables.map((ctrl: PolkabotPluginBase) => {
-      Logger.info(` >> ${ctrl.commandSet.name} (!${ctrl.commandSet.alias})`);
       const commandObject: PluginCommandSet = (ctrl as Controllable).commandSet;
       const commands: PluginCommand[] = commandObject.commands;
-      Logger.info(commands.map(c => c.name));
+      Logger.debug(` ctrl: ${ctrl.commandSet.name} (!${ctrl.commandSet.alias}) ${commands.map(c => c.name)}`);
+      // Logger.info(commands.map(c => c.name));
     });
     this.controllables = controllables;
   }
@@ -38,7 +38,7 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
 
   public answer(data: RoomAnswer): void {
     const html = data.html || true;
-    Logger.info(`Sending HTML: ${html ? 'TRUE' : 'FALSE'}`);
+    Logger.debug(`Sending HTML: ${html ? 'TRUE' : 'FALSE'}`);
     if (!html) {
       // Simple text
       this.context.matrix.sendTextMessage(data.room.roomId, data.message);

@@ -15,6 +15,6 @@ export default class TwitterNotifier extends PolkabotNotifier {
 
   public notify(message: NotifierMessage, specs: NotifierSpecs): void {
     super.notify(message, specs);
-    console.log('🐦 Notifier/twitter: Placeholder - This is where the tweet will be sent');
+    this.context.logger.warn('🐦 Notifier/twitter: Placeholder - This is where the tweet will be sent');
   }
 }

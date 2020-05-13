@@ -1,57 +1,49 @@
-const { createLogger, format, transports } = require('winston');
-import { Logger } from 'winston';
+import { Logger, createLogger, format, transports } from 'winston';
 import winston from 'winston';
 export { winston };
+const { combine, label, printf } = format;
 
-// import winston from "winston/lib/winston/config";
-const { combine, timestamp, label, printf } = format;
+export default class LoggerFactory {
+  public static getInstance(source = 'POLKABOT'): Logger {
+    const consoleFormat = printf(({ level, message, label, _timestamp, meta }) => {
+      return `[${label}${meta ? '|' + meta : ''}]\t${level} ${message}`;
+    });
 
-export default class LoggerSingleton {
-    private static instance: Logger;
+    const productionFormat = printf(({ level, message, label, timestamp, meta }) => {
+      return `${timestamp} [${label}${meta ? '|' + meta : ''}]\t${level} ${message}`;
+    });
 
-    public static getInstance(source: string = 'Polkabot'): Logger {
-        if (!LoggerSingleton.instance) {
-            // const _colorizer = format.colorize();
+    const instance = createLogger({
+      level: process.env.LOG_LEVEL,
+      format: combine(
+        label({ label: source }),
+        format.splat(),
+        // format.json(),
+        // timestamp(),
+        productionFormat,
+      ),
+      transports: [
+        // - Write to all logs with level `info` and below to `combined.log` 
+        // - Write all logs error (and below) to `error.log`.
+        new transports.File({ filename: 'error.log', level: 'error' }),
+        new transports.File({ filename: 'combined.log' })
+      ]
+    });
 
-            const consoleFormat = printf(({ level, message, label, timestamp, meta }) => {
-                return `${timestamp} [${label}${meta ? '|' + meta : ''}] ${level}: ${message}`;
-            });
-
-            LoggerSingleton.instance = createLogger({
-                level: process.env.LOG_LEVEL,
-                format: combine(
-                    label({ label: source }),
-                    format.splat(),
-                    format.json(),
-                    timestamp(),
-                ),
-                defaultMeta: { source: 'Polkabot' },
-                transports: [
-                    //
-                    // - Write to all logs with level `info` and below to `combined.log` 
-                    // - Write all logs error (and below) to `error.log`.
-                    //
-                    new transports.File({ filename: 'error.log', level: 'error' }),
-                    new transports.File({ filename: 'combined.log' })
-                ]
-            });
-
-            if (process.env.NODE_ENV !== 'production') {
-                LoggerSingleton.instance.add(new transports.Console({
-                    format: combine(
-                        // format.colorize(),
-                        format.align(),
-                        timestamp(),
-                        format.simple(),
-                        format.colorize(),
-                        label({ label: source }),
-                        format.splat(),
-                        consoleFormat,
-                    )
-                }));
-            }
-        }
-
-        return LoggerSingleton.instance
+    if (process.env.NODE_ENV !== 'production') {
+      instance.add(new transports.Console({
+        format: combine(
+          format.align(),
+          format.simple(),
+          format.colorize(),
+          label({ label: source }),
+          format.splat(),
+          consoleFormat,
+        )
+      }));
     }
+    // }
+
+    return instance;
+  }
 }

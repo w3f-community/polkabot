@@ -10,7 +10,7 @@ import { PolkabotWorker } from '../../../polkabot-api/src/PolkabotWorker';
 import { PolkabotChatbot } from '../../../polkabot-api/src/PolkabotChatbot';
 import LoggerSingleton from '../../../polkabot-api/src/logger';
 
-const Logger = LoggerSingleton.getInstance()
+const Logger = LoggerSingleton.getInstance();
 
 export default class PluginLoader {
   public static async load(mod: PluginModule, context: PluginContext): Promise<PolkabotPlugin> {

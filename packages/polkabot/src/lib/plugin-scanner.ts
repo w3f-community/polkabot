@@ -4,7 +4,7 @@ import findNodeModules from 'find-node-modules';
 import { PluginModule } from '../../../polkabot-api/src/plugin.interface';
 import LoggerSingleton from '../../../polkabot-api/src/logger';
 
-const Logger = LoggerSingleton.getInstance()
+const Logger = LoggerSingleton.getInstance();
 
 export default class PluginScanner {
   private name: string;

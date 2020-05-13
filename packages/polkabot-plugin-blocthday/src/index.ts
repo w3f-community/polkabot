@@ -10,17 +10,19 @@ import {
   Room
 } from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
+import { HeaderExtended } from '@polkadot/api-derive/type';
 
 import getCommandSet from './commandSet';
 
 export default class Blocthday extends PolkabotWorker implements Controllable {
   private NB_BLOCKS: number;
   public commandSet: PluginCommandSet;
+  public unsub: Function;
 
   public cmdStatus(_event, room: Room): CommandHandlerOutput {
-    console.log('Blocthday.cmdStatus()');
-    // console.log("Called cmdStatus with:", args);
-   
+    this.context.logger.debug('Blocthday.cmdStatus()');
+    // this.context.logger.info("Called cmdStatus with:", args);
+
     return {
       code: -1,
       msg: 'Implement me first!',
@@ -38,28 +40,31 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
   }
 
   public start(): void {
-    console.log('Blocthday - Starting with NB_BLOCKS:', this.NB_BLOCKS);
+    this.context.logger.info('Blocthday - Starting with NB_BLOCKS:', this.NB_BLOCKS);
     this.watchChain().catch(error => {
       console.error('Blocthday - Error subscribing to chain head: ', error);
     });
   }
 
   public stop(): void {
-    console.log('Blocthday - STOPPING');
+    this.context.logger.debug('Blocthday - STOPPING');
 
-    // TODO: unsubscribe to everything here
+    if (this.unsub)
+      this.unsub();
   }
 
+  /**
+   * Start watching the chain.
+   * See https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
+   */
   async watchChain(): Promise<void> {
-    // Reference: https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
-    await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
-      //console.log(`Blocthday - Chain is at block: #${header.number}`);
+    this.unsub = await this.context.polkadot.rpc.chain.subscribeNewHeads((header: HeaderExtended) => {
       const bnBlockNumber: BN = header.number.unwrap().toBn();
       const bnNumberOfBlocks: BN = new BN(this.NB_BLOCKS);
 
       if (bnBlockNumber.mod(bnNumberOfBlocks).toString(10) === '0') {
         const notifierMessage: NotifierMessage = {
-          message: `Happy ${this.NB_BLOCKS}-BlocthDay!!! Polkadot is now at #${header.number}`
+          message: `Happy ${this.NB_BLOCKS}-BlocthDay!!! Chain is now at #${header.number}`
         };
 
         const notifierSpecs: NotifierSpecs = {

@@ -7,8 +7,10 @@ import { PolkabotNotifier } from './PolkabotNotifier';
 import { ConfigObject } from 'confmgr';
 import type Room from 'matrix-js-sdk';
 import type MatrixClient from 'matrix-js-sdk';
+import type Event from 'matrix-js-sdk';
+import { winston } from './logger';
 
-export { Room, MatrixClient };
+export { Room, MatrixClient, Event };
 /**
  * A plugin module before the package has been loaded.
  * Before loading the patch we know only the path and the name
@@ -128,6 +130,7 @@ export interface PluginContext {
   pkg: packageJson;
   db;
   matrix: MatrixClient;
+  logger: winston.Logger;
   polkadot;
   polkabot;
 }
