@@ -79,7 +79,7 @@ export default class StallWatcher extends PolkabotWorker {
   //   this.context.matrix.sendTextMessage(roomId, msg);
   // }
 
-  // TODO Many of the bot function should not be here. This is a worker, not a bot.
+  // Many of the bot function should not be here. This is a worker, not a bot.
   // The worker could however publish supported commands the bot can fetch with the form
   // !sw duration 42
   // !sw restart
@@ -129,8 +129,6 @@ export default class StallWatcher extends PolkabotWorker {
   //       // };
 
   //       // const msg = event.getContent().body;
-
-  //       // // FIXME - this still triggers an error in the logs when the Bot Master
   //       // // sends a message without an argument in the public room (i.e. `!say`)
   //       // if (!msg) {
   //       //   return;

@@ -74,7 +74,7 @@ export default class Reporter extends PolkabotWorker {
       future,
       duration,
       date: other,
-      message: `${future ? 'in' : 'for'} ${duration} seconds`, // TODO with Moment.js we dont need that
+      message: `${moment(duration).fromNow()}`,
     };
   }
 

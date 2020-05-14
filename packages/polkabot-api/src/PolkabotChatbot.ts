@@ -50,9 +50,8 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
   }
 
   /**
-   * Get a string from the chat and extract a BotCommand or none
+   * Get a string from the chat and extract a BotCommand from it or none if there is no match
    * See https://regex101.com/r/1EDFsV/1/tests
-   * TODO: That should be a factory creating an instance of a BotCommand class
    */
   public static getBotCommand(str: string): BotCommand | null {
     const capture = str.match(/^!(?<module>\w+)(\s+(?<command>\w+))(\s+(?<args>.*))?$/i) || [];
@@ -67,7 +66,7 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
       return obj;
     }
     else {
-      //   Logger.info("FAILED PARSING COMMAND", str); // TODO: make this a silly logger message so it does not bother
+      Logger.silly('FAILED PARSING COMMAND', str);
       return null;
     }
   }

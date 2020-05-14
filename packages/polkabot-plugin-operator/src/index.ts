@@ -20,6 +20,7 @@ import MatrixHelper from './matrix-helper';
 import { packageJson } from 'package-json';
 import { assert } from '@polkadot/util';
 import { OperatorParams } from './types';
+import { isHelpNeeded } from './helpers';
 
 const capitalize: (string) => string = (s: string) => {
   if (typeof s !== 'string') return '';
@@ -55,7 +56,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
   }
 
   public start(): void {
-    this.watchChat();    
+    this.watchChat();
   }
 
   public stop(): void {
@@ -81,16 +82,13 @@ export default class Operator extends PolkabotChatbot implements Controllable {
   }
 
   public cmdHelp(_event: Event, room: Room): CommandHandlerOutput {
-    // TODO: later we could parse the msg below for keywords and try to make good guesses to focus the help a bit better
-    // const msg: string = event.getContent().body;
-    // fetch all the controllable, show their commands and deescriptions.
     let message = 'Here is also a list of all the loaded modules and their commands:<br/><ul>';
     this.controllables.map((controllable: Controllable) => {
       message += `<li>${controllable.commandSet.name}:</li><ul>`;
       controllable.commandSet.commands.map((command: PluginCommand) => {
         message += `<li><code>!${controllable.commandSet.alias} ${command.name}</code>: ${command.description} !${
           command.adminOnly ? ' (Master only)' : ''
-        }</li>`;
+          }</li>`;
       });
       message += '</ul>';
     });
@@ -125,7 +123,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     const controllable = hits.length > 0 ? (hits[0] as PolkabotPlugin) : null;
 
     if (!controllable) return null;
-    
+
     this.context.logger.info(`${controllable.module.name} could be able to do the job... checking supported commands`);
     const handler: PluginCommand = controllable.commandSet.commands.find(c => c.name === cmd.command);
     this.context.logger.info(`Handler found: ${handler ? handler.name : null}`);
@@ -161,7 +159,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
       if (this.matrixHelper.isBot(senderId)) return;
 
       // If there is no ! and the string contains help, we try to help
-      if (msg.indexOf('!') < 0 && msg.toLowerCase().indexOf('help') >= 0) {
+      if (isHelpNeeded(msg)) {
         this.context.logger.info('Mentioning help in natural language');
         const output = this.cmdHelp(event, room);
         if (output.answers) {

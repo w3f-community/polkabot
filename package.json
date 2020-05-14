@@ -11,7 +11,7 @@
     "analyze": "yarn run build",
     "check": "yarn lint",
     "lint": "eslint --ext .ts,.tsx .",
-    "test": "echo \"skipping tests\"",
+    "test": "lerna run test",
     "start": "cd packages/polkabot && yarn start",
     "build": "lerna run build",
     "build:doc": "lerna run build:doc",
