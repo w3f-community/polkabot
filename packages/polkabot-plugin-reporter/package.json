@@ -9,7 +9,8 @@
     "start": "babel-node ./src/index.js",
     "prepublishOnly": "npm run build",
     "postinstall": "npm run build",
-    "clean": "rm -rf dist build node_modules"
+    "clean": "rm -rf dist build node_modules",
+    "build:doc": "typedoc src"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",

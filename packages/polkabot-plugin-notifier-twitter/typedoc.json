@@ -1,7 +1,7 @@
 {
-    "name": "PolkaBOT",
+    "name": "PolkaBOT plugin: Twitter Notifier",
     "mode": "modules",
-    "out": "../../public/doc/polkabot",
+    "out": "../../public/doc/polkabot-notifier-twitter",
     "theme": "default",
     "ignoreCompilerErrors": "false",
     "preserveConstEnums": "true",

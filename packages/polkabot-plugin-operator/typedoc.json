@@ -1,7 +1,7 @@
 {
-    "name": "PolkaBOT",
+    "name": "PolkaBOT plugin: Operator",
     "mode": "modules",
-    "out": "../../public/doc/polkabot",
+    "out": "../../public/doc/polkabot-operator",
     "theme": "default",
     "ignoreCompilerErrors": "false",
     "preserveConstEnums": "true",

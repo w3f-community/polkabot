@@ -1,7 +1,7 @@
 {
-    "name": "PolkaBOT",
+    "name": "PolkaBOT plugin: Matrix Notifier",
     "mode": "modules",
-    "out": "../../public/doc/polkabot",
+    "out": "../../public/doc/polkabot-notifier-matrix",
     "theme": "default",
     "ignoreCompilerErrors": "false",
     "preserveConstEnums": "true",

@@ -12,7 +12,8 @@
     "postinstall": "npm run build",
     "clean": "rm -rf dist node_modules",
     "test": "mocha -r ts-node/register tests/**/*.test.ts",
-    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
+    "build:doc": "typedoc src"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",

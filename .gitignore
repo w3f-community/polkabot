@@ -13,3 +13,4 @@ yarn-error.log
 polkabot.code-workspace
 *.log
 docs
+public/doc

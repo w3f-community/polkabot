@@ -1,7 +1,7 @@
 {
     "name": "PolkaBOT-api",
     "mode": "modules",
-    "out": "docs",
+    "out": "../../public/doc/polkabot-api",
     "theme": "default",
     "ignoreCompilerErrors": "false",
     "preserveConstEnums": "true",

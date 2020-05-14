@@ -1,7 +1,7 @@
 {
-    "name": "PolkaBOT",
+    "name": "PolkaBOT plugin: Reporter",
     "mode": "modules",
-    "out": "../../public/doc/polkabot",
+    "out": "../../public/doc/polkabot-reporter",
     "theme": "default",
     "ignoreCompilerErrors": "false",
     "preserveConstEnums": "true",

@@ -1,7 +1,7 @@
 {
-    "name": "PolkaBOT",
+    "name": "PolkaBOT plugin: Blockstats",
     "mode": "modules",
-    "out": "../../public/doc/polkabot",
+    "out": "../../public/doc/polkabot-blockstats",
     "theme": "default",
     "ignoreCompilerErrors": "false",
     "preserveConstEnums": "true",

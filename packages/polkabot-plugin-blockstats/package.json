@@ -9,7 +9,8 @@
     "build": "tsc --build tsconfig.json",
     "prepublishOnly": "npm run build",
     "clean": "rm -rf dist node_modules",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "build:doc": "typedoc src"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",

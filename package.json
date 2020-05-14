@@ -13,9 +13,10 @@
     "lint": "eslint --ext .ts,.tsx .",
     "test": "echo \"skipping tests\"",
     "start": "cd packages/polkabot && yarn start",
-    "build": "cd packages/polkabot && yarn build",
+    "build": "lerna run build",
     "build:doc": "lerna run build:doc",
-    "clean": "lerna run clean"
+    "clean:local": "rm -rf docs",
+    "clean": "yarn clean:local; lerna run clean"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.8.3",
@@ -24,6 +25,6 @@
     },
   "dependencies": {
     "@babel/runtime": "^7.8.7",
-    "@polkadot/api": "^1.13.1"
+    "@polkadot/api": "^1.14.1"
   }
 }
