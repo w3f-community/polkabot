@@ -1,13 +1,7 @@
 import BN from 'bn.js';
 import moment from 'moment';
-// import "moment-duration-format";
-
 import { NotifierSpecs, PluginModule, PluginContext } from '@polkabot/api/src/plugin.interface';
-
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
-
-// TODO: Will move to hash later on
-// import xxhash from "@polkadot/util-crypto/xxhash/xxhash64/asHex";
 import blake2 from '@polkadot/util-crypto/blake2/asHex';
 
 enum Severity {
@@ -31,17 +25,15 @@ type BlockMoment = {
 
 export default class Reporter extends PolkabotWorker {
   private cache: any;
+  private unsub: Function;
+
   private notifierSpecs: NotifierSpecs = {
     notifiers: ['matrix'],
   };
-  // TODO: bring params and loadParams here
-  private consts: any;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
     this.cache = {};
-    // this.config = {};
-    this.consts = this.context.polkadot.consts;
   }
 
   /** Check the last blocks and figure out the block time.
@@ -95,7 +87,8 @@ export default class Reporter extends PolkabotWorker {
 
   public stop(): void {
     console.log('Reporter - STOPPING');
-    // TODO: do all the unsub here
+    if (this.unsub)
+      this.unsub();
   }
 
   private announce(message: Announcement): void {
@@ -115,7 +108,7 @@ export default class Reporter extends PolkabotWorker {
   }
 
   async subscribeChainBlockHeader(): Promise<void> {
-    await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
+    this.unsub = await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
       const KEY = 'blockNumber';
       if (header) {
         this.cache[KEY] = header.number.unwrap().toBn();
@@ -222,10 +215,10 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
       if (!this.cache[KEY]) this.cache[KEY] = count;
       if (this.cache[KEY] && !this.cache[KEY].eq(count)) {
         this.cache[KEY] = count;
-        const deadline = this.cache.blockNumber.add(this.consts.democracy.votingPeriod) as BN;
+        const deadline = this.cache.blockNumber.add(this.context.polkadot.consts.democracy.votingPeriod) as BN;
         const blockMoment = await this.getBlockMoment(deadline);
         // const votingTimeInMinutes =
-        //   parseInt(this.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
+        //   parseInt(this.context.polkadot.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
         console.log('Reporter - Proposal count changed:', count.toString(10));
         const id = count.sub(new BN(1)).toString(10);
 
