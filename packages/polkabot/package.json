@@ -16,9 +16,9 @@
     "test:local": "mocha --require babel-core/register test/* --exit",
     "test:watch": "mocha --watch --require babel-core/register test/* --exit",
     "lint": "eslint --ext .js,.ts src",
-    "clean": "rm -rf .nyc_output build coverage node_modules out dist",
+    "clean": "rm -rf .nyc_output build coverage node_modules out dist *.log docs",
     "prepublishOnly": "npm run build",
-    "build:doc": "jsdoc -r -d out -c jsdoc.conf",
+    "build:doc": "typedoc --out docs src",
     "build:docker": "docker build -t chevdor/polkabot .",
     "docker:run": "docker run --rm -it chevdor/mypolkabot",
     "patch": "echo 'Disabling package uniqueness check. See https://github.com/polkadot-js/api/issues/984'; sed -i '/function assertSingletonPackage(name) {/ a   return' node_modules/@polkadot/util/assertSingletonPackage.js"
@@ -68,7 +68,7 @@
     "snazzy": "^8.0.0",
     "standard": "14.3.3",
     "ts-node": "^8.9.0",
-    "typescript": "3.8.3",
+    "typescript": "^3.9.2",
     "yarn": "^1.22.4"
   },
   "standard": {

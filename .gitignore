@@ -12,3 +12,4 @@ yarn-error.log
 *.db
 polkabot.code-workspace
 *.log
+docs

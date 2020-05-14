@@ -1,27 +1,7 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "target": "es2015",
-    "noImplicitAny": false,
-    "sourceMap": true,
-    "preserveConstEnums": true,
-    "lib": ["es2015", "dom"],
-    "noUnusedLocals": false,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "strictNullChecks": false,
-    "noUnusedParameters": false,
-    "pretty": true,
-    "allowUnreachableCode": false,
-    "experimentalDecorators": true,
-    "suppressImplicitAnyIndexErrors": true,
     "outDir": "./build"
   },
   "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json", "../polkabot-api/src/logger.ts"],
-  "compileOnSave": true
 }

@@ -8,8 +8,9 @@
     "start": "babel-node ./src/index.js",
     "build": "tsc --build tsconfig.json",
     "prepublishOnly": "npm run build",
-    "clean": "rm -rf dist build node_modules",
-    "postinstall": "npm run build"
+    "clean": "rm -rf dist build node_modules docs",
+    "postinstall": "npm run build",
+    "build:doc": "typedoc --out docs src"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",
