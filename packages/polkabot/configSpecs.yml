@@ -63,7 +63,7 @@ POLKABOT:
     NB_BLOCKS:
       description: How often do we want to wish a happy Block-th-day 
       type: number
-      default: 100
+      default: 1000000
 
   BLOCKSTATS:
     DISABLED:

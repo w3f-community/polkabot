@@ -38,7 +38,7 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
 
   public answer(data: RoomAnswer): void {
     const html = data.html || true;
-    Logger.debug(`Sending HTML: ${html ? 'TRUE' : 'FALSE'}`);
+    Logger.silly(`Sending HTML: ${html ? 'TRUE' : 'FALSE'}`);
     if (!html) {
       // Simple text
       this.context.matrix.sendTextMessage(data.room.roomId, data.message);
