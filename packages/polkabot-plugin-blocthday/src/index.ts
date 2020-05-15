@@ -7,13 +7,30 @@ import {
   CommandHandlerOutput,
   Controllable,
   PluginCommandSet,
-  Room
+  Room,
 } from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';
 
 import getCommandSet from './commandSet';
+import LoggerSingleton from '../../polkabot-api/src/logger';
 
+const Logger = LoggerSingleton.getInstance();
+
+export type PolkabotPluginParams = {
+  name: string;
+  alias: string;
+}
+
+// function PolkabotPlugin(params: PolkabotPluginParams) {
+//   Logger.info(params)
+// }
+function PolkabotPlugin(_ctor: Function): void {
+  Logger.info('decorator');
+
+}
+
+@PolkabotPlugin // ({name: 'Blocthday', alias: 'bday'})
 export default class Blocthday extends PolkabotWorker implements Controllable {
   private NB_BLOCKS: number;
   public commandSet: PluginCommandSet;

@@ -88,7 +88,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
       controllable.commandSet.commands.map((command: PluginCommand) => {
         message += `<li><code>!${controllable.commandSet.alias} ${command.name}</code>: ${command.description} !${
           command.adminOnly ? ' (Master only)' : ''
-          }</li>`;
+        }</li>`;
       });
       message += '</ul>';
     });
@@ -137,20 +137,6 @@ export default class Operator extends PolkabotChatbot implements Controllable {
         return;
       }
 
-      // TODO - refactor into a common utility plugin or similar
-      // const directChatRoomMemberIds = Object.keys(room.currentState.members);
-
-      // const expectedDirectMessageRoomMemberIds = [this.context.config.matrix.botMasterId, this.context.config.matrix.botUserId];
-
-      // // Has the Bot Master initiated a direct chat with the Bot
-      // const isBotMasterAndBotInRoom = expectedDirectMessageRoomMemberIds.every(val => directChatRoomMemberIds.includes(val));
-      // this.context.logger.info('Operator - isBotMasterAndBotInRoom: ', isBotMasterAndBotInRoom)
-
-      // In general we don´t want the bot to react to its own messages!
-      // const isSelf = senderId => {
-      //   return senderId === this.context.config.matrix.botUserId;
-      // };
-
       // this.context.logger.info('Operator - event.getContent()', event.getContent())
       const msg: string = event.getContent().body;
       const senderId: SenderId = event.getSender();
@@ -198,16 +184,10 @@ export default class Operator extends PolkabotChatbot implements Controllable {
           this.context.logger.info('No handler found');
           this.answer({
             room,
-            message: 'Hmmm no one told me about that command. 😁'
+            message: 'Hmmm no one told me about that command. You may want to try to ask for help.'
           });
           return;
         }
-
-        // TODO FIXME - this still triggers an error in the logs when the Bot Master
-        // sends a message without an argument in the public room (i.e. `!say`)
-        // if (!msg) {
-        //   return;
-        // }
 
         const senderRoomId: RoomId = event.sender.roomId;
         const roomIdWithBot: RoomId = room.roomId;

@@ -42,10 +42,18 @@ export default class MatrixHelper {
 
   /**
    * Has the Bot Master initiated a direct chat with the Bot
-   */ 
+   */
   public isBotMasterAndBotInRoom(room: Room): boolean {
     const expectedDirectMessageRoomMemberIds = [this.params.botMasterId, this.params.botUserId];
     const directChatRoomMemberIds = Object.keys(room.currentState.members);
     return expectedDirectMessageRoomMemberIds.every(val => directChatRoomMemberIds.includes(val));
   }
+
+  // const directChatRoomMemberIds = Object.keys(room.currentState.members);
+
+  // const expectedDirectMessageRoomMemberIds = [this.context.config.matrix.botMasterId, this.context.config.matrix.botUserId];
+
+  // // Has the Bot Master initiated a direct chat with the Bot
+  // const isBotMasterAndBotInRoom = expectedDirectMessageRoomMemberIds.every(val => directChatRoomMemberIds.includes(val));
+  // this.context.logger.info('Operator - isBotMasterAndBotInRoom: ', isBotMasterAndBotInRoom)
 }

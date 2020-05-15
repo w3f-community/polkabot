@@ -5,7 +5,7 @@
   "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "lint": "standard",
+    "lint": "eslint --ext .ts,.tsx .",
     "start": "babel-node ./src/index.js",
     "build:watch": "tsc --build tsconfig.json -w",
     "prepublishOnly": "npm run build",
@@ -30,22 +30,12 @@
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
     "nyc": "^15.0.0",
-    "standard": "14.0.0",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
   },
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/Polkabot/polkabot-plugin-operator.git"
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "ignore": [
-      "dist/"
-    ],
-    "env": [
-      "mocha"
-    ]
   },
   "engines": {
     "node": ">=10.13.0",

@@ -20,7 +20,7 @@
     "allowUnreachableCode": false,
     "experimentalDecorators": true,
     "suppressImplicitAnyIndexErrors": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
   },
   "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json"],
   "compileOnSave": true
