@@ -11,35 +11,32 @@ import {
 } from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';
-
 import getCommandSet from './commandSet';
-import LoggerSingleton from '../../polkabot-api/src/logger';
+// import { Command } from '../../polkabot-api/src/decorators';
 
-const Logger = LoggerSingleton.getInstance();
-
-export type PolkabotPluginParams = {
-  name: string;
-  alias: string;
-}
-
-// function PolkabotPlugin(params: PolkabotPluginParams) {
-//   Logger.info(params)
-// }
-function PolkabotPlugin(_ctor: Function): void {
-  Logger.info('decorator');
-
-}
-
-@PolkabotPlugin // ({name: 'Blocthday', alias: 'bday'})
+// @Callable({ name: 'Blocthday', alias: 'bday' })
+// @Configured(['NB_BLOCKS'])
 export default class Blocthday extends PolkabotWorker implements Controllable {
   private NB_BLOCKS: number;
   public commandSet: PluginCommandSet;
   public unsub: Function;
 
+  // @Command({ name: 'status', description: 'Show status of the plugin', argsRegexp: '', adminOnly: false })
   public cmdStatus(_event, room: Room): CommandHandlerOutput {
     this.context.logger.debug('Blocthday.cmdStatus()');
-    // this.context.logger.info("Called cmdStatus with:", args);
 
+    return {
+      code: -1,
+      msg: 'Implement me first!',
+      answers: [{
+        room,
+        message: 'Oups! This is BlockDay, this command is not implmented yet 🥴'
+      }]
+    };
+  }
+
+  // @Command()
+  public cmdTest(_event, room: Room): CommandHandlerOutput {
     return {
       code: -1,
       msg: 'Implement me first!',
@@ -52,19 +49,29 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    this.NB_BLOCKS = parseInt(process.env.POLKABOT_BLOCTHDAY_NB_BLOCKS) || 1000000;
+    this.context.logger.silly('++ Blocthday');
+
+    // TODO: would be great to use a decorator for that
+    this.NB_BLOCKS = this.context.config.Get('BLOCTHDAY', 'NB_BLOCKS');
     this.commandSet = getCommandSet(this);
+    this.context.logger.debug('%o', this.commandSet);
   }
 
   public start(): void {
-    this.context.logger.info('Blocthday - Starting with NB_BLOCKS:', this.NB_BLOCKS);
+    this.context.logger.info('Starting with NB_BLOCKS: %d', this.NB_BLOCKS);
+
+    if (!this.commandSet)
+      this.context.logger.error('Commandset NOT defined');
+    else
+      this.context.logger.debug('Commandset: %o', this.commandSet);
+
     this.watchChain().catch(error => {
-      console.error('Blocthday - Error subscribing to chain head: ', error);
+      this.context.logger.error('Error subscribing to chain head: ', error);
     });
   }
 
   public stop(): void {
-    this.context.logger.debug('Blocthday - STOPPING');
+    this.context.logger.debug('STOPPING');
 
     if (this.unsub)
       this.unsub();
