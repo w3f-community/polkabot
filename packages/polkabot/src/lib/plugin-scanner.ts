@@ -57,7 +57,7 @@ export default class PluginScanner {
     return new Promise<PluginModule[]>(resolve => {
       // console.log('dbg', path.dirname(process.argv0), __filename, __dirname)
       const scriptLocation = path.join(path.dirname(process.argv[1]), '..');
-      Logger.debug('script loc', scriptLocation);
+      Logger.silly('Script loc: %s', scriptLocation);
       const searchPaths: string[] = findNodeModules({ cwd: scriptLocation, relative: false });
       // path.join(scriptLocation, "../lib/node_modules"),
       // path.join(__dirname, '../../../node_modules')
@@ -65,7 +65,7 @@ export default class PluginScanner {
       const pattern = 'polkabot';
       const modules = [];
 
-      Logger.debug(`PluginScanner scanning searchPaths for ${pattern} plugins: `, searchPaths);
+      Logger.debug(`PluginScanner scanning searchPaths for ${pattern} plugins: ${searchPaths}`);
 
       searchPaths.map(p => {
         fs.readdirSync(p)

@@ -6,11 +6,11 @@ const { combine, label, printf } = format;
 export default class LoggerFactory {
   public static getInstance(source = 'POLKABOT'): Logger {
     const consoleFormat = printf(({ level, message, label, _timestamp, meta }) => {
-      return `[${label}${meta ? '|' + meta : ''}]\t${level} ${message}`;
+      return `[${label}${meta ? '|' + meta.source : ''}]\t${level} ${message}`;
     });
 
     const productionFormat = printf(({ level, message, label, timestamp, meta }) => {
-      return `${timestamp} [${label}${meta ? '|' + meta : ''}]\t${level} ${message}`;
+      return `${timestamp} [${label}${meta ? '|' + meta.source : ''}]\t${level} ${message}`;
     });
 
     const instance = createLogger({
