@@ -65,6 +65,13 @@ export type PluginCommand = {
   handler: (...args: unknown[]) => CommandHandlerOutput;
 };
 
+export type CommandDecoratorArgs = {
+  name?: string;
+  description?: string; // what does this command do
+  argsRegexp?: string; // regexp to validate the expected args
+  adminOnly?: boolean; // is the command only for admins ?
+}
+
 export type PluginCommandSet = {
   name: string; // ie: Identity Registrar
   alias: string; // ie: reg
