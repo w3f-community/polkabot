@@ -19,30 +19,35 @@ export default class PluginLoader {
       fs.realpath(mod.path, async (err, pluginPath) => {
         if (err) Logger.error('ERR:', err);
 
-        const myModule = (await import(pluginPath)).default;
-        let plugin;
-        const parentClass = Object.getPrototypeOf(myModule).name;
+        try {
+          Logger.debug(`Loading plugin from ${pluginPath}`);
+          const myModule = (await import(pluginPath)).default;
+          let plugin;
+          const parentClass = Object.getPrototypeOf(myModule).name;
 
-        switch (parentClass) {
-          case PolkabotNotifier.name:
-            plugin = new myModule(mod, context) as PolkabotNotifier;
-            break;
-          case PolkabotWorker.name:
-            plugin = new myModule(mod, context) as PolkabotWorker;
-            break;
-          case PolkabotChatbot.name:
-            plugin = new myModule(mod, context) as PolkabotChatbot;
-            break;
-          default:
-            throw new Error('Plugin type not supported');
+          switch (parentClass) {
+            case PolkabotNotifier.name:
+              plugin = new myModule(mod, context) as PolkabotNotifier;
+              break;
+            case PolkabotWorker.name:
+              plugin = new myModule(mod, context) as PolkabotWorker;
+              break;
+            case PolkabotChatbot.name:
+              plugin = new myModule(mod, context) as PolkabotChatbot;
+              break;
+            default:
+              throw new Error('Plugin type not supported');
+          }
+
+          Logger.info(
+            ` - ${plugin.constructor.name}: ${plugin.package.name} version ${plugin.package.version} from ${plugin.package.author
+              .name || plugin.package.author}`
+          );
+
+          resolve(plugin);
+        } catch (e) {
+          Logger.error(`Houston, plugin <${mod.name} failed ! %o`, e);
         }
-
-        Logger.info(
-          ` - ${plugin.constructor.name}: ${plugin.package.name} version ${plugin.package.version} from ${plugin.package.author
-            .name || plugin.package.author}`
-        );
-
-        resolve(plugin);
       });
     });
   }
