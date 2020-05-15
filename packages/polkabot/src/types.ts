@@ -1,4 +1,4 @@
-import { RoomId } from '../../polkabot-api/src/plugin.interface';
+// import { RoomId } from '../../polkabot-api/src/plugin.interface';
 
 export interface EnvVar {
   name: string; // Name of the envrionment varibale
@@ -29,11 +29,11 @@ export interface PolkabotConfig {
   };
 }
 
-export interface MatrixClient {
-  sendTextMessage: (roomId, string) => void;
-  sendHtmlMessage: (roomId: RoomId, html: string, text: string) =>  void;
-  //on: (string, (event, room, _toStartOfTimeline) => void) => void;
-  once: (event: string, handler: Function) => void;
-  startClient(msgToSHow: number);
-  login: (pass: string, options: Record<string, unknown>) => Promise<MatrixClient>;
-}
+// export interface MatrixClient {
+//   sendTextMessage: (roomId, string) => void;
+//   sendHtmlMessage: (roomId: RoomId, html: string, text: string) =>  void;
+//   //on: (string, (event, room, _toStartOfTimeline) => void) => void;
+//   once: (event: string, handler: Function) => void;
+//   startClient(msgToSHow: number);
+//   login: (pass: string, options: Record<string, unknown>) => Promise<MatrixClient>;
+// }
