@@ -18,11 +18,12 @@ import {
   PluginModule,
   Controllable,
   Type,
+  MatrixClient,
 } from '../../polkabot-api/src/plugin.interface';
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
 import { PolkabotChatbot } from '../../polkabot-api/src/PolkabotChatbot';
 import { PolkabotWorker } from '../../polkabot-api/src/PolkabotWorker';
-import { MatrixClient } from './types';
+// import { MatrixClient } from './types';
 import LoggerSingleton, { winston } from '../../polkabot-api/src/logger';
 
 const Logger = LoggerSingleton.getInstance();
@@ -33,17 +34,12 @@ type PolkabotGlobal = {
 
 ((global as unknown) as PolkabotGlobal).Olm = Olm;
 
-// comment out if you need to trouble shoot matrix issues
-// matrix.on('event', function (event) {
-//   Logger.silly(event.getType())
-// })
-
 // Here we rewrite the Matrix SDK logger to redirect to our logger
 import { logger as mxLogger } from 'matrix-js-sdk/lib/logger';
 
 // rewrite matrix logger
-mxLogger.info = (...msg) => Logger.log({ level: 'debug', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
-mxLogger.log = (...msg) => Logger.log({ level: 'debug', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
+mxLogger.info = (...msg) => Logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
+mxLogger.log = (...msg) => Logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
 mxLogger.warn = (...msg) => Logger.log({ level: 'warn', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
 mxLogger.error = (...msg) => Logger.log({ level: 'error', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
 mxLogger.trace = (...msg) => Logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
@@ -109,7 +105,7 @@ export default class Polkabot {
     const channel = notifier.channel;
     if (!this.notifiersTable[channel]) this.notifiersTable[channel] = [];
     this.notifiersTable[channel].push(notifier);
-    Logger.silly('notifierTable', this.notifiersTable);
+    Logger.silly('notifierTable %j', this.notifiersTable);
   }
 
   /** Register all the Controllable we find. They will be passed to the Operator. */
@@ -126,7 +122,8 @@ export default class Polkabot {
   }
 
   private async loadPlugins(): Promise<void> {
-    Logger.info('Loading plugins', { meta: { source: 'Polkabot' } });
+    // Logger.info('Loading plugins', { meta: { source: 'Polkabot' } });
+    Logger.info('Loading plugins');
 
     const pluginScanner = new PluginScanner(pkg.name + '-plugin');
     let plugins = await pluginScanner.scan();
@@ -146,7 +143,7 @@ export default class Polkabot {
         return !disabled;
       });
 
-      Logger.info(`Found ${plugins.length} plugins`);
+      Logger.debug(`Found ${plugins.length} plugins that are enabled`);
 
       const loads = [];
       plugins.map(plugin => {
@@ -214,7 +211,7 @@ export default class Polkabot {
     // const configLocation = this.args.config
     //   ? this.args.config
     //   : path.join(__dirname, './config')
-    // Logger.info('Polkabot - Config location: ', configLocation)
+    // Logger.info('Config location: ', configLocation)
 
     // this.config = require(configLocation)
 
@@ -228,8 +225,7 @@ export default class Polkabot {
       // this.Logger[ isConfigValid ? 'info': 'error'] (`Your config is${ isConfigValid? '' : ' NOT'} valid!`);
     }
 
-
-    // Logger.info(`Polkabot - config: ${JSON.stringify(this.config, null, 2)}`);
+    // Logger.info(`config: ${JSON.stringify(this.config, null, 2)}`);
     Logger.info(`Connecting to host: ${this.config.values.POLKADOT.URL}`);
     Logger.silly(`Running with bot user id: ${this.config.values.MATRIX.BOTUSER_ID}`);
 
@@ -266,30 +262,31 @@ export default class Polkabot {
       logger: (msg) => Logger.silly(msg, { labels: { source: 'MatrixSDK' } })
     });
 
-    if (this.isCustomBaseUrl()) {
-      const data = await this.matrix
-        .login('m.login.password', {
-          user: this.config.values.MATRIX.LOGIN_USER_ID,
-          password: this.config.values.MATRIX.LOGIN_USER_PASSWORD,
-        })
-        .catch(error => {
-          console.error('Polkabot: Error logging into matrix:', error);
-        });
+    // TODO: the following is not valid, it is not b/c we use another server than matrix.org that we need a password
+    // if (this.isCustomBaseUrl()) {
+    //   const data = await this.matrix
+    //     .login('m.login.password', {
+    //       user: this.config.values.MATRIX.LOGIN_USER_ID,
+    //       password: this.config.values.MATRIX.LOGIN_USER_PASSWORD,
+    //     })
+    //     .catch(error => {
+    //       Logger.error('Error logging into matrix:', error);
+    //     });
 
-      if (data) {
-        Logger.info('Polkabot - Logged in with credentials: ', data);
-      }
-    }
+    //   if (data) {
+    //     Logger.info('Logged in with credentials: ', data);
+    //   }
+    // }
 
     this.matrix.once('sync', (state, _prevState, data) => {
       switch (state) {
         case 'PREPARED':
-          Logger.info(`Polkabot - Detected client sync state: ${state}`);
+          Logger.debug(`Detected client sync state: ${state}`);
           this.start(state);
           break;
         default:
-          Logger.info(
-            'Polkabot - Error. Unable to establish client sync state, state =',
+          Logger.error(
+            'Error. Unable to establish client sync state, state = %j %j',
             state,
             data
           );
@@ -297,7 +294,9 @@ export default class Polkabot {
       }
     });
 
-    this.matrix.startClient(this.config.values.MATRIX.MESSAGES_TO_SHOW);
+    // TODO: ensure we get a number below, otherwise the matrix SDK is unhappy
+    // this.matrix.startClient({ initialSyncLimit: this.config.values.MATRIX.MESSAGES_TO_SHOW });
+    this.matrix.startClient({ initialSyncLimit: 3 });
   }
 
   private isCustomBaseUrl(): boolean {
@@ -305,3 +304,8 @@ export default class Polkabot {
     return baseUrl && baseUrl !== 'https://matrix.org';
   }
 }
+
+// comment out if you need to trouble shoot matrix issues
+// matrix.on('event', function (event) {
+//   Logger.silly(event.getType())
+// })
