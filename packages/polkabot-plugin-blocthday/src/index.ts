@@ -6,22 +6,60 @@ import {
   PluginContext,
   CommandHandlerOutput,
   Controllable,
-  PluginCommandSet,
   Room,
+  PluginCommand,
+  PluginCommandSet,
 } from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';
-import getCommandSet from './commandSet';
-// import { Command } from '../../polkabot-api/src/decorators';
+// import getCommandSet from './commandSet';
+import { Command, Callable } from '@polkabot/api/src/decorators';
+import { CallableMetas } from '@polkabot/api/src/types';
 
-// @Callable({ name: 'Blocthday', alias: 'bday' })
+// const log = <T>(originalConstructor: new(...args: any[]) => T) => {
+//   function newConstructor(... args) {
+//     console.log('Arguments: ', args.join(', '));
+//     new originalConstructor(args);
+//   }
+//   newConstructor.prototype = originalConstructor.prototype;
+//   return newConstructor;
+// };
+
+function trace(ctor: Function): void {
+  console.log('trace on ' + ctor.constructor.name);
+}
+
 // @Configured(['NB_BLOCKS'])
+@trace
+// @deco
+// @deco2('yo')
+@Callable({ name: 'Blocthday', alias: 'bday' })
 export default class Blocthday extends PolkabotWorker implements Controllable {
   private NB_BLOCKS: number;
-  public commandSet: PluginCommandSet;
-  public unsub: Function;
+  // public commandSet: PluginCommandSet;
 
-  // @Command({ name: 'status', description: 'Show status of the plugin', argsRegexp: '', adminOnly: false })
+  // TODO: it would be nice if the decorator could declare that
+  static meta: CallableMetas;
+  static commands: PluginCommand[] = [];
+
+  private unsub: Function;
+
+  public constructor(mod: PluginModule, context: PluginContext, config?) {
+    super(mod, context, config);
+    this.context.logger.silly('++ Blocthday');
+
+    // TODO: would be great to use a decorator for that
+    this.NB_BLOCKS = this.context.config.Get('BLOCTHDAY', 'NB_BLOCKS');
+    // Blocthday.commandSet = {} // getCommandSet(this);
+    this.context.logger.debug('commands: %s', JSON.stringify(Blocthday.commands, null, 0));
+  }
+  
+  getCommandSet(): PluginCommandSet {
+    const res: PluginCommandSet = { ...Blocthday.meta, commands: Blocthday.commands}; 
+    return res;
+  }
+
+  @Command({ name: 'status', description: 'Show status of the plugin', argsRegexp: '', adminOnly: false })
   public cmdStatus(_event, room: Room): CommandHandlerOutput {
     this.context.logger.debug('Blocthday.cmdStatus()');
 
@@ -35,7 +73,7 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
     };
   }
 
-  // @Command()
+  @Command()
   public cmdTest(_event, room: Room): CommandHandlerOutput {
     return {
       code: -1,
@@ -47,23 +85,15 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
     };
   }
 
-  public constructor(mod: PluginModule, context: PluginContext, config?) {
-    super(mod, context, config);
-    this.context.logger.silly('++ Blocthday');
-
-    // TODO: would be great to use a decorator for that
-    this.NB_BLOCKS = this.context.config.Get('BLOCTHDAY', 'NB_BLOCKS');
-    this.commandSet = getCommandSet(this);
-    this.context.logger.debug('%o', this.commandSet);
-  }
-
   public start(): void {
     this.context.logger.info('Starting with NB_BLOCKS: %d', this.NB_BLOCKS);
 
-    if (!this.commandSet)
-      this.context.logger.error('Commandset NOT defined');
+    if (!this.getCommandSet().commands){
+      console.log(this);
+      this.context.logger.error('No command defined');
+    }
     else
-      this.context.logger.debug('Commandset: %o', this.commandSet);
+      this.context.logger.debug('Commandset: %s', JSON.stringify(this.getCommandSet(), null, 0));
 
     this.watchChain().catch(error => {
       this.context.logger.error('Error subscribing to chain head: ', error);

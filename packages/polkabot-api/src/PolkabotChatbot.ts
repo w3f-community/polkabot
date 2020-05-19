@@ -1,6 +1,6 @@
 import {
   PolkabotPluginBase, ChatBot, Controllable, PluginModule,
-  PluginContext, Type, PluginCommandSet, PluginCommand, RoomAnswer, BotCommand
+  PluginContext, Type, PluginCommand, RoomAnswer, BotCommand
 } from './plugin.interface';
 import LoggerSingleton from './logger';
 
@@ -15,10 +15,10 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
   public registerControllables(controllables: Controllable[]): void {
     Logger.debug('Registering controllables: ');
 
-    controllables.map((ctrl: PolkabotPluginBase) => {
-      const commandObject: PluginCommandSet = (ctrl as Controllable).commandSet;
-      const commands: PluginCommand[] = commandObject.commands;
-      Logger.debug(` ctrl: ${ctrl.commandSet.name} (!${ctrl.commandSet.alias}) ${commands.map(c => c.name)}`);
+    controllables.map((ctrl: Controllable) => {
+      // const commandObject: PluginCommandSet = (ctrl as Controllable).commandSet;
+      const commands: PluginCommand[] = ctrl.getCommandSet().commands;
+      Logger.debug(` ctrl: ${ctrl.getCommandSet().name} (!${ctrl.getCommandSet().alias}) ${commands.map(c => c.name)}`);
       // Logger.info(commands.map(c => c.name));
     });
     this.controllables = controllables;

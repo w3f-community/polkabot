@@ -1,4 +1,5 @@
-// import { RoomId } from '../../polkabot-api/src/plugin.interface';
+import Olm from 'olm';
+import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
 
 export interface EnvVar {
   name: string; // Name of the envrionment varibale
@@ -28,6 +29,16 @@ export interface PolkabotConfig {
     loginUserPassword: string;
   };
 }
+
+export interface NotifiersTable {
+  [type: string]: PolkabotNotifier[];
+}
+
+export type PolkabotGlobal = {
+  Olm: Olm;
+  localStorage: any;
+};
+
 
 // export interface MatrixClient {
 //   sendTextMessage: (roomId, string) => void;

@@ -8,7 +8,7 @@ export default function getCommandSet(ref: Blocthday): PluginCommandSet {
     commands: [
       {
         name: 'status',
-        description: 'Show status of the plugin',
+        description: 'Show status of the bday plugin',
         argsRegexp: '',
         adminOnly: false,
         handler: ref.cmdStatus

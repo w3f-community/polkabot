@@ -8,14 +8,16 @@ import {
   ErrorCode
 } from '../../polkabot-api/src/plugin.interface';
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
-import getCommandSet from './commandSet';
+// import getCommandSet from './commandSet';
 
 export default class MatrixNotifier extends PolkabotNotifier {
   public channel = 'matrix';
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
     // this.context.logger.info("++MatrixNotifier", this);
-    this.commandSet = getCommandSet(this);
+    
+    // TODO: add decorators to bring that back
+    // this.commandSet = getCommandSet(this);
   }
 
   public notify(message: NotifierMessage, specs: NotifierSpecs): void {

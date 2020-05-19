@@ -20,6 +20,8 @@
     "allowUnreachableCode": false,
     "experimentalDecorators": true,
     "suppressImplicitAnyIndexErrors": true,
+    // "outDir": "./dist",
+    "baseUrl": "packages",
   },
   "compileOnSave": true
 }

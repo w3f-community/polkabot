@@ -5,31 +5,37 @@ import {
   CommandHandlerOutput,
   BotCommand,
   Controllable,
-  PolkabotPluginBase,
-  PluginCommandSet,
-  PolkabotPlugin,
   PluginCommand,
   Room,
+  Event,
   SenderId,
   RoomId,
+  PluginCommandSet,
 } from '@polkabot/api/src/plugin.interface';
 import moment from 'moment';
-import getCommandSet from './commandSet';
+// import getCommandSet from './commandSet';
 import { PolkabotChatbot } from '@polkabot/api/src/PolkabotChatbot';
 import MatrixHelper from './matrix-helper';
 import { packageJson } from 'package-json';
 import { assert } from '@polkadot/util';
 import { OperatorParams } from './types';
 import { isHelpNeeded } from './helpers';
+import { CallableMetas, MatrixEventType } from '@polkabot/api/src/types';
 
 const capitalize: (string) => string = (s: string) => {
   if (typeof s !== 'string') return '';
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
+import { Command, Callable } from '@polkabot/api/src/decorators';
+
+@Callable()
 export default class Operator extends PolkabotChatbot implements Controllable {
 
-  public commandSet: PluginCommandSet;
+  // public commandSet: PluginCommandSet;
+  static meta: CallableMetas;
+  static commands: PluginCommand[] = [];
+
   package: packageJson;
   controllables: Controllable[];
   context: PluginContext;
@@ -49,10 +55,19 @@ export default class Operator extends PolkabotChatbot implements Controllable {
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    this.commandSet = getCommandSet(this);
+
+    // TODO: Fix below = add decorators
+    // this.commandSet = getCommandSet(this);
     assert(this.context.config, 'The config seems to be missing');
     this.params = this.loadParams();
     this.matrixHelper = new MatrixHelper(this.params);
+  }
+
+
+  getCommandSet(): PluginCommandSet {
+    const res: PluginCommandSet = { ...Operator.meta, commands: Operator.commands };
+    assert(res.name.length > 0, 'something went wrong');
+    return res;
   }
 
   public start(): void {
@@ -63,7 +78,8 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     // clean up here
   }
 
-  public cmdStatus(_event: unknown, room: Room, ..._args: string[]): CommandHandlerOutput {
+  @Command()
+  public cmdStatus(_event: Event, room: Room, ..._args: string[]): CommandHandlerOutput {
     const uptimeSec: number = process.uptime();
     const m = moment.duration(uptimeSec, 'seconds');
 
@@ -81,13 +97,18 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     };
   }
 
+  @Command({ description: 'This shows the help. It is also triggered when the user write anything mentioning HELP' })
   public cmdHelp(_event: Event, room: Room): CommandHandlerOutput {
     let message = 'Here is also a list of all the loaded modules and their commands:<br/><ul>';
+
     this.controllables.map((controllable: Controllable) => {
-      message += `<li>${controllable.commandSet.name}:</li><ul>`;
-      controllable.commandSet.commands.map((command: PluginCommand) => {
-        message += `<li><code>!${controllable.commandSet.alias} ${command.name}</code>: ${command.description} !${
-          command.adminOnly ? ' (Master only)' : ''
+      // console.log(controllable)
+      this.context.logger.silly('commandSet: %o', controllable.getCommandSet());
+
+      message += `<li>${controllable.getCommandSet().name}:</li><ul>`;
+      controllable.getCommandSet().commands.map((command: PluginCommand) => {
+        message += `<li><code>!${controllable.getCommandSet().alias} ${command.name}</code>: ${command.description} - ${
+          command.adminOnly ? 'Admin' : 'Public'
         }</li>`;
       });
       message += '</ul>';
@@ -119,35 +140,46 @@ export default class Operator extends PolkabotChatbot implements Controllable {
    */
   private matchCommand(cmd: BotCommand): PluginCommand | null {
     // first we look if the module is known
-    const hits = this.controllables.filter((c: PolkabotPluginBase) => c.commandSet.alias === cmd.module);
-    const controllable = hits.length > 0 ? (hits[0] as PolkabotPlugin) : null;
+    const hits = this.controllables.filter((c: Controllable) => c.getCommandSet().alias === cmd.module);
+    const controllable = hits.length > 0 ? (hits[0]) : null;
 
     if (!controllable) return null;
 
-    this.context.logger.info(`${controllable.module.name} could be able to do the job... checking supported commands`);
-    const handler: PluginCommand = controllable.commandSet.commands.find(c => c.name === cmd.command);
+    this.context.logger.info(`${controllable.getCommandSet().name} could be able to do the job... checking supported commands`);
+    const handler: PluginCommand = (controllable as Controllable).getCommandSet().commands.find(c => c.name === cmd.command);
     this.context.logger.info(`Handler found: ${handler ? handler.name : null}`);
 
     return handler;
   }
 
   private watchChat(): void {
-    this.context.matrix.on('Room.timeline', (event, room, _toStartOfTimeline) => {
-      if (event.getType() !== 'm.room.message') {
+    this.context.matrix.on('Room.timeline', (event: Event, room: Room, _toStartOfTimeline) => {
+      const evenType: MatrixEventType = event.getType();
+      this.context.logger.silly(`Got event: ${evenType}`);
+
+      if (evenType == 'm.room.encrypted') {
+        this.context.logger.warn('We got an encrypted message but we don\'t support encryption! We ignored it');
+        return;
+      }
+
+      if (evenType !== 'm.room.message') {
+        this.context.logger.silly('Event %s : %s', evenType, JSON.stringify(event, null, 0));
         return;
       }
 
       // this.context.logger.info('Operator - event.getContent()', event.getContent())
       const msg: string = event.getContent().body;
+
       const senderId: SenderId = event.getSender();
+      this.context.logger.debug(`${senderId}> ${msg}`);
 
       // If we see our own message, we skip
       if (this.matrixHelper.isBot(senderId)) return;
 
-      // If there is no ! and the string contains help, we try to help
       if (isHelpNeeded(msg)) {
         this.context.logger.info('Mentioning help in natural language');
         const output = this.cmdHelp(event, room);
+
         if (output.answers) {
           // this.answer(output.answers[0])
           output.answers.map(a => {

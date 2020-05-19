@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./build"
+    "outDir": "./build",
   },
   "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json", "../polkabot-api/src/logger.ts"],
 }

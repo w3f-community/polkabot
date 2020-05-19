@@ -7,10 +7,12 @@ import { PolkabotNotifier } from './PolkabotNotifier';
 import { ConfigObject } from 'confmgr';
 import type Room from 'matrix-js-sdk';
 import type MatrixClient from 'matrix-js-sdk';
+import type RoomMember from 'matrix-js-sdk';
+
 import type Event from 'matrix-js-sdk';
 import { winston } from './logger';
 
-export { Room, MatrixClient, Event };
+export { Room, MatrixClient, Event, RoomMember };
 /**
  * A plugin module before the package has been loaded.
  * Before loading the patch we know only the path and the name
@@ -88,7 +90,7 @@ export type PluginCommandSet = {
  * be called to control the thing.
  */
 export interface Controllable {
-  commandSet?: PluginCommandSet;
+  getCommandSet(): PluginCommandSet;
 }
 
 export interface ChatBot {
@@ -100,7 +102,7 @@ export class PolkabotPluginBase {
   public context: PluginContext;
   public package: packageJson;
   public type: Type;
-  public commandSet?: PluginCommandSet;
+  // public commandSet?: PluginCommandSet;
 
   constructor(type: Type, mod: PluginModule, context: PluginContext, _config?) {
     this.type = type;

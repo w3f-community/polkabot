@@ -8,7 +8,7 @@ export default function getCommandSet(ref: Operator): PluginCommandSet {
     commands: [
       {
         name: 'status',
-        description: 'Show status of the plugin',
+        description: 'Show status of the op plugin',
         argsRegexp: '',
         adminOnly: false,
         handler: ref.cmdStatus

@@ -1,14 +1,12 @@
-import Olm from 'olm';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import minimongo, { MemoryDb } from 'minimongo';
 import Datastore from 'nedb';
-
 import pkg from '../package.json';
 import PluginScanner from './lib/plugin-scanner';
 import PluginLoader from './lib/plugin-loader';
-import sdk from 'matrix-js-sdk';
-import { ConfigManager, ConfigObject } from 'confmgr';
+import sdk from 'matrix-js-sdk'; // must be after adding olm to global
 
+import { ConfigManager, ConfigObject } from 'confmgr';
 import { assert } from '@polkadot/util';
 import {
   PluginContext,
@@ -19,35 +17,18 @@ import {
   Controllable,
   Type,
   MatrixClient,
+  RoomMember,
+  Event,
 } from '../../polkabot-api/src/plugin.interface';
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
 import { PolkabotChatbot } from '../../polkabot-api/src/PolkabotChatbot';
 import { PolkabotWorker } from '../../polkabot-api/src/PolkabotWorker';
-// import { MatrixClient } from './types';
 import LoggerSingleton, { winston } from '../../polkabot-api/src/logger';
+import { routeMatrixLogger } from './lib/helpers';
+import { NotifiersTable } from './types';
 
 const Logger = LoggerSingleton.getInstance();
-
-type PolkabotGlobal = {
-  Olm: Olm;
-};
-
-((global as unknown) as PolkabotGlobal).Olm = Olm;
-
-// Here we rewrite the Matrix SDK logger to redirect to our logger
-import { logger as mxLogger } from 'matrix-js-sdk/lib/logger';
-
-// rewrite matrix logger
-mxLogger.info = (...msg) => Logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
-mxLogger.log = (...msg) => Logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
-mxLogger.warn = (...msg) => Logger.log({ level: 'warn', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
-mxLogger.error = (...msg) => Logger.log({ level: 'error', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
-mxLogger.trace = (...msg) => Logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
-
-export interface NotifiersTable {
-  [type: string]: PolkabotNotifier[];
-}
-
+routeMatrixLogger(Logger);
 
 export default class Polkabot {
   // private args: any;
@@ -74,7 +55,7 @@ export default class Polkabot {
   }
 
   private isControllable(candidate: PolkabotPlugin): boolean {
-    const res = candidate.commandSet !== undefined;
+    const res = (candidate as unknown as Controllable).getCommandSet !== undefined;
     // assert(candidate.package.name !== "polkabot-plugin-blocthday" || res, "BUG!");
     return res;
   }
@@ -110,8 +91,8 @@ export default class Polkabot {
 
   /** Register all the Controllable we find. They will be passed to the Operator. */
   private registerControllable(controllable: Controllable): void {
-    assert(controllable.commandSet, 'No commands defined');
-    Logger.debug('Registering controllable:', controllable.commandSet.name);
+    assert(controllable.getCommandSet().commands.length, 'No commands defined');
+    Logger.debug('Registering controllable:', controllable.getCommandSet().name);
     this.controllablePlugins.push(controllable);
     // Logger.info("Controllables", this.controllablePlugins);
   }
@@ -160,7 +141,7 @@ export default class Polkabot {
         loads.push(
           PluginLoader.load(plugin, context).then((p: PolkabotPlugin) => {
             if (this.isControllable(p)) {
-              this.registerControllable(p);
+              this.registerControllable(p as unknown as Controllable);
             } else Logger.debug(`▶ NOT Controllable: ${p.package.name}`);
 
             if (this.isWorker(p)) {
@@ -294,6 +275,15 @@ export default class Polkabot {
       }
     });
 
+    // Auto join on invite
+    this.matrix.on('RoomMember.membership', (_event: Event, member: RoomMember) => {
+      if (member.membership === 'invite') {
+        this.matrix.joinRoom(member.roomId).then(_ => {
+          Logger.info('Auto-joined %o', member);
+        });
+      }
+    });
+
     // TODO: ensure we get a number below, otherwise the matrix SDK is unhappy
     // this.matrix.startClient({ initialSyncLimit: this.config.values.MATRIX.MESSAGES_TO_SHOW });
     this.matrix.startClient({ initialSyncLimit: 3 });
@@ -305,7 +295,3 @@ export default class Polkabot {
   }
 }
 
-// comment out if you need to trouble shoot matrix issues
-// matrix.on('event', function (event) {
-//   Logger.silly(event.getType())
-// })

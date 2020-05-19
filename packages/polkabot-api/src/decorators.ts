@@ -1,5 +1,5 @@
 import LoggerSingleton from '../../polkabot-api/src/logger';
-import { PolkabotPluginParams } from './types';
+import { CallableMetas } from './types';
 import { CommandDecoratorArgs, PluginCommand } from './plugin.interface';
 
 const Logger = LoggerSingleton.getInstance();
@@ -9,14 +9,18 @@ const Logger = LoggerSingleton.getInstance();
  * chat.
  * @param args 
  */
-export function Callable(args: PolkabotPluginParams): Function {
-  return (ctor: Function) => {
-    ctor.prototype.context.logger.silly('++ Callable ' + args.name);
-    ctor.prototype.commandSet = args;
+export function Callable(args?: CallableMetas): Function {
+  // Note we cannot use context yet
+  return (target: any) => {
+    Logger.silly('target: %o', target)
+    const meta: CallableMetas = {
+      name: args && args.name ? args.name : target.name,
+      alias: args && args.alias ? args.alias : target.name.toLowerCase()
+    };
+
+    target.meta = meta;
   };
 }
-
-
 
 /**
  * This class decorator simplifies how we can make config
@@ -24,7 +28,9 @@ export function Callable(args: PolkabotPluginParams): Function {
  * they will be made available.
  * @param params The list of config params
  */
-export function Configured(params: string[]) {
+export function Configured(params: string[]): Function {
+  Logger.silly('Configured: ' + params.join(' '));
+
   return (_ctor: Function) => {
     Logger.silly('Configured: ' + params.join(' '));
   };
@@ -37,22 +43,16 @@ export function Configured(params: string[]) {
  * @param cmd 
  */
 export function Command(args?: CommandDecoratorArgs): Function {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    Logger.silly('Command: %o', args);
-    Logger.silly('Command called on %o %s %o', target, propertyKey, descriptor);
-
-    const that =  target.prototype;
-
+  return function (target: any, propertyKey: string, _descriptor: PropertyDescriptor) {
     const cmd: PluginCommand = {
-      name: args.name || propertyKey.toLowerCase().replace('cmd', ''),
-      description: args.description || '', // TODO: fill a default generic one
-      argsRegexp: args.argsRegexp || null,
-      adminOnly: args.adminOnly ?? true,
-      handler: that[propertyKey]
+      // TODO: extract a getCommandName()
+      name: args && args.name ? args.name : propertyKey.toLowerCase().replace('cmd', ''),
+      description: args ? args.description : 'Missing description',
+      argsRegexp: args ? args.argsRegexp : null,
+      adminOnly: args ? args.adminOnly : true,
+      handler: target[propertyKey]
     };
-    that.context.logger.debug(cmd);
-    that.commandSet.commands.push(cmd);
+    if (!target.constructor.commands) target.constructor.commands = [];
+    target.constructor.commands.push(cmd);
   };
 }
-
-

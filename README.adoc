@@ -62,3 +62,13 @@ If you want to use another file such as `.env.dev`, you may use:
 
 	NODE_ENV=dev y start
 
+
+== Settingg the bot account
+
+Matrix is changing quickly and e2e is now enabled by default. You will need to make an account for the bot and login a to get your recovery key and define your recovery passphrase. After that, e2e should work. 
+
+WARNING: If you use a browser to login as the bot, you will automatically signal that the bot is 2e2 capable.. which it is not. After that, all invitations from Riot will be with encryption turned on. There is a workaround which is to create a new room without encryption, invite the bot (it will join automatically) and change the conversation level to 'Direct Message'.
+
+== Encryption
+
+Currently, Polkabot does NOT support encryption as it adds a few more headache. If encryption is needed, https://github.com/matrix-org/pantalaimon could be used as proxy.
