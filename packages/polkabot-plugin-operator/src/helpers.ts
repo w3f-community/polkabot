@@ -4,5 +4,5 @@
  * @param msg the message to parse
  */
 export function isHelpNeeded(msg: string): boolean {
-  return msg.indexOf('!') < 0 && msg.toLowerCase().indexOf('help') >= 0;
+  return msg.toLowerCase().indexOf('help') >= 0;
 }
