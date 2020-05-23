@@ -1,6 +1,5 @@
-import LoggerSingleton from '../../polkabot-api/src/logger';
-import { CallableMetas } from './types';
-import { CommandDecoratorArgs, PluginCommand } from './plugin.interface';
+import LoggerSingleton from './LoggerFactory';
+import { CallableMetas, CommandDecoratorArgs, PluginCommand } from './types';
 
 const Logger = LoggerSingleton.getInstance();
 
@@ -12,12 +11,12 @@ const Logger = LoggerSingleton.getInstance();
 export function Callable(args?: CallableMetas): Function {
   // Note we cannot use context yet
   return (target: any) => {
-    Logger.silly('target: %o', target)
+    Logger.silly('target: %o', target);
     const meta: CallableMetas = {
       name: args && args.name ? args.name : target.name,
       alias: args && args.alias ? args.alias : target.name.toLowerCase()
     };
-
+    if (!target.commands) target.commands = [];
     target.meta = meta;
   };
 }

@@ -12,8 +12,11 @@ export interface EnvDictionnary {
   [key: string]: EnvVar;
 }
 
-/** This interface describes how the Polkabot Config
- * object looks like. */
+/** 
+ * This interface describes the Polkabot Config.
+ * This is mostly a typescript helper, the config 
+ * is managed by confmgr.
+ */
 export interface PolkabotConfig {
   polkadot: {
     nodeName: string; // This is just for you to remember. i.e. 'Crash Override'

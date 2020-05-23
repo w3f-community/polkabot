@@ -1,10 +1,5 @@
-import {
-  NotifierMessage,
-  NotifierSpecs,
-  PluginModule,
-  PluginContext
-} from '../../polkabot-api/src/plugin.interface';
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
+import { PluginModule, PluginContext, NotifierMessage, NotifierSpecs } from '../../polkabot-api/src/types';
 
 export default class TwitterNotifier extends PolkabotNotifier {
   public channel = 'twitter';

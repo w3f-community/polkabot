@@ -1,5 +1,5 @@
-import { RoomId, SenderId, Room } from '@polkabot/api/src/plugin.interface';
 import { OperatorParams } from './types';
+import { RoomId, SenderId, Room } from '@polkabot/api/src/types';
 
 export default class MatrixHelper {
   params: OperatorParams;

@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import findNodeModules from 'find-node-modules';
-import { PluginModule } from '../../../polkabot-api/src/plugin.interface';
-import LoggerSingleton from '../../../polkabot-api/src/logger';
+import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
+import { PluginModule } from '@polkabot/api/src/types';
 
 const Logger = LoggerSingleton.getInstance();
 

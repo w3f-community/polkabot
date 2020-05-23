@@ -1,4 +1,4 @@
-import { winston } from '../../../polkabot-api/src/logger';
+import { winston } from '../../../polkabot-api/src/LoggerFactory';
 import { logger as mxLogger } from 'matrix-js-sdk/lib/logger';
 
 /**
@@ -18,4 +18,11 @@ export function routeMatrixLogger(logger: winston.Logger): void {
   mxLogger.error = (...msg) => logger.log({ level: 'error', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
   mxLogger.trace = (...msg) => logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
   mxLogger.debug = (...msg) => logger.log({ level: 'silly', message: msg.join(' '), labels: { label: 'MatrixSDK' } });
+}
+
+/**
+ * Returns whether the URL points to a custom matrix server.
+ */
+export function isCustomBaseUrl(baseUrl: string): boolean {
+  return baseUrl && baseUrl !== 'https://matrix.org';
 }

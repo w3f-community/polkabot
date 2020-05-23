@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import * as fs from 'fs';
-import {
-  PluginModule,
-  PluginContext,
-  PolkabotPlugin,
-} from '../../../polkabot-api/src/plugin.interface';
-import { PolkabotNotifier } from '../../../polkabot-api/src/PolkabotNotifier';
-import { PolkabotWorker } from '../../../polkabot-api/src/PolkabotWorker';
-import { PolkabotChatbot } from '../../../polkabot-api/src/PolkabotChatbot';
-import LoggerSingleton from '../../../polkabot-api/src/logger';
+import { PolkabotWorker, PolkabotChatbot } from '@polkabot/api/src';
+import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
+import { PluginModule, PluginContext, PolkabotPlugin } from '@polkabot/api/src/types';
+import { PolkabotNotifier } from '@polkabot/api/src/PolkabotNotifier';
 
 const Logger = LoggerSingleton.getInstance();
 

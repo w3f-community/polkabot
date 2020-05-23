@@ -1,8 +1,6 @@
-import {
-  PolkabotPluginBase, ChatBot, Controllable, PluginModule,
-  PluginContext, Type, PluginCommand, RoomAnswer, BotCommand
-} from './plugin.interface';
-import LoggerSingleton from './logger';
+import { PolkabotPluginBase } from './PolkabotPluginBase';
+import LoggerSingleton from './LoggerFactory';
+import { ChatBot, Controllable, PluginModule, PluginContext, PluginCommand, RoomAnswer, BotCommand, PluginType } from './types';
 
 const Logger = LoggerSingleton.getInstance();
 
@@ -10,7 +8,7 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
   controllables: Controllable[] = [];
 
   constructor(mod: PluginModule, context: PluginContext, config?) {
-    super(Type.Chatbot, mod, context, config);
+    super(PluginType.Chatbot, mod, context, config);
   }
   public registerControllables(controllables: Controllable[]): void {
     Logger.debug('Registering controllables: ');

@@ -1,21 +1,14 @@
-import {
-  NotifierMessage,
-  NotifierSpecs,
-  PluginModule,
-  PluginContext,
-  Room,
-  CommandHandlerOutput,
-  ErrorCode
-} from '../../polkabot-api/src/plugin.interface';
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
-// import getCommandSet from './commandSet';
+import { PluginModule, PluginContext, NotifierMessage, NotifierSpecs, CommandHandlerOutput, ErrorCode, Room } from '../../polkabot-api/src/types';
+import { Callable, Command } from '../../polkabot-api/src/decorators';
 
+@Callable()
 export default class MatrixNotifier extends PolkabotNotifier {
   public channel = 'matrix';
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
     // this.context.logger.info("++MatrixNotifier", this);
-    
+
     // TODO: add decorators to bring that back
     // this.commandSet = getCommandSet(this);
   }
@@ -27,12 +20,13 @@ export default class MatrixNotifier extends PolkabotNotifier {
 
     this.context.matrix.sendTextMessage(roomId, message.message).finally(null);
   }
-  
+
+  @Command()
   public cmdSay(_event, room: Room, messages: string[]): CommandHandlerOutput {
     this.context.logger.debug('MatrixNotifier.cmdSay()');
-   
+
     const roomId = this.context.config.Get('MATRIX', 'ROOM_ID');
-    
+
     this.context.matrix.sendTextMessage(roomId, { message: messages.join(' ') });
 
     return {

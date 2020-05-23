@@ -1,38 +1,10 @@
 import BN from 'bn.js';
-import {
-  NotifierMessage,
-  NotifierSpecs,
-  PluginModule,
-  PluginContext,
-  CommandHandlerOutput,
-  Controllable,
-  Room,
-  PluginCommand,
-  PluginCommandSet,
-} from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';
-// import getCommandSet from './commandSet';
 import { Command, Callable } from '@polkabot/api/src/decorators';
-import { CallableMetas } from '@polkabot/api/src/types';
-
-// const log = <T>(originalConstructor: new(...args: any[]) => T) => {
-//   function newConstructor(... args) {
-//     console.log('Arguments: ', args.join(', '));
-//     new originalConstructor(args);
-//   }
-//   newConstructor.prototype = originalConstructor.prototype;
-//   return newConstructor;
-// };
-
-function trace(ctor: Function): void {
-  console.log('trace on ' + ctor.constructor.name);
-}
+import { CallableMetas, Controllable, PluginCommand, PluginModule, PluginContext, PluginCommandSet, Room, CommandHandlerOutput, NotifierMessage, NotifierSpecs } from '@polkabot/api/src/types';
 
 // @Configured(['NB_BLOCKS'])
-@trace
-// @deco
-// @deco2('yo')
 @Callable({ name: 'Blocthday', alias: 'bday' })
 export default class Blocthday extends PolkabotWorker implements Controllable {
   private NB_BLOCKS: number;

@@ -1,12 +1,10 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-   
     "paths": {
       "Command": ["polkabot-api/src/decorators"],
       "Callable": ["polkabot-api/src/decorators"],
-      
     },
   },
   "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json"],

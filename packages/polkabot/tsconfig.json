@@ -1,7 +1,12 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./build",
+    "baseUrl": ".",
+    "paths": {
+      "@polkabot/api": ["../polkabot-api/src"],
+      "@polkabot/api/*": ["../polkabot-api/src/*"],
+    }    
   },
   "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json", "../polkabot-api/src/logger.ts"],
 }

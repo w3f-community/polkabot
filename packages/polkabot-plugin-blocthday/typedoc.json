@@ -1,9 +1,0 @@
-{
-    "name": "PolkaBOT plugin: Blocthday",
-    "out": "../../public/doc/polkabot-blocthday",
-    "theme": "default",
-    "ignoreCompilerErrors": "false",
-    "preserveConstEnums": "true",
-    "exclude": "*.spec.ts",
-    "stripInternal": "false"
-  }

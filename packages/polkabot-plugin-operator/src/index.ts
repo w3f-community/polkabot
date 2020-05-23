@@ -1,32 +1,11 @@
-#!/usr/bin/env node
-import {
-  PluginModule,
-  PluginContext,
-  CommandHandlerOutput,
-  BotCommand,
-  Controllable,
-  PluginCommand,
-  Room,
-  Event,
-  SenderId,
-  RoomId,
-  PluginCommandSet,
-} from '@polkabot/api/src/plugin.interface';
 import moment from 'moment';
-// import getCommandSet from './commandSet';
 import { PolkabotChatbot } from '@polkabot/api/src/PolkabotChatbot';
 import MatrixHelper from './matrix-helper';
 import { packageJson } from 'package-json';
 import { assert } from '@polkadot/util';
 import { OperatorParams } from './types';
-import { isHelpNeeded } from './helpers';
-import { CallableMetas, MatrixEventType } from '@polkabot/api/src/types';
-
-const capitalize: (string) => string = (s: string) => {
-  if (typeof s !== 'string') return '';
-  return s.charAt(0).toUpperCase() + s.slice(1);
-};
-
+import { isHelpNeeded, capitalize } from './helpers';
+import { Event, CallableMetas, MatrixEventType, Controllable, PluginCommand, PluginContext, PluginModule, PluginCommandSet, CommandHandlerOutput, BotCommand, SenderId, RoomId, Room } from '@polkabot/api/src/types';
 import { Command, Callable } from '@polkabot/api/src/decorators';
 
 @Callable()
@@ -62,7 +41,6 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     this.params = this.loadParams();
     this.matrixHelper = new MatrixHelper(this.params);
   }
-
 
   getCommandSet(): PluginCommandSet {
     const res: PluginCommandSet = { ...Operator.meta, commands: Operator.commands };

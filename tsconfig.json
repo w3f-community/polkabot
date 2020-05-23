@@ -1,10 +1,31 @@
 {
-    "extends": "./tsconfig.base.json",
-  
-    "compilerOptions": {
-      "baseUrl": ".",
-      "paths": {
-        "@polkabot/*": ["packages/*/src"]
-      }
-    }
-  }
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "target": "es2015",
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "preserveConstEnums": true,
+    "lib": ["es2015", "dom"],
+    "noUnusedLocals": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictNullChecks": false,
+    "noUnusedParameters": false,
+    "pretty": true,
+    "allowUnreachableCode": false,
+    "experimentalDecorators": true,
+    "suppressImplicitAnyIndexErrors": true,
+    // "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@polkabot/api": ["packages/polkabot-api/src"],
+      "@polkabot/api/*": ["packages/polkabot-api/src/*"],
+    }    
+  },
+  "compileOnSave": true
+}

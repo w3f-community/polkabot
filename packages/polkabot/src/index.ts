@@ -1,37 +1,27 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import minimongo, { MemoryDb } from 'minimongo';
+import minimongo from 'minimongo';
 import Datastore from 'nedb';
 import pkg from '../package.json';
 import PluginScanner from './lib/plugin-scanner';
 import PluginLoader from './lib/plugin-loader';
 import sdk from 'matrix-js-sdk'; // must be after adding olm to global
-
 import { ConfigManager, ConfigObject } from 'confmgr';
 import { assert } from '@polkadot/util';
-import {
-  PluginContext,
-  PolkabotPlugin,
-  NotifierMessage,
-  NotifierSpecs,
-  PluginModule,
-  Controllable,
-  Type,
-  MatrixClient,
-  RoomMember,
-  Event,
-} from '../../polkabot-api/src/plugin.interface';
-import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
-import { PolkabotChatbot } from '../../polkabot-api/src/PolkabotChatbot';
-import { PolkabotWorker } from '../../polkabot-api/src/PolkabotWorker';
-import LoggerSingleton, { winston } from '../../polkabot-api/src/logger';
-import { routeMatrixLogger } from './lib/helpers';
+import { routeMatrixLogger } from './lib/matrix-helpers';
 import { NotifiersTable } from './types';
+import { PolkabotChatbot, PolkabotNotifier, MatrixClient, Controllable, PolkabotPlugin, NotifierMessage, NotifierSpecs, PluginModule, PluginContext, RoomMember, winston } from '@polkabot/api/src';
+import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
+import { isControllable, isWorker, isNotifier, isChatBot } from './lib/type-helpers';
 
 const Logger = LoggerSingleton.getInstance();
 routeMatrixLogger(Logger);
 
+/**
+ * This is the main Polkabot class. It discovers the available plugins.
+ * It takes care of connecting and creating various resources and sharing that
+ * with the plugins. It also links all plugins together depending on their types.
+ */
 export default class Polkabot {
-  // private args: any;
   private db: minimongo.MemoryDb;
   private config: ConfigObject;
   private matrix: MatrixClient;
@@ -42,31 +32,12 @@ export default class Polkabot {
   private Logger: winston.Logger;
 
   public constructor(..._args: string[]) {
-    // this.args = args
     this.db = new Datastore({ filename: 'polkabot.db' });
   }
 
-  private isWorker(candidate: PolkabotPlugin): candidate is PolkabotWorker {
-    return (candidate as PolkabotWorker).start !== undefined;
-  }
-
-  private isNotifier(candidate: PolkabotPlugin): candidate is PolkabotNotifier {
-    return (candidate as PolkabotNotifier).notify !== undefined;
-  }
-
-  private isControllable(candidate: PolkabotPlugin): boolean {
-    const res = (candidate as unknown as Controllable).getCommandSet !== undefined;
-    // assert(candidate.package.name !== "polkabot-plugin-blocthday" || res, "BUG!");
-    return res;
-  }
-
-  private isChatBot(candidate: PolkabotPlugin): candidate is PolkabotChatbot {
-    return (candidate as PolkabotChatbot).type === Type.Chatbot;
-  }
-
-  /** this method is usually called by the workers who wish to notify something
-   * polkabot itself does nothing about it. it searches in the list of notifiers which one(s) can do the job and
-   * delegate them the task
+  /** This method is called by any plugin that wishes to notify about something.
+   * Polkabot itself does nothing about it. Instead it searches in the list of notifiers which one(s) can do the job and
+   * delegate the task to those.
    */
   public notify(message: NotifierMessage, specs: NotifierSpecs): void {
     Logger.info('Notifier requested', message, specs);
@@ -80,7 +51,10 @@ export default class Polkabot {
       });
   }
 
-  /** This adds a new notifier to those Polkabot is aware of */
+  /** 
+   * This adds a new notifier to those Polkabot is aware of
+   * @param notifier 
+   */
   private registerNotifier(notifier: PolkabotNotifier): void {
     assert(notifier.channel, 'No channel defined');
     const channel = notifier.channel;
@@ -89,19 +63,28 @@ export default class Polkabot {
     Logger.silly('notifierTable %j', this.notifiersTable);
   }
 
-  /** Register all the Controllable we find. They will be passed to the Operator. */
+  /**
+   * Register a Controllable. The Controllable will be passed to the Operator.
+   * @param controllable 
+   */
   private registerControllable(controllable: Controllable): void {
     assert(controllable.getCommandSet().commands.length, 'No commands defined');
     Logger.debug('Registering controllable:', controllable.getCommandSet().name);
     this.controllablePlugins.push(controllable);
-    // Logger.info("Controllables", this.controllablePlugins);
   }
 
+  /**
+   * Register a new Chatbot such as Operator.
+   * @param bot 
+   */
   private registerChatbot(bot: PolkabotChatbot): void {
     Logger.info('Registering Chat bot:', bot.module.name);
     this.chatBots.push(bot);
   }
 
+  /**
+   * Finds, starts and register all the plugins that can be found.
+   */
   private async loadPlugins(): Promise<void> {
     // Logger.info('Loading plugins', { meta: { source: 'Polkabot' } });
     Logger.info('Loading plugins');
@@ -140,21 +123,21 @@ export default class Polkabot {
 
         loads.push(
           PluginLoader.load(plugin, context).then((p: PolkabotPlugin) => {
-            if (this.isControllable(p)) {
+            if (isControllable(p)) {
               this.registerControllable(p as unknown as Controllable);
             } else Logger.debug(`▶ NOT Controllable: ${p.package.name}`);
 
-            if (this.isWorker(p)) {
+            if (isWorker(p)) {
               Logger.debug(`Starting worker plugin ${p.package.name} v${p.package.version}`);
               p.start();
             } //else Logger.debug(`▶ NOT a Worker: ${p.package.name}`);
 
-            if (this.isNotifier(p)) {
+            if (isNotifier(p)) {
               Logger.debug(`Registering notifier plugin ${p.package.name} v${p.package.version}`);
               this.registerNotifier(p);
             } //else Logger.debug(`▶ NOT a Notifier: ${p.package.name}`);
 
-            if (this.isChatBot(p)) {
+            if (isChatBot(p)) {
               Logger.debug(`Registering ChatBot plugin ${p.package.name} v${p.package.version}`);
               this.registerChatbot(p);
             } // else Logger.debug(`▶ NOT a ChatBot: ${p.package.name}`);
@@ -168,6 +151,9 @@ export default class Polkabot {
     });
   }
 
+  /**
+   * Attach all the controllables to the Chatbot(s)
+   */
   private attachControllableToBots(): void {
     Logger.debug('Passing controllables to following bots:');
     this.chatBots.map((bot: PolkabotChatbot) => {
@@ -176,6 +162,10 @@ export default class Polkabot {
     });
   }
 
+  /**
+   * Starting Polkabot is mostly about finding and starting all the plugins.
+   * @param _syncState 
+   */
   private start(_syncState): void {
     this.loadPlugins()
       .then(_ => {
@@ -186,6 +176,9 @@ export default class Polkabot {
       });
   }
 
+  /**
+   * Connects to Polkadot and Matrix then start Polkabot.
+   */
   public async run(): Promise<void> {
     Logger.info(`${pkg.name} v${pkg.version}`);
 
@@ -244,7 +237,7 @@ export default class Polkabot {
     });
 
     // TODO: the following is not valid, it is not b/c we use another server than matrix.org that we need a password
-    // if (this.isCustomBaseUrl()) {
+    // if (isCustomBaseUrl(this.config.values.MATRIX.BASE_URL)) {
     //   const data = await this.matrix
     //     .login('m.login.password', {
     //       user: this.config.values.MATRIX.LOGIN_USER_ID,
@@ -288,10 +281,4 @@ export default class Polkabot {
     // this.matrix.startClient({ initialSyncLimit: this.config.values.MATRIX.MESSAGES_TO_SHOW });
     this.matrix.startClient({ initialSyncLimit: 3 });
   }
-
-  private isCustomBaseUrl(): boolean {
-    const baseUrl = this.config.values.MATRIX.BASE_URL;
-    return baseUrl && baseUrl !== 'https://matrix.org';
-  }
 }
-
