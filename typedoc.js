@@ -1,5 +1,5 @@
 module.exports = {
-  name: 'PolkaBOT',
+  name: 'PolkaBOT Project',
   exclude: '**/*+(index|e2e|spec|types).ts',
   excludeExternals: true,
   excludeNotExported: true,
@@ -9,6 +9,6 @@ module.exports = {
   includeDeclarations: false,
   module: 'commonjs',
   moduleResolution: 'node',
-  out: 'public/doc',
+  out: 'public/doc/main',
   stripInternal: 'false'
 };

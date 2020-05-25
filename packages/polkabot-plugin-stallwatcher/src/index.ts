@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import BN from 'bn.js';
-import {  PluginModule, PluginContext } from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
+import { PluginModule, PluginContext } from '@polkabot/api/src/types';
 
 type StallWatcherConfig = {
   duration: number;

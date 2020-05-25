@@ -1,14 +1,9 @@
 #!/usr/bin/env node
 
 import BN from 'bn.js';
-import {
-  NotifierMessage,
-  NotifierSpecs,
-  PluginModule,
-  PluginContext
-} from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';
+import { PluginModule, PluginContext, NotifierMessage, NotifierSpecs } from '@polkabot/api/src/types';
 
 type Data = {
   tmsp: number;

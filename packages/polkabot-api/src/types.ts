@@ -191,3 +191,22 @@ export type NotifierMessage =
 export type NotifierSpecs = {
   notifiers: string[] | string;
 };
+
+export enum Severity {
+  INFO,
+  WARNING,
+  IMPORTANT,
+  CRITICAL,
+}
+
+export type Announcement = {
+  severity: Severity;
+  message: string;
+};
+
+export type BlockMoment = {
+  future: boolean; // is the block in the future
+  duration: number; // in/for how many seconds
+  date: Date; // what is the estimated date
+  message: string; // formated date string that will be removed
+};

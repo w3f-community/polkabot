@@ -1,27 +1,8 @@
 import BN from 'bn.js';
 import moment from 'moment';
-import { NotifierSpecs, PluginModule, PluginContext } from '@polkabot/api/src/plugin.interface';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import blake2 from '@polkadot/util-crypto/blake2/asHex';
-
-enum Severity {
-  INFO,
-  WARNING,
-  IMPORTANT,
-  CRITICAL,
-}
-
-type Announcement = {
-  severity: Severity;
-  message: string;
-};
-
-type BlockMoment = {
-  future: boolean; // is the block in the future
-  duration: number; // in/for how many seconds
-  date: Date; // what is the estimated date
-  message: string; // formated date string that will be removed
-};
+import { NotifierSpecs, PluginModule, PluginContext, BlockMoment, Announcement, Severity } from '@polkabot/api/src/types';
 
 export default class Reporter extends PolkabotWorker {
   private cache: any;
