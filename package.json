@@ -14,15 +14,15 @@
     "test": "lerna run test",
     "start": "cd packages/polkabot && yarn start",
     "build": "lerna run build",
-    "build:doc": "lerna run build:doc",
-    "clean:local": "rm -rf docs",
-    "clean": "yarn clean:local; lerna run clean"
+    "build:doc": "typedoc",
+    "clean": "yarn clean:local; lerna run clean",
+    "clean:local": "rm -rf public/doc"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.8.3",
     "lerna": "^3.21.0",
-    "typedoc": "^0.17.6"
-    },
+    "typedoc": "^0.17.7"
+  },
   "dependencies": {
     "@babel/runtime": "^7.8.7",
     "@polkadot/api": "^1.15.1"

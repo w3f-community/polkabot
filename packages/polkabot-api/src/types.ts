@@ -17,7 +17,12 @@ export type Cache = {
   [Key: string]: unknown;
 }
 
-export type CallableMetas = {
+export type CallableMeta = {
+  name?: string;
+  alias?: string;
+}
+
+export type ControllableMeta = {
   name: string;
   alias: string;
 }
@@ -43,6 +48,15 @@ export enum PluginType {
   Notifier,
   Chatbot
 }
+
+/**
+ * This is a hash of all the subscriptions.
+ * If the user keeps on using this, there will be nothing for them to do to unsubscribe.
+ */
+export interface UnsubDictionnary {
+  [key: string]: Function;
+}
+
 
 export type RoomAnswer = {
   room: Room;
@@ -106,7 +120,7 @@ export type PluginCommandSet = {
  */
 export interface Controllable {
   commands: Array<PluginCommand>;
-  metas: CallableMetas;
+  meta: ControllableMeta;
   isControllable: boolean;
   getCommand(cmd: string): PluginCommand | null;
 }

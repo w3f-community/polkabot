@@ -1,4 +1,4 @@
-import { CallableMetas, CommandDecoratorArgs, PluginCommand, Controllable } from './types';
+import { CallableMeta, CommandDecoratorArgs, PluginCommand, Controllable, ControllableMeta } from './types';
 import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
 
 const Logger = LoggerSingleton.getInstance();
@@ -9,18 +9,18 @@ const Logger = LoggerSingleton.getInstance();
  * by a Controllable.
  * @param args 
  */
-export function Callable(args?: CallableMetas): Function {
+export function Callable(args?: CallableMeta): Function {
   // Note we cannot use context yet
   return (target: Controllable) => {
     Logger.silly(`DECORATOR Callable on ${(target as unknown as Function).name}`);
-    const metas: CallableMetas = {
+    const meta: ControllableMeta = {
       name: args && args.name ? args.name : (target as any).name,
       alias: args && args.alias ? args.alias : (target as any).name.toLowerCase()
     };
 
     // Implement Controllable
     if (!target.commands) target.commands = [];
-    target.metas = metas;
+    target.meta = meta;
     target.isControllable = true;
   };
 }

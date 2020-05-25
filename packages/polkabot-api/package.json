@@ -12,7 +12,7 @@
     "test:watch": "mocha --watch",
     "clean": "rm -rf dist build node_modules docs",
     "postinstall": "npm run build",
-    "build:doc": "typedoc src"
+    "build:doc": "typedoc src --readme none"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",

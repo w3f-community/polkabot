@@ -9,7 +9,7 @@ import { Event, MatrixEventType, Controllable, PluginCommand, PluginContext, Plu
 import { capitalize, getClass } from '@polkabot/api/src';
 import { Command, Callable } from '@polkabot/api/src/decorators';
 
-@Callable()
+@Callable({ alias: 'op' })
 export default class Operator extends PolkabotChatbot {
   package: packageJson;
   controllables: Controllable[];
@@ -81,9 +81,9 @@ export default class Operator extends PolkabotChatbot {
       const CtrlClass = getClass(controllable) as unknown as Controllable;
       assert(CtrlClass.isControllable, 'Houston, we expect a controllable here!');
 
-      message += `<li>${CtrlClass.metas.name}:</li><ul>`;
+      message += `<li>${CtrlClass.meta.name}:</li><ul>`;
       CtrlClass.commands.map((command: PluginCommand) => {
-        message += `<li><code>!${CtrlClass.metas.alias} ${command.name}</code>: ${command.description} - ${
+        message += `<li><code>!${CtrlClass.meta.alias} ${command.name}</code>: ${command.description} - ${
           command.adminOnly ? 'Admin' : 'Public'
         }</li>`;
       });
@@ -109,21 +109,6 @@ export default class Operator extends PolkabotChatbot {
       ]
     };
   }
-
-
-  // private matchCommand(cmd: BotCommand): PluginCommand | null {
-  //   // first we look if the module is known
-  //   const hits = this.controllables.filter((c: Controllable) => c.metas.alias === cmd.module);
-  //   const controllable = hits.length > 0 ? (hits[0]) : null;
-
-  //   if (!controllable) return null;
-
-  //   this.context.logger.info(`${controllable.metas.name} could be able to do the job... checking supported commands`);
-  //   const handler: PluginCommand = (controllable as Controllable).commands.find(c => c.name === cmd.command);
-  //   this.context.logger.info(`Handler found: ${handler ? handler.name : null}`);
-
-  //   return handler;
-  // }
 
   private watchChat(): void {
     this.context.matrix.on('Room.timeline', (event: Event, room: Room, _toStartOfTimeline) => {

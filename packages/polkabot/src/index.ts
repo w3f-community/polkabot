@@ -60,7 +60,7 @@ export default class Polkabot {
     const channel = notifier.channel;
     if (!this.notifiersTable[channel]) this.notifiersTable[channel] = [];
     this.notifiersTable[channel].push(notifier);
-    Logger.silly('notifierTable %j', this.notifiersTable);
+    // Logger.silly('notifierTable %j', this.notifiersTable);
   }
 
   /**
@@ -70,7 +70,7 @@ export default class Polkabot {
   private registerControllable(controllable: Controllable): void {
     const CtrlClass = getClass(controllable) as unknown as Controllable;
     assert(CtrlClass.isControllable && CtrlClass.commands.length, 'No commands defined');
-    Logger.debug('Registering controllable:', CtrlClass.metas.name);
+    Logger.debug('Registering controllable:', CtrlClass.meta.name);
     this.controllablePlugins.push(controllable);
   }
 
@@ -79,7 +79,7 @@ export default class Polkabot {
    * @param bot 
    */
   private registerChatbot(bot: PolkabotChatbot): void {
-    Logger.info('Registering Chat bot:', bot.module.name);
+    Logger.info('Registering Chatbot: %s', bot.module.name);
     this.chatBots.push(bot);
   }
 
@@ -147,9 +147,18 @@ export default class Polkabot {
       });
       Promise.all(loads).then(_ => {
         Logger.info('Done loading plugins');
+        this.logAvailableNotificationChannels();
+        
         resolve();
       });
     });
+  }
+
+  private logAvailableNotificationChannels(): void {
+    Logger.info('Available notification channels:');
+    Object.keys(this.notifiersTable).map((name: string) => {
+      Logger.info(`  - ${name}`);
+    })
   }
 
   /**
@@ -174,7 +183,7 @@ export default class Polkabot {
         return this.attachControllableToBots();
       })
       .then(_ => {
-        Logger.debug('Done loading plugins');
+        Logger.debug('Done loading plugins and linking everything together');
       });
   }
 

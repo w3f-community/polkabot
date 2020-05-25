@@ -18,7 +18,7 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
       const CtrlClass = getClass(ctrl) as unknown as Controllable;
       // const commandObject: PluginCommandSet = (ctrl as Controllable).commandSet;
       const commands: PluginCommand[] = CtrlClass.commands;
-      Logger.debug(` ctrl: ${CtrlClass.metas.name} (!${CtrlClass.metas.alias}) ${commands.map(c => c.name)}`);
+      Logger.debug(` ctrl: ${CtrlClass.meta.name} (!${CtrlClass.meta.alias}) ${commands.map(c => c.name)}`);
       // Logger.info(commands.map(c => c.name));
     });
     this.controllables = controllables;
@@ -77,7 +77,7 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
    */
   public static matchCommand(controllables: Controllable[], cmd: BotCommand): PluginCommand | null {
     // first we look if the module is known
-    const hits = controllables.filter((c: Controllable) => c.metas.alias === cmd.module);
+    const hits = controllables.filter((c: Controllable) => c.meta.alias === cmd.module);
 
     const controllable = hits.length > 0 ? (hits[0]) : null;
     if (!controllable) return null;

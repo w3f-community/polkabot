@@ -14,7 +14,7 @@
     "test": "mocha",
     "test:watch": "mocha --watch",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
-    "build:doc": "typedoc src"
+    "build:doc": "typedoc src --readme none"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",

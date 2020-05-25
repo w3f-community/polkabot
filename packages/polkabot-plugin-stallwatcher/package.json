@@ -10,7 +10,7 @@
     "prepublishOnly": "npm run build",
     "postinstall": "npm run build",
     "clean": "rm -rf dist node_mdules",
-    "build:doc": "typedoc src"
+    "build:doc": "typedoc src --readme none"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",

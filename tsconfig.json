@@ -4,7 +4,7 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "allowJs": true,
+    "allowJs": false,
     "target": "es2015",
     "noImplicitAny": false,
     "sourceMap": true,
@@ -27,5 +27,8 @@
       "@polkabot/api/*": ["packages/polkabot-api/src/*"],
     }    
   },
+  "exclude": [
+    "node_modules"
+  ],
   "compileOnSave": true
 }
