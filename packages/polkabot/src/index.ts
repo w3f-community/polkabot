@@ -9,7 +9,7 @@ import { ConfigManager, ConfigObject } from 'confmgr';
 import { assert } from '@polkadot/util';
 import { routeMatrixLogger } from './lib/matrix-helpers';
 import { NotifiersTable } from './types';
-import { PolkabotChatbot, PolkabotNotifier, MatrixClient, Controllable, PolkabotPlugin, NotifierMessage, NotifierSpecs, PluginModule, PluginContext, RoomMember, winston } from '@polkabot/api/src';
+import { PolkabotChatbot, PolkabotNotifier, MatrixClient, Controllable, PolkabotPlugin, NotifierMessage, NotifierSpecs, PluginModule, PluginContext, RoomMember, winston, getClass } from '@polkabot/api/src';
 import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
 import { isControllable, isWorker, isNotifier, isChatBot } from './lib/type-helpers';
 
@@ -68,8 +68,9 @@ export default class Polkabot {
    * @param controllable 
    */
   private registerControllable(controllable: Controllable): void {
-    assert(controllable.getCommandSet().commands.length, 'No commands defined');
-    Logger.debug('Registering controllable:', controllable.getCommandSet().name);
+    const CtrlClass = getClass(controllable) as unknown as Controllable;
+    assert(CtrlClass.isControllable && CtrlClass.commands.length, 'No commands defined');
+    Logger.debug('Registering controllable:', CtrlClass.metas.name);
     this.controllablePlugins.push(controllable);
   }
 
@@ -86,7 +87,6 @@ export default class Polkabot {
    * Finds, starts and register all the plugins that can be found.
    */
   private async loadPlugins(): Promise<void> {
-    // Logger.info('Loading plugins', { meta: { source: 'Polkabot' } });
     Logger.info('Loading plugins');
 
     const pluginScanner = new PluginScanner(pkg.name + '-plugin');
@@ -123,9 +123,10 @@ export default class Polkabot {
 
         loads.push(
           PluginLoader.load(plugin, context).then((p: PolkabotPlugin) => {
-            if (isControllable(p)) {
+            if (isControllable(getClass(p))) {
+              Logger.info(`▶ Controllable: ${p.package.name}`);
               this.registerControllable(p as unknown as Controllable);
-            } else Logger.debug(`▶ NOT Controllable: ${p.package.name}`);
+            } else Logger.warn(`▶ NOT Controllable: ${p.package.name}`);
 
             if (isWorker(p)) {
               Logger.debug(`Starting worker plugin ${p.package.name} v${p.package.version}`);
@@ -155,7 +156,8 @@ export default class Polkabot {
    * Attach all the controllables to the Chatbot(s)
    */
   private attachControllableToBots(): void {
-    Logger.debug('Passing controllables to following bots:');
+    assert(this.controllablePlugins.length, 'No Controllable to attach?');
+    Logger.debug(`Passing controllables (${this.controllablePlugins.length}) to following bots:`);
     this.chatBots.map((bot: PolkabotChatbot) => {
       Logger.debug(` ${bot.module.name}`);
       bot.registerControllables(this.controllablePlugins);

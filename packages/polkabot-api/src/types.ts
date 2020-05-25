@@ -105,7 +105,10 @@ export type PluginCommandSet = {
  * be called to control the thing.
  */
 export interface Controllable {
-  getCommandSet(): PluginCommandSet;
+  commands: Array<PluginCommand>;
+  metas: CallableMetas;
+  isControllable: boolean;
+  getCommand(cmd: string): PluginCommand | null;
 }
 
 /**

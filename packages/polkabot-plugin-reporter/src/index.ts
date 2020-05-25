@@ -4,6 +4,10 @@ import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import blake2 from '@polkadot/util-crypto/blake2/asHex';
 import { NotifierSpecs, PluginModule, PluginContext, BlockMoment, Announcement, Severity } from '@polkabot/api/src/types';
 
+/**
+ * This plugin is keeping an eye on on the public referendum and 
+ * important changes that may happen on-chain.
+ */
 export default class Reporter extends PolkabotWorker {
   private cache: any;
   private unsub: Function;
@@ -60,14 +64,14 @@ export default class Reporter extends PolkabotWorker {
   }
 
   public start(): void {
-    // console.log('Reporter - Starting with config:', this.config);
+    // this.context.logger.info('Reporter - Starting with config:', this.config);
     this.watchChain().catch(error => {
       console.error('Reporter - Error subscribing to chain: ', error);
     });
   }
 
   public stop(): void {
-    console.log('Reporter - STOPPING');
+    this.context.logger.info('Reporter - STOPPING');
     if (this.unsub)
       this.unsub();
   }
@@ -104,7 +108,7 @@ export default class Reporter extends PolkabotWorker {
 
       if (!this.cache[KEY]) this.cache[KEY] = validators;
       if (this.cache[KEY] && this.cache[KEY].length !== validators.length) {
-        console.log('Reporter - Active Validator count: ', validators.length);
+        this.context.logger.info('Reporter - Active Validator count: ', validators.length);
 
         this.announce({
           message: `Active Validator count has changed from ${this.cache[KEY].length} to ${validators.length}`,
@@ -112,7 +116,7 @@ export default class Reporter extends PolkabotWorker {
         });
         this.cache[KEY] = validators;
       } else {
-        console.log(`Reporter - Active Validator count: ${validators.length}`);
+        this.context.logger.info(`Reporter - Active Validator count: ${validators.length}`);
       }
     });
   }
@@ -124,7 +128,7 @@ export default class Reporter extends PolkabotWorker {
       if (!this.cache[KEY]) this.cache[KEY] = validatorCount;
       if (this.cache[KEY] && this.cache[KEY] !== validatorCount) {
         this.cache[KEY] = validatorCount;
-        console.log('Reporter - Validator count:', validatorCount.toString(10));
+        this.context.logger.info('Reporter - Validator count:', validatorCount.toString(10));
         this.announce({
           message: `The number of validator slots has changed. It is now ${validatorCount.toString(
             10
@@ -143,10 +147,10 @@ export default class Reporter extends PolkabotWorker {
       if (!this.cache[KEY]) this.cache[KEY] = { hash, code };
       if (this.cache[KEY] && this.cache[KEY].hash !== hash) {
         this.cache[KEY] = { hash, code };
-        console.log('Reporter - Runtime Code hash changed:', hash);
+        this.context.logger.info('Reporter - Runtime Code hash changed:', hash);
 
         // const codeInHex = '0x' + this.buf2hex(code)
-        // console.log('Runtime Code hex changed', codeInHex)
+        // this.context.logger.info('Runtime Code hex changed', codeInHex)
 
         this.announce({
           message: `Runtime code hash has changed. The hash is now ${hash}. The runtime is now ${
@@ -155,7 +159,7 @@ export default class Reporter extends PolkabotWorker {
           severity: Severity.CRITICAL,
         });
       } else {
-        console.log(`Reporter - Runtime Code hash: ${hash}`);
+        this.context.logger.info(`Reporter - Runtime Code hash: ${hash}`);
       }
     });
   }
@@ -174,7 +178,7 @@ export default class Reporter extends PolkabotWorker {
       if (this.cache[KEY] && !this.cache[KEY].eq(count)) {
         this.cache[KEY] = count;
 
-        console.log('Reporter - Proposal count changed:', count.toString(10));
+        this.context.logger.info('Reporter - Proposal count changed:', count.toString(10));
         const id = count.sub(new BN(1));
         this.announce({
           message: `A new council motion proposal is available (#${id}), check your UI at https://polkadot.js.org/apps/#/democracy.
@@ -182,7 +186,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
           severity: Severity.INFO,
         });
       } else {
-        console.log(`Reporter - Proposal count: ${count.toString(10)}`);
+        this.context.logger.info(`Reporter - Proposal count: ${count.toString(10)}`);
       }
     });
   }
@@ -190,7 +194,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
   async watchPublicProposalCount(): Promise<void> {
     await this.context.polkadot.query.democracy.publicPropCount(async (publicPropCount: BN) => {
       const KEY = 'publicPropCount';
-      console.log('Reporter - publicPropCount:', publicPropCount.toString(10));
+      this.context.logger.info('Reporter - publicPropCount:', publicPropCount.toString(10));
 
       const count = publicPropCount;
       if (!this.cache[KEY]) this.cache[KEY] = count;
@@ -200,7 +204,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
         const blockMoment = await this.getBlockMoment(deadline);
         // const votingTimeInMinutes =
         //   parseInt(this.context.polkadot.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
-        console.log('Reporter - Proposal count changed:', count.toString(10));
+        this.context.logger.info('Reporter - Proposal count changed:', count.toString(10));
         const id = count.sub(new BN(1)).toString(10);
 
         this.announce({
@@ -213,7 +217,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
           severity: Severity.INFO,
         });
       } else {
-        console.log(`Reporter - Proposal count: ${count.toString(10)}`);
+        this.context.logger.info(`Reporter - Proposal count: ${count.toString(10)}`);
       }
     });
   }
@@ -221,7 +225,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
   async watchReferendumCount(): Promise<void> {
     await this.context.polkadot.query.democracy.referendumCount(referendumCount => {
       const KEY = 'referendumCount';
-      console.log('Reporter - referendumCount:', referendumCount.toString(10));
+      this.context.logger.info('Reporter - referendumCount:', referendumCount.toString(10));
 
       const count = new BN(referendumCount);
       if (!this.cache[KEY]) this.cache[KEY] = count;
@@ -236,7 +240,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
               .mul(this.cache.minimumPeriod)
               .toString(10)
           ) / 60;
-        console.log('Reporter - Referendum count changed:', count.toString(10));
+        this.context.logger.info('Reporter - Referendum count changed:', count.toString(10));
         const id = count.sub(new BN(1)).toString(10);
 
         this.announce({
@@ -249,7 +253,7 @@ You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
           severity: Severity.INFO,
         });
       } else {
-        console.log(`Reporter - Referendum count: ${count.toString(10)}`);
+        this.context.logger.info(`Reporter - Referendum count: ${count.toString(10)}`);
       }
     });
   }

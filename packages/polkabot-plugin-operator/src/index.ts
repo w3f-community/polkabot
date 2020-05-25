@@ -4,17 +4,13 @@ import MatrixHelper from './matrix-helper';
 import { packageJson } from 'package-json';
 import { assert } from '@polkadot/util';
 import { OperatorParams } from './types';
-import { isHelpNeeded, capitalize } from './helpers';
-import { Event, CallableMetas, MatrixEventType, Controllable, PluginCommand, PluginContext, PluginModule, PluginCommandSet, CommandHandlerOutput, BotCommand, SenderId, RoomId, Room } from '@polkabot/api/src/types';
+import { isHelpNeeded } from './helpers';
+import { Event, MatrixEventType, Controllable, PluginCommand, PluginContext, PluginModule, CommandHandlerOutput, BotCommand, SenderId, RoomId, Room } from '@polkabot/api/src/types';
+import { capitalize, getClass } from '@polkabot/api/src';
 import { Command, Callable } from '@polkabot/api/src/decorators';
 
 @Callable()
-export default class Operator extends PolkabotChatbot implements Controllable {
-
-  // public commandSet: PluginCommandSet;
-  static meta: CallableMetas;
-  static commands: PluginCommand[] = [];
-
+export default class Operator extends PolkabotChatbot {
   package: packageJson;
   controllables: Controllable[];
   context: PluginContext;
@@ -42,11 +38,11 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     this.matrixHelper = new MatrixHelper(this.params);
   }
 
-  getCommandSet(): PluginCommandSet {
-    const res: PluginCommandSet = { ...Operator.meta, commands: Operator.commands };
-    assert(res.name.length > 0, 'something went wrong');
-    return res;
-  }
+  // getCommandSet(): PluginCommandSet {
+  //   const res: PluginCommandSet = { ...Operator.meta, commands: Operator.commands };
+  //   assert(res.name.length > 0, 'something went wrong');
+  //   return res;
+  // }
 
   public start(): void {
     this.watchChat();
@@ -75,17 +71,19 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     };
   }
 
-  @Command({ description: 'This shows the help. It is also triggered when the user write anything mentioning HELP' })
+  @Command({ description: 'This shows some help. It is also triggered when the user write anything mentioning HELP' })
   public cmdHelp(_event: Event, room: Room): CommandHandlerOutput {
     let message = 'Here is also a list of all the loaded modules and their commands:<br/><ul>';
+    // this.context.logger.debug('controllables: %o', this.controllables);
+    assert(this.controllables.length, 'No controllable found!');
 
     this.controllables.map((controllable: Controllable) => {
-      // console.log(controllable)
-      this.context.logger.silly('commandSet: %o', controllable.getCommandSet());
+      const CtrlClass = getClass(controllable) as unknown as Controllable;
+      assert(CtrlClass.isControllable, 'Houston, we expect a controllable here!');
 
-      message += `<li>${controllable.getCommandSet().name}:</li><ul>`;
-      controllable.getCommandSet().commands.map((command: PluginCommand) => {
-        message += `<li><code>!${controllable.getCommandSet().alias} ${command.name}</code>: ${command.description} - ${
+      message += `<li>${CtrlClass.metas.name}:</li><ul>`;
+      CtrlClass.commands.map((command: PluginCommand) => {
+        message += `<li><code>!${CtrlClass.metas.alias} ${command.name}</code>: ${command.description} - ${
           command.adminOnly ? 'Admin' : 'Public'
         }</li>`;
       });
@@ -112,23 +110,20 @@ export default class Operator extends PolkabotChatbot implements Controllable {
     };
   }
 
-  /** This function takes a BotCommand and look for a plugin that can handle it.
-   * If a plugin is found, its information and handler are returned.
-   * If not, null is retuned. In that case it means we are not able to fullfill the request.
-   */
-  private matchCommand(cmd: BotCommand): PluginCommand | null {
-    // first we look if the module is known
-    const hits = this.controllables.filter((c: Controllable) => c.getCommandSet().alias === cmd.module);
-    const controllable = hits.length > 0 ? (hits[0]) : null;
 
-    if (!controllable) return null;
+  // private matchCommand(cmd: BotCommand): PluginCommand | null {
+  //   // first we look if the module is known
+  //   const hits = this.controllables.filter((c: Controllable) => c.metas.alias === cmd.module);
+  //   const controllable = hits.length > 0 ? (hits[0]) : null;
 
-    this.context.logger.info(`${controllable.getCommandSet().name} could be able to do the job... checking supported commands`);
-    const handler: PluginCommand = (controllable as Controllable).getCommandSet().commands.find(c => c.name === cmd.command);
-    this.context.logger.info(`Handler found: ${handler ? handler.name : null}`);
+  //   if (!controllable) return null;
 
-    return handler;
-  }
+  //   this.context.logger.info(`${controllable.metas.name} could be able to do the job... checking supported commands`);
+  //   const handler: PluginCommand = (controllable as Controllable).commands.find(c => c.name === cmd.command);
+  //   this.context.logger.info(`Handler found: ${handler ? handler.name : null}`);
+
+  //   return handler;
+  // }
 
   private watchChat(): void {
     this.context.matrix.on('Room.timeline', (event: Event, room: Room, _toStartOfTimeline) => {
@@ -176,7 +171,7 @@ export default class Operator extends PolkabotChatbot implements Controllable {
           message: 'I was tought to smile when I don\'t get it. 😁'
         });
       } else {
-        const cmdHandler = this.matchCommand(botCommand);
+        const cmdHandler = PolkabotChatbot.matchCommand(this.controllables, botCommand);
 
         // this.context.logger.info(" *** bot command handler:", JSON.stringify(cmdHandler, null, 2));
 

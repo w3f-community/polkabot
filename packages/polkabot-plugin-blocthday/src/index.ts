@@ -2,17 +2,18 @@ import BN from 'bn.js';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';
 import { Command, Callable } from '@polkabot/api/src/decorators';
-import { CallableMetas, Controllable, PluginCommand, PluginModule, PluginContext, PluginCommandSet, Room, CommandHandlerOutput, NotifierMessage, NotifierSpecs } from '@polkabot/api/src/types';
+import { Controllable, PluginModule, PluginContext, Room, CommandHandlerOutput, NotifierMessage, NotifierSpecs } from '@polkabot/api/src/types';
+import { assert } from '@polkabot/api/src/utils';
 
-// @Configured(['NB_BLOCKS'])
+// @Configured({['NB_BLOCKS'}])
 @Callable({ name: 'Blocthday', alias: 'bday' })
-export default class Blocthday extends PolkabotWorker implements Controllable {
+export default class Blocthday extends PolkabotWorker {
   private NB_BLOCKS: number;
   // public commandSet: PluginCommandSet;
 
   // TODO: it would be nice if the decorator could declare that
-  static meta: CallableMetas;
-  static commands: PluginCommand[] = [];
+  // static meta: CallableMetas;
+  // static commands: PluginCommand[] = [];
 
   private unsub: Function;
 
@@ -23,13 +24,13 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
     // TODO: would be great to use a decorator for that
     this.NB_BLOCKS = this.context.config.Get('BLOCTHDAY', 'NB_BLOCKS');
     // Blocthday.commandSet = {} // getCommandSet(this);
-    this.context.logger.debug('commands: %s', JSON.stringify(Blocthday.commands, null, 0));
+    // this.context.logger.debug('commands: %s', JSON.stringify(this.getCommands(), null, 0));
   }
   
-  getCommandSet(): PluginCommandSet {
-    const res: PluginCommandSet = { ...Blocthday.meta, commands: Blocthday.commands}; 
-    return res;
-  }
+  // getCommandSet(): PluginCommandSet {
+  //   const res: PluginCommandSet = { ...Blocthday.meta, commands: Blocthday.commands}; 
+  //   return res;
+  // }
 
   @Command({ name: 'status', description: 'Show status of the plugin', argsRegexp: '', adminOnly: false })
   public cmdStatus(_event, room: Room): CommandHandlerOutput {
@@ -59,14 +60,8 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
 
   public start(): void {
     this.context.logger.info('Starting with NB_BLOCKS: %d', this.NB_BLOCKS);
-
-    if (!this.getCommandSet().commands){
-      console.log(this);
-      this.context.logger.error('No command defined');
-    }
-    else
-      this.context.logger.debug('Commandset: %s', JSON.stringify(this.getCommandSet(), null, 0));
-
+    assert((Blocthday as unknown as Controllable).commands.length > 0, 'Missing commands');
+   
     this.watchChain().catch(error => {
       this.context.logger.error('Error subscribing to chain head: ', error);
     });
@@ -75,6 +70,7 @@ export default class Blocthday extends PolkabotWorker implements Controllable {
   public stop(): void {
     this.context.logger.debug('STOPPING');
 
+    // TODO: we can make it generic if unsub is a dictionnary of unsub handlers. We could then automatically go thru them and unsub in the base class
     if (this.unsub)
       this.unsub();
   }

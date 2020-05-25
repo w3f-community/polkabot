@@ -9,9 +9,12 @@ export function isNotifier(candidate: PolkabotPlugin): candidate is PolkabotNoti
   return (candidate as PolkabotNotifier).notify !== undefined;
 }
 
-export function isControllable(candidate: PolkabotPlugin): boolean {
-  const res = (candidate as unknown as Controllable).getCommandSet !== undefined;
-  return res;
+/**
+ * Here we test an 'assumed' Controllable that may or not be one.
+ * @param candidate The class to be checked. Note that you should not pass a Controllable object here but the class itself.
+ */
+export function isControllable(candidate: Function): boolean {
+  return (candidate as unknown as Controllable).isControllable === true;
 }
 
 export function isChatBot(candidate: PolkabotPlugin): candidate is PolkabotChatbot {

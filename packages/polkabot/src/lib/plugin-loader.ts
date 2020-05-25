@@ -35,7 +35,7 @@ export default class PluginLoader {
           }
 
           Logger.info(
-            ` - ${plugin.constructor.name}: ${plugin.package.name} version ${plugin.package.version} from ${plugin.package.author
+            ` - [${parentClass.replace('Polkabot', '')}] ${plugin.constructor.name}: ${plugin.package.name} version ${plugin.package.version} from ${plugin.package.author
               .name || plugin.package.author}`
           );
 

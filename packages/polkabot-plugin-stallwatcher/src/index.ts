@@ -23,7 +23,7 @@ export default class StallWatcher extends PolkabotWorker {
   }
 
   public start(): void {
-    console.log('StallWatcher - Starting with config:', this.params);
+    this.context.logger.info('StallWatcher - Starting with config:', this.params);
     this.watchChain().catch(error => {
       console.error('StallWatcher - Error subscribing to chain head: ', error);
     });
@@ -39,7 +39,7 @@ export default class StallWatcher extends PolkabotWorker {
     // Reference: https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
     this.unsubFn = await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
       clearTimeout(this.watchdogId);
-      // console.log('StallWatcher: ' + this.getDuration().toFixed(2) + 's')
+      // this.context.logger.info('StallWatcher: ' + this.getDuration().toFixed(2) + 's')
       this.watchdogId = setTimeout(this.alert.bind(this), this.params.duration * 1000);
       this.lastBlockNumber = header.number.unwrap().toBn();
       if (this.stalled) {
@@ -96,7 +96,7 @@ export default class StallWatcher extends PolkabotWorker {
 
   //       // Has the Bot Master initiated a direct chat with the Bot
   //       const isBotMasterAndBotInRoom = expectedDirectMessageRoomMemberIds.every(val => directChatRoomMemberIds.includes(val));
-  //       // console.log('StallWatcher - isBotMasterAndBotInRoom: ', isBotMasterAndBotInRoom)
+  //       // this.context.logger.info('StallWatcher - isBotMasterAndBotInRoom: ', isBotMasterAndBotInRoom)
 
   //       // Is the chat room name the same name as the Bot's name
   //       // After string manipulation to get just the username from the Bot's
@@ -107,7 +107,7 @@ export default class StallWatcher extends PolkabotWorker {
   //           .split(":")
   //           .shift()
   //           .substring(1);
-  //       // console.log('StallWatcher - isBotMessageRecipient: ', isBotMessageRecipient)
+  //       // this.context.logger.info('StallWatcher - isBotMessageRecipient: ', isBotMessageRecipient)
 
   //       /**
   //        * Check that the room id where the sender of the message
@@ -124,7 +124,7 @@ export default class StallWatcher extends PolkabotWorker {
   //        */
   //       // const isOperator = senderId => {
   //       //   const isSenderOperator = senderId === this.context.config.matrix.botMasterId;
-  //       //   // console.log('StallWatcher - isSenderOperator: ', isSenderOperator)
+  //       //   // this.context.logger.info('StallWatcher - isSenderOperator: ', isSenderOperator)
   //       //   return isSenderOperator;
   //       // };
 
@@ -138,20 +138,20 @@ export default class StallWatcher extends PolkabotWorker {
   //       // const senderRoomId = event.sender.roomId;
   //       // const roomIdWithBot = room.roomId;
 
-  //       // console.log('StallWatcher - msg: ', msg)
-  //       // console.log('StallWatcher - senderId: ', senderId)
-  //       // console.log('StallWatcher - senderRoomId', senderRoomId)
-  //       // console.log('StallWatcher - roomIdWithBot', roomIdWithBot)
+  //       // this.context.logger.info('StallWatcher - msg: ', msg)
+  //       // this.context.logger.info('StallWatcher - senderId: ', senderId)
+  //       // this.context.logger.info('StallWatcher - senderRoomId', senderRoomId)
+  //       // this.context.logger.info('StallWatcher - roomIdWithBot', roomIdWithBot)
 
   //       if (isPrivate(senderRoomId, roomIdWithBot)) {
   //         if (isOperator(senderId) && isBotMasterAndBotInRoom && isBotMessageRecipient) {
-  //           // console.log('StallWatcher - Bot received message from Bot Master in direct message')
+  //           // this.context.logger.info('StallWatcher - Bot received message from Bot Master in direct message')
   //           /**
   //            * Detect if the command received from the Bot Master is in
   //            * the following form: `!sw duration <DURATION_IN_SECONDS>`
   //            */
   //           let capture = msg.match(/^!((?<mod>\w+)\s+)?(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
-  //           // console.log('StallWatcher - captured from Bot Master: ', capture)
+  //           // this.context.logger.info('StallWatcher - captured from Bot Master: ', capture)
   //           if (capture.length > 0 && capture.groups.cmd) {
   //             const mod = capture.groups.mod;
   //             const cmd = capture.groups.cmd;
@@ -159,9 +159,9 @@ export default class StallWatcher extends PolkabotWorker {
 
   //             if (mod !== "sw") return;
 
-  //             console.log("StallWatcher - mod: ", mod);
-  //             console.log("StallWatcher - cmd: ", cmd);
-  //             console.log("StallWatcher - args: ", args);
+  //             this.context.logger.info("StallWatcher - mod: ", mod);
+  //             this.context.logger.info("StallWatcher - cmd: ", cmd);
+  //             this.context.logger.info("StallWatcher - args: ", args);
   //             switch (cmd) {
   //               case "duration":
   //                 const val = parseFloat(args);

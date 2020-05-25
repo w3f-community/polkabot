@@ -1,23 +1,27 @@
-import LoggerSingleton from './LoggerFactory';
-import { CallableMetas, CommandDecoratorArgs, PluginCommand } from './types';
+import { CallableMetas, CommandDecoratorArgs, PluginCommand, Controllable } from './types';
+import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
 
 const Logger = LoggerSingleton.getInstance();
 
 /**
  * This class decorator signals a class that will be callable from the 
- * chat.
+ * chat. It dynamically sets up a few of the members and helpers required
+ * by a Controllable.
  * @param args 
  */
 export function Callable(args?: CallableMetas): Function {
   // Note we cannot use context yet
-  return (target: any) => {
-    Logger.silly('target: %o', target);
-    const meta: CallableMetas = {
-      name: args && args.name ? args.name : target.name,
-      alias: args && args.alias ? args.alias : target.name.toLowerCase()
+  return (target: Controllable) => {
+    Logger.silly(`DECORATOR Callable on ${(target as unknown as Function).name}`);
+    const metas: CallableMetas = {
+      name: args && args.name ? args.name : (target as any).name,
+      alias: args && args.alias ? args.alias : (target as any).name.toLowerCase()
     };
+
+    // Implement Controllable
     if (!target.commands) target.commands = [];
-    target.meta = meta;
+    target.metas = metas;
+    target.isControllable = true;
   };
 }
 
@@ -27,11 +31,11 @@ export function Callable(args?: CallableMetas): Function {
  * they will be made available.
  * @param params The list of config params
  */
-export function Configured(params: string[]): Function {
-  Logger.silly('Configured: ' + params.join(' '));
+export function Configured(_params: string[]): Function {
+  return (_target: any) => {
 
-  return (_ctor: Function) => {
-    Logger.silly('Configured: ' + params.join(' '));
+    // if (!target.commands) target.commands = [];
+    // target.meta = meta;
   };
 }
 
