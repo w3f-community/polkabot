@@ -102,12 +102,12 @@ function getCommand(commands: CommandDictionary, msg: string): PluginCommand {
  */
 export function Command(decoargs?: CommandDecoratorArgs): Function {
   return function (target: any, methodName: string, _descriptor: PropertyDescriptor) {
-    let cls = target.constructor
+    const cls = target.constructor;
     
-    if (!cls.commands) cls.commands = { }
+    if (!cls.commands) cls.commands = { };
     
     // if (typeof cls === 'function') cls = cls()
-    assert(cls.name !== 'Function', 'There is a problem here. Did you use a static method? You should not!')
+    assert(cls.name !== 'Function', 'There is a problem here. Did you use a static method? You should not!');
 
     // Logger.info('Command, target %o',target)
     // Logger.info('Command, cls: %o', cls)
@@ -125,12 +125,12 @@ export function Command(decoargs?: CommandDecoratorArgs): Function {
     cls.commands[cmd.name] = cmd;
     cls.getCommand = getCommand;
     cls.getCommands = () => {
-      const res = []
+      const res = [];
       Object.keys(cls.commands).map((key: string) => {
-        const cmd = cls.commands[key]
-        res.push(cmd)
-      })
-      return res
-    }
+        const cmd = cls.commands[key];
+        res.push(cmd);
+      });
+      return res;
+    };
   };
 }

@@ -8,11 +8,11 @@ export default class MatrixNotifier extends PolkabotNotifier {
   public channel = 'matrix';
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    this.context.logger.silly("++MatrixNotifier", this);
+    this.context.logger.silly('++MatrixNotifier', this);
 
-    const commands = (MatrixNotifier as unknown as Controllable).commands
-    assert(typeof commands !== 'undefined', 'Commands were not set')
-    assert(Object.values(commands).length > 0, 'commands contains no command!')
+    const commands = (MatrixNotifier as unknown as Controllable).commands;
+    assert(typeof commands !== 'undefined', 'Commands were not set');
+    assert(Object.values(commands).length > 0, 'commands contains no command!');
     //this.context.logger.silly('MatrixNotifier: %o', MatrixNotifier); // OK
     //this.context.logger.silly('commands: %o', commands); // OK
 

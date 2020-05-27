@@ -69,13 +69,13 @@ export default class Polkabot {
    */
   private registerControllable(controllable: Controllable): void {
     const commandCount = (commands: CommandDictionary): number => {
-      if (typeof CtrlClass === 'undefined') return 0;
-      if (typeof CtrlClass.commands === 'undefined') return 0;
-      return Object.keys(CtrlClass.commands).length;
+      // if (typeof CtrlClass === 'undefined') return 0;
+      if (!commands) return 0;
+      return Object.keys(commands).length;
     };
     const CtrlClass = getClass(controllable) as unknown as Controllable;
     const commands = CtrlClass.commands;
-    if (typeof commands === 'undefined') Logger.error('commands should not be undefined! Did you use some decorators ?')
+    if (typeof commands === 'undefined') Logger.error('commands should not be undefined! Did you use some decorators ?');
 
     Logger.silly(`${(controllable as unknown as PolkabotPluginBase).module.name} -  isControllable: ${CtrlClass.isControllable}, nb commands: ${commandCount(CtrlClass.commands)}`);
     // assert(CtrlClass.isControllable && commandCount(CtrlClass), 'No commands defined');

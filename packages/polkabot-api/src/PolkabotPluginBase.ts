@@ -55,15 +55,15 @@ export class PolkabotPluginBase {
    * @param this 
    */
   public static bindCommands(that: PolkabotPluginBase): void {
-    assert(typeof that !== "undefined", "Binding to undefined is no good idea!")
+    assert(typeof that !== 'undefined', 'Binding to undefined is no good idea!');
     const CtrlClass = getClass(that) as unknown as Controllable;
-    assert(typeof CtrlClass.commands !== 'undefined', 'No command was set!')
+    assert(typeof CtrlClass.commands !== 'undefined', 'No command was set!');
     // if (CtrlClass.commands) {
     // let counter = 0;
     Object.keys(CtrlClass.commands).map((key: string) => {
       // const command = that.commands[key]
       //console.log('command:', command)
-      that.context.logger.silly('Binding method %s:%s', CtrlClass.meta.name, key)  // TODO; check here, are we binding the status function or cmdStatus ?
+      that.context.logger.silly('Binding method %s:%s', CtrlClass.meta.name, key);  // TODO; check here, are we binding the status function or cmdStatus ?
 
 
       // TODO: fix this cheap trick: we want to use the original method name here, not hope that it was called cmdSomething

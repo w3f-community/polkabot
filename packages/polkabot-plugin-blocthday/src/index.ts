@@ -23,9 +23,9 @@ export default class Blocthday extends PolkabotWorker {
     this.context.logger.silly('++ Blocthday');
 
     // The following asserts are only valid if you want this plugin to be Controllable
-    const commands = (Blocthday as unknown as Controllable).commands
-    assert(typeof commands !== 'undefined', 'Commands were not set')
-    assert(Object.values(commands).length > 0, 'commands contains no command!')
+    const commands = (Blocthday as unknown as Controllable).commands;
+    assert(typeof commands !== 'undefined', 'Commands were not set');
+    assert(Object.values(commands).length > 0, 'commands contains no command!');
     //this.context.logger.silly('Blocthday: %o', Blocthday); // OK
     //this.context.logger.silly('commands: %o', commands); // OK
 
@@ -38,8 +38,8 @@ export default class Blocthday extends PolkabotWorker {
   @Command({ description: 'Show status of the plugin' })
   // public cmdStatus(that: Blocthday, _event, room: Room): CommandHandlerOutput {
   public status( _event, room: Room): CommandHandlerOutput {
-    console.log('Running Blocthday.status()')
-    console.log(this, this.context)
+    console.log('Running Blocthday.status()');
+    console.log(this, this.context);
 
     this.context.logger.debug('Blocthday.cmdStatus()');
 
