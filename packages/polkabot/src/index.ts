@@ -9,7 +9,7 @@ import { ConfigManager, ConfigObject } from 'confmgr';
 import { assert } from '@polkadot/util';
 import { routeMatrixLogger } from './lib/matrix-helpers';
 import { NotifiersTable } from './types';
-import { PolkabotChatbot, PolkabotNotifier, MatrixClient, Controllable, PolkabotPlugin, NotifierMessage, NotifierSpecs, PluginModule, PluginContext, RoomMember, winston, getClass } from '@polkabot/api/src';
+import { PolkabotChatbot, PolkabotNotifier, MatrixClient, Controllable, PolkabotPlugin, NotifierMessage, NotifierSpecs, PluginModule, PluginContext, RoomMember, winston, getClass, PolkabotPluginBase, CommandDictionary } from '@polkabot/api/src';
 import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
 import { isControllable, isWorker, isNotifier, isChatBot } from './lib/type-helpers';
 
@@ -68,10 +68,24 @@ export default class Polkabot {
    * @param controllable 
    */
   private registerControllable(controllable: Controllable): void {
+    const commandCount = (commands: CommandDictionary): number => {
+      if (typeof CtrlClass === 'undefined') return 0;
+      if (typeof CtrlClass.commands === 'undefined') return 0;
+      return Object.keys(CtrlClass.commands).length;
+    };
     const CtrlClass = getClass(controllable) as unknown as Controllable;
-    assert(CtrlClass.isControllable && CtrlClass.commands.length, 'No commands defined');
-    Logger.debug('Registering controllable:', CtrlClass.meta.name);
-    this.controllablePlugins.push(controllable);
+    const commands = CtrlClass.commands;
+    if (typeof commands === 'undefined') Logger.error('commands should not be undefined! Did you use some decorators ?')
+
+    Logger.silly(`${(controllable as unknown as PolkabotPluginBase).module.name} -  isControllable: ${CtrlClass.isControllable}, nb commands: ${commandCount(CtrlClass.commands)}`);
+    // assert(CtrlClass.isControllable && commandCount(CtrlClass), 'No commands defined');
+    
+    if (commandCount(CtrlClass.commands) > 0) {
+      Logger.info('Registering controllable: %s', CtrlClass.meta.name);
+      this.controllablePlugins.push(controllable);
+    } else {
+      Logger.warn('SKIPPING Registering controllable %s as it has 0 commands', CtrlClass.meta.name);
+    }
   }
 
   /**
@@ -148,7 +162,7 @@ export default class Polkabot {
       Promise.all(loads).then(_ => {
         Logger.info('Done loading plugins');
         this.logAvailableNotificationChannels();
-        
+
         resolve();
       });
     });
@@ -158,7 +172,7 @@ export default class Polkabot {
     Logger.info('Available notification channels:');
     Object.keys(this.notifiersTable).map((name: string) => {
       Logger.info(`  - ${name}`);
-    })
+    });
   }
 
   /**
@@ -183,7 +197,7 @@ export default class Polkabot {
         return this.attachControllableToBots();
       })
       .then(_ => {
-        Logger.debug('Done loading plugins and linking everything together');
+        Logger.info('Done loading plugins and linking everything together. Polkabot is ready!');
       });
   }
 

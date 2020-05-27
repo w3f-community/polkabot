@@ -35,3 +35,19 @@ describe('Decorators', () => {
     expect((TestClass2 as unknown as Controllable).commands).to.be.lengthOf(3);
   });
 });
+
+// @Configured({ keys: ['VAL1', 'VAL2']})
+// class Configured1 {
+
+// }
+
+// describe('Decorator Configured', () => {
+//   it('should provide defaults', () => {
+//     expect((Configured1 as unknown as Configured).getKeys).to.be.a('Function');
+//     expect((Configured1 as unknown as Configured).getValue).to.be.a('Function');
+    
+//     expect((Configured1 as unknown as Configured).getKeys()).to.deep.equal(['VAL1', 'VAL2'])
+//     expect((Configured1 as unknown as Configured).getValue<Number>('VAL1')).to.equal(42)
+
+//   });
+// });

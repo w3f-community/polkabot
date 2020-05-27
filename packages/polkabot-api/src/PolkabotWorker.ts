@@ -14,9 +14,9 @@ export abstract class PolkabotWorker extends PolkabotPluginBase {
     this.context.logger.debug('STOPPING');
 
     Object.keys(this.unsubs).map(unsub => {
-      let fn = this.unsubs[unsub]
-      this.context.logger.debug(`Running unsub for ${unsub}`)
-      if (fn) fn()
-    })
+      const fn = this.unsubs[unsub];
+      this.context.logger.debug(`Running unsub for ${unsub}`);
+      if (fn) fn();
+    });
   }
 }

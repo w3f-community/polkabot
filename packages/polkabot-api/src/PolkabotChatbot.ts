@@ -1,6 +1,6 @@
 import { PolkabotPluginBase } from './PolkabotPluginBase';
 import LoggerSingleton from './LoggerFactory';
-import { ChatBot, Controllable, PluginModule, PluginContext, PluginCommand, RoomAnswer, BotCommand, PluginType } from './types';
+import { ChatBot, Controllable, PluginModule, PluginContext, PluginCommand, RoomAnswer, BotCommand, PluginType, CommandDictionary } from './types';
 import { getClass } from './helpers';
 
 const Logger = LoggerSingleton.getInstance();
@@ -11,21 +11,21 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
   constructor(mod: PluginModule, context: PluginContext, config?) {
     super(PluginType.Chatbot, mod, context, config);
   }
+
   public registerControllables(controllables: Controllable[]): void {
-    Logger.debug('Registering controllables: ');
+    Logger.info('Registering controllables:');
 
     controllables.map((ctrl: Controllable) => {
       const CtrlClass = getClass(ctrl) as unknown as Controllable;
       // const commandObject: PluginCommandSet = (ctrl as Controllable).commandSet;
-      const commands: PluginCommand[] = CtrlClass.commands;
-      Logger.debug(` ctrl: ${CtrlClass.meta.name} (!${CtrlClass.meta.alias}) ${commands.map(c => c.name)}`);
+      const commands: CommandDictionary = CtrlClass.commands;
+      Logger.info(` ctrl: ${CtrlClass.meta.name} (!${CtrlClass.meta.alias}) ${Object.keys(commands).map(c => commands[c].name)}`);
       // Logger.info(commands.map(c => c.name));
     });
     this.controllables = controllables;
   }
 
   public abstract start();
-  public abstract stop();
 
   /**
    * Check that the room id where the sender of the message
@@ -71,19 +71,45 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
     }
   }
 
-  /** This function takes a BotCommand and look for a plugin that can handle it.
+  /**
+  * At runtime, once we need to bind our command handlers with the instance
+  * of the controllables. This method, retrieves this instance.
+  * We are searching for the controllable that has the right alias and contains the command.
+  * @param cmd 
+  */
+  public static getControllableInstance(controllables: Controllable[], cmd: BotCommand): PolkabotPluginBase {
+    return controllables.find(c => {
+      if (!c.isControllable){
+        Logger.silly('getControllableInstance, %s not controllable ', (c as unknown as PolkabotPluginBase).module.name);
+        return false;
+      }
+      if (c.meta.alias !== cmd.module) {
+        Logger.silly('getControllableInstance, %s not matching %s', c.meta.alias, cmd.module);
+        return false;
+      }
+      Logger.silly('Looking for a command matching %s', cmd.command);
+      return (c.commands[cmd.command] !== undefined);
+    }) as unknown as PolkabotPluginBase;
+  }
+
+  /** 
+   * This function takes a BotCommand and look for a plugin that can handle it.
    * If a plugin is found, its information and handler are returned.
    * If not, null is retuned. In that case it means we are not able to fullfill the request.
    */
   public static matchCommand(controllables: Controllable[], cmd: BotCommand): PluginCommand | null {
     // first we look if the module is known
-    const hits = controllables.filter((c: Controllable) => c.meta.alias === cmd.module);
+    const hits = controllables.filter((c: Controllable) => (getClass(c) as unknown as Controllable).meta.alias === cmd.module);
 
     const controllable = hits.length > 0 ? (hits[0]) : null;
     if (!controllable) return null;
-
-    const handler: PluginCommand = (controllable as Controllable).commands.find(c => c.name === cmd.command);
-    return handler;
+    const commands = (getClass(controllable) as unknown as Controllable).commands;
+    const res: PluginCommand = commands[cmd.command];
+    Logger.silly('Found PluginCommand: %o', res);
+    // const instance = this.getControllableInstance(controllables, cmd)
+    // Logger.silly('Found its instance: %o', controllable)
+    // res.handler = res.handler.bind(instance); // This does not seem to work unfortunately, not sure why
+    return res;
   }
 
   // TODO

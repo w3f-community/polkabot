@@ -30,26 +30,13 @@ export default class Operator extends PolkabotChatbot {
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-
-    // TODO: Fix below = add decorators
-    // this.commandSet = getCommandSet(this);
     assert(this.context.config, 'The config seems to be missing');
     this.params = this.loadParams();
     this.matrixHelper = new MatrixHelper(this.params);
   }
 
-  // getCommandSet(): PluginCommandSet {
-  //   const res: PluginCommandSet = { ...Operator.meta, commands: Operator.commands };
-  //   assert(res.name.length > 0, 'something went wrong');
-  //   return res;
-  // }
-
   public start(): void {
     this.watchChat();
-  }
-
-  public stop(): void {
-    // clean up here
   }
 
   @Command()
@@ -82,7 +69,8 @@ export default class Operator extends PolkabotChatbot {
       assert(CtrlClass.isControllable, 'Houston, we expect a controllable here!');
 
       message += `<li>${CtrlClass.meta.name}:</li><ul>`;
-      CtrlClass.commands.map((command: PluginCommand) => {
+      Object.keys(CtrlClass.commands).map((commandName: string) => {
+        const command = CtrlClass.commands[commandName];
         message += `<li><code>!${CtrlClass.meta.alias} ${command.name}</code>: ${command.description} - ${
           command.adminOnly ? 'Admin' : 'Public'
         }</li>`;
@@ -156,13 +144,15 @@ export default class Operator extends PolkabotChatbot {
           message: 'I was tought to smile when I don\'t get it. 😁'
         });
       } else {
-        const cmdHandler = PolkabotChatbot.matchCommand(this.controllables, botCommand);
-
+        const cmdHandler: PluginCommand = PolkabotChatbot.matchCommand(this.controllables, botCommand);
+        // const instance = PolkabotChatbot.getControllableInstance(this.controllables, botCommand);
+        // assert(instance !== undefined, 'Instance NOT found');
         // this.context.logger.info(" *** bot command handler:", JSON.stringify(cmdHandler, null, 2));
 
         if (cmdHandler) {
-          this.context.logger.info(`handler found, running ${cmdHandler.name}`);
-          const output: CommandHandlerOutput = cmdHandler.handler.bind(this)(event, room, botCommand.args);
+          this.context.logger.info(`handler found, running [${cmdHandler.name}]`);
+          const output: CommandHandlerOutput = cmdHandler.handler(event, room, botCommand.args);
+
           this.context.logger.info(`RET: ${output.code} : ${output.msg}`);
           if (output.answers) {
             // this.answer(output.answers[0])

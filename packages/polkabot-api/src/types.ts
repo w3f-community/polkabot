@@ -10,6 +10,7 @@ import { PolkabotChatbot } from './PolkabotChatbot';
 import { winston } from './LoggerFactory';
 import { packageJson } from 'package-json';
 import { ConfigObject } from 'confmgr';
+import { PolkabotPluginBase } from '.';
 
 export { winston };
 
@@ -92,7 +93,7 @@ export type PluginCommand = {
   description: string; // what does this command do
   argsRegexp: string; // regexp to validate the expected args
   adminOnly: boolean; // is the command only for admins ?
-  handler: (...args: unknown[]) => CommandHandlerOutput;
+  handler: (plugin: PolkabotPluginBase, ...args: unknown[]) => CommandHandlerOutput;
 };
 
 export type CommandDecoratorArgs = {
@@ -119,11 +120,28 @@ export type PluginCommandSet = {
  * be called to control the thing.
  */
 export interface Controllable {
-  commands: Array<PluginCommand>;
+  commands: CommandDictionary;
   meta: ControllableMeta;
   isControllable: boolean;
-  getCommand(cmd: string): PluginCommand | null;
+  getCommand(commands: PluginCommand[], cmd: string): PluginCommand | null;
+  getCommands(): PluginCommand[];
 }
+
+/**
+ * Some of our plugins may expose some commands to be controlled from outside.
+ * Those commands will be executed thanks to handlers.
+ * This type describes a handler dictionnary where
+ * the command (key) is mapped to the handler function.
+ */
+export type CommandDictionary = {
+  [key: string]: PluginCommand;
+}
+
+// TODO: delete
+// interface hasHandlers {
+//   handlers: CommandDictionary;
+//   showHandlers: () => void;
+// }
 
 /**
  * A ChatBot must have controllables to send commands to.
@@ -227,3 +245,4 @@ export type BlockMoment = {
   date: Date; // what is the estimated date
   message: string; // formated date string that will be removed
 };
+

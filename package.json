@@ -25,6 +25,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.8.7",
-    "@polkadot/api": "^1.15.1"
+    "@polkadot/api": "^1.16.1"
   }
 }
