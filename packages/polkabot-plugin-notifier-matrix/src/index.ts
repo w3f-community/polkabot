@@ -1,5 +1,5 @@
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
-import { PluginModule, PluginContext, NotifierMessage, NotifierSpecs, CommandHandlerOutput, ErrorCode, Room, Controllable } from '../../polkabot-api/src/types';
+import { PluginModule, PluginContext, NotifierMessage, NotifierSpecs, CommandHandlerOutput, Room, Controllable } from '../../polkabot-api/src/types';
 import { Command, Callable } from '@polkabot/api/src/decorators';
 import { assert, PolkabotPluginBase } from '@polkabot/api/src';
 
@@ -33,15 +33,10 @@ export default class MatrixNotifier extends PolkabotNotifier {
 
     const roomId = this.context.config.Get('MATRIX', 'ROOM_ID');
 
-    this.context.matrix.sendTextMessage(roomId, { message: messages.join(' ') });
+    // Send the message to the public room
+    this.context.matrix.sendTextMessage(roomId, messages.join(' '));
 
-    return {
-      code: ErrorCode.Ok,
-      logMsg: messages.join(' '),
-      answers: [{
-        room,
-        message: 'Done'
-      }]
-    };
+    // return the result that will show up in the logs and operator room
+    return PolkabotPluginBase.generateSingleAnswer(messages.join(' '), room);
   }
 }

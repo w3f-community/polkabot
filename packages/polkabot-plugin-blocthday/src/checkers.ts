@@ -43,8 +43,8 @@ export class Checkers {
   }
 
   public static checkerSpecials: checker = (n: BN, specials: BN[]): boolean => {
-    const res = specials.filter(s => n.eq(s))
-    return res.length > 0
+    const res = specials.filter(s => n.eq(s));
+    return res.length > 0;
   }
 
   /**
