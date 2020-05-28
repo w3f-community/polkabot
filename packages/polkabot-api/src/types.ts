@@ -75,10 +75,11 @@ export enum ErrorCode {
 }
 
 export type CommandHandlerOutput = {
+  /** This error code will show up in the logs */
   code: ErrorCode;
-  /** This is a message sent to the room */
-  msg: string;
-  /** Those are answers directed to the room where we got the request */
+  /** This is a message mainly used in the logs */
+  logMsg: string;
+  /** Those are answers directed to the room where the request came from*/
   answers?: RoomAnswer[];
 };
 
@@ -119,7 +120,7 @@ export type PluginCommandSet = {
  * fetching an object describing all the commands and handlers that can
  * be called to control the thing.
  */
-export interface Controllable {
+export interface Controllable extends Function {
   commands: CommandDictionary;
   meta: ControllableMeta;
   isControllable: boolean;

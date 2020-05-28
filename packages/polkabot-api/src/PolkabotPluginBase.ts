@@ -50,30 +50,21 @@ export class PolkabotPluginBase {
   }
 
   /**
-   * This utility function may be called from the ctor of classes
-   * that want to be controllable.
+   * This utility function must be called from the ctor of classes
+   * that want to be controllable in order to bind all the commands with 
+   * their object.
    * @param this 
    */
   public static bindCommands(that: PolkabotPluginBase): void {
     assert(typeof that !== 'undefined', 'Binding to undefined is no good idea!');
-    const CtrlClass = getClass(that) as unknown as Controllable;
+    
+    const CtrlClass = getClass<Controllable>(that);
     assert(typeof CtrlClass.commands !== 'undefined', 'No command was set!');
-    // if (CtrlClass.commands) {
-    // let counter = 0;
+
     Object.keys(CtrlClass.commands).map((key: string) => {
-      // const command = that.commands[key]
-      //console.log('command:', command)
+
       that.context.logger.silly('Binding method %s:%s', CtrlClass.meta.name, key);  // TODO; check here, are we binding the status function or cmdStatus ?
-
-
-      // TODO: fix this cheap trick: we want to use the original method name here, not hope that it was called cmdSomething
       CtrlClass.commands[key].handler = CtrlClass.commands[key].handler.bind(that);
-      // counter++;
     });
-    // this.context.logger.warn('Bound %d commands', counter)
-    // } 
-    // else {
-    //   // this.context.logger.warn('No command to bind')
-    // }
   }
 }

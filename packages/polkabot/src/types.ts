@@ -1,4 +1,4 @@
-import Olm from 'olm';
+// import Olm from 'olm';
 import { PolkabotNotifier } from '../../polkabot-api/src/PolkabotNotifier';
 
 export interface EnvVar {
@@ -38,7 +38,7 @@ export interface NotifiersTable {
 }
 
 export type PolkabotGlobal = {
-  Olm: Olm;
+  // Olm: Olm;
   localStorage: any;
 };
 

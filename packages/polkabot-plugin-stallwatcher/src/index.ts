@@ -23,6 +23,8 @@ export default class StallWatcher extends PolkabotWorker {
   }
 
   public start(): void {
+    super.start();
+
     this.context.logger.info('StallWatcher - Starting with config:', this.params);
     this.watchChain().catch(error => {
       console.error('StallWatcher - Error subscribing to chain head: ', error);

@@ -9,6 +9,8 @@
     "build": "tsc --build tsconfig.json",
     "prepublishOnly": "npm run build",
     "clean": "rm -rf dist build node_modules",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
     "postinstall": "npm run build",
     "build:doc": "typedoc src --readme none"
   },

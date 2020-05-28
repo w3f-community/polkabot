@@ -37,7 +37,7 @@ export default class MatrixNotifier extends PolkabotNotifier {
 
     return {
       code: ErrorCode.Ok,
-      msg: messages.join(' '),
+      logMsg: messages.join(' '),
       answers: [{
         room,
         message: 'Done'

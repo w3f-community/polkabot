@@ -41,6 +41,7 @@ export default class BlocsStats extends PolkabotWorker {
   }
 
   public start(): void {
+    super.start();
     console.log('BlocksStats - Starting with config:', this.params);
     this.watchChain().catch(error => {
       console.error('BlocksStats - Error subscribing to chain head: ', error);

@@ -11,6 +11,6 @@ export function capitalize(s: string): string {
  * Fetch the class of an object to reach its static members and access the commands
  * @param object 
  */
-export function getClass(object: Record<string, any>): Function {
-  return (object.constructor);
+export function getClass<T extends Function>(object: Record<string, any>): T {
+  return (object.constructor) as T;
 }

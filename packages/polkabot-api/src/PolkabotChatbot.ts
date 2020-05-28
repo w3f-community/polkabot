@@ -16,11 +16,9 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
     Logger.info('Registering controllables:');
 
     controllables.map((ctrl: Controllable) => {
-      const CtrlClass = getClass(ctrl) as unknown as Controllable;
-      // const commandObject: PluginCommandSet = (ctrl as Controllable).commandSet;
+      const CtrlClass = getClass<Controllable>(ctrl);
       const commands: CommandDictionary = CtrlClass.commands;
       Logger.info(` ctrl: ${CtrlClass.meta.name} (!${CtrlClass.meta.alias}) ${Object.keys(commands).map(c => commands[c].name)}`);
-      // Logger.info(commands.map(c => c.name));
     });
     this.controllables = controllables;
   }
@@ -99,25 +97,14 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
    */
   public static matchCommand(controllables: Controllable[], cmd: BotCommand): PluginCommand | null {
     // first we look if the module is known
-    const hits = controllables.filter((c: Controllable) => (getClass(c) as unknown as Controllable).meta.alias === cmd.module);
+    const hits = controllables.filter((c: Controllable) => (getClass<Controllable>(c)).meta.alias === cmd.module);
 
     const controllable = hits.length > 0 ? (hits[0]) : null;
     if (!controllable) return null;
-    const commands = (getClass(controllable) as unknown as Controllable).commands;
+    const commands = (getClass<Controllable>(controllable)).commands;
     const res: PluginCommand = commands[cmd.command];
     Logger.silly('Found PluginCommand: %o', res);
-    // const instance = this.getControllableInstance(controllables, cmd)
-    // Logger.silly('Found its instance: %o', controllable)
-    // res.handler = res.handler.bind(instance); // This does not seem to work unfortunately, not sure why
-    return res;
-  }
 
-  // TODO
-  /**
-   * Search which Controllable plugins can 'do the job' for a given command.
-   * @param cmd 
-   */
-  public static findSupportedModules(_cmd: string): Controllable[] {
-    throw new Error('Not implemented');
+    return res;
   }
 }

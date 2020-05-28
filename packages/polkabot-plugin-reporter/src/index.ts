@@ -64,6 +64,8 @@ export default class Reporter extends PolkabotWorker {
   }
 
   public start(): void {
+    super.start();
+
     // this.context.logger.info('Reporter - Starting with config:', this.config);
     this.watchChain().catch(error => {
       console.error('Reporter - Error subscribing to chain: ', error);

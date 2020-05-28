@@ -73,7 +73,7 @@ export default class Polkabot {
       if (!commands) return 0;
       return Object.keys(commands).length;
     };
-    const CtrlClass = getClass(controllable) as unknown as Controllable;
+    const CtrlClass = getClass<Controllable>(controllable);
     const commands = CtrlClass.commands;
     if (typeof commands === 'undefined') Logger.error('commands should not be undefined! Did you use some decorators ?');
 
@@ -137,7 +137,7 @@ export default class Polkabot {
 
         loads.push(
           PluginLoader.load(plugin, context).then((p: PolkabotPlugin) => {
-            if (isControllable(getClass(p))) {
+            if (isControllable(getClass<Controllable>(p))) {
               Logger.info(`▶ Controllable: ${p.package.name}`);
               this.registerControllable(p as unknown as Controllable);
             } else Logger.warn(`▶ NOT Controllable: ${p.package.name}`);

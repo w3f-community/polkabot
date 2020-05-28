@@ -46,7 +46,7 @@ export default class Operator extends PolkabotChatbot {
 
     return {
       code: 0,
-      msg: null,
+      logMsg: null,
       answers: [
         {
           room,
@@ -61,11 +61,10 @@ export default class Operator extends PolkabotChatbot {
   @Command({ description: 'This shows some help. It is also triggered when the user write anything mentioning HELP' })
   public cmdHelp(_event: Event, room: Room): CommandHandlerOutput {
     let message = 'Here is also a list of all the loaded modules and their commands:<br/><ul>';
-    // this.context.logger.debug('controllables: %o', this.controllables);
     assert(this.controllables.length, 'No controllable found!');
 
     this.controllables.map((controllable: Controllable) => {
-      const CtrlClass = getClass(controllable) as unknown as Controllable;
+      const CtrlClass = getClass<Controllable>(controllable);
       assert(CtrlClass.isControllable, 'Houston, we expect a controllable here!');
 
       message += `<li>${CtrlClass.meta.name}:</li><ul>`;
@@ -73,18 +72,14 @@ export default class Operator extends PolkabotChatbot {
         const command = CtrlClass.commands[commandName];
         message += `<li><code>!${CtrlClass.meta.alias} ${command.name}</code>: ${command.description} - ${
           command.adminOnly ? 'Admin' : 'Public'
-        }</li>`;
+          }</li>`;
       });
       message += '</ul>';
     });
     message += '</ul>';
-    // this.answer( {
-    //   room,
-    //   message
-    // });
     return {
       code: 0,
-      msg: null,
+      logMsg: null,
       answers: [
         {
           room,
@@ -151,9 +146,12 @@ export default class Operator extends PolkabotChatbot {
 
         if (cmdHandler) {
           this.context.logger.info(`handler found, running [${cmdHandler.name}]`);
+          if (botCommand.args)
+            this.context.logger.debug(`args: ${botCommand.args.join(' ')}`);
+
           const output: CommandHandlerOutput = cmdHandler.handler(event, room, botCommand.args);
 
-          this.context.logger.info(`RET: ${output.code} : ${output.msg}`);
+          this.context.logger.info(`RET: ${output.code} : ${output.logMsg}`);
           if (output.answers) {
             // this.answer(output.answers[0])
             output.answers.map(a => {
