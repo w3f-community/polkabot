@@ -1,7 +1,7 @@
 import { packageJson } from 'package-json';
 import * as path from 'path';
 import { assert } from './utils';
-import { PluginModule, PluginType, PluginContext, Controllable } from './types';
+import { PluginModule, PluginType, PluginContext, Controllable, ErrorCode, Room, CommandHandlerOutput } from './types';
 import { getClass } from './helpers';
 
 /**
@@ -57,7 +57,7 @@ export class PolkabotPluginBase {
    */
   public static bindCommands(that: PolkabotPluginBase): void {
     assert(typeof that !== 'undefined', 'Binding to undefined is no good idea!');
-    
+
     const CtrlClass = getClass<Controllable>(that);
     assert(typeof CtrlClass.commands !== 'undefined', 'No command was set!');
 
@@ -66,5 +66,22 @@ export class PolkabotPluginBase {
       that.context.logger.silly('Binding method %s:%s', CtrlClass.meta.name, key);  // TODO; check here, are we binding the status function or cmdStatus ?
       CtrlClass.commands[key].handler = CtrlClass.commands[key].handler.bind(that);
     });
+  }
+
+  /**
+   * In many places, we need to simply answer the same response to the chat and to the log.
+   * This is rather verbose to create the object. This function is a shortcut for that.
+   * @param str 
+   * @param errorCode 
+   */
+  public static generateSingleAnswer(message: string, room: Room, errorCode: ErrorCode = ErrorCode.Ok): CommandHandlerOutput {
+    return {
+      code: errorCode,
+      logMsg: message,
+      answers: [{
+        room,
+        message
+      }]
+    };
   }
 }

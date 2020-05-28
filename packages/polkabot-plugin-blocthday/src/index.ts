@@ -2,8 +2,8 @@ import BN from 'bn.js';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';
 import { Command, Callable, Trace } from '@polkabot/api/src/decorators';
-import { PluginModule, PluginContext, Room, CommandHandlerOutput, NotifierMessage, NotifierSpecs, ErrorCode, Controllable } from '@polkabot/api/src/types';
-import { PolkabotPluginBase, assert, LoggerFactory } from '@polkabot/api/src';
+import { PluginModule, PluginContext, Room, CommandHandlerOutput, NotifierMessage, ErrorCode, Controllable } from '@polkabot/api/src/types';
+import { PolkabotPluginBase, assert } from '@polkabot/api/src';
 import { Checkers } from './checkers';
 
 /**
@@ -29,6 +29,15 @@ export type BlocthdayConfig = {
 }
 
 /**
+ * Convenience for Blothday to avoid typos.
+ */
+export enum ConfigKeys {
+  NB_BLOCKS = 'NB_BLOCKS',
+  CHANNELS = 'CHANNELS',
+  SPECIALS = 'SPECIALS'
+}
+
+/**
  * This plugin wishes announces when the chain reached a set of given block numbers.
  * The initial version was taking a NB_BLOCKS parameters. It ended up annoying: at first, when the chain is at block < 1000,
  * you may want to wish every 1000th block. After a while however, this is very boring. It has been kept for debuggin purposes 
@@ -39,6 +48,7 @@ export type BlocthdayConfig = {
 export default class Blocthday extends PolkabotWorker {
   private config: BlocthdayConfig;
   private currentBlock: BN;
+  private static readonly MODULE = 'BLOCTHDAY';
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
@@ -52,13 +62,11 @@ export default class Blocthday extends PolkabotWorker {
     // Calling this method in the ctor is mandatory
     PolkabotPluginBase.bindCommands(this);
 
-    // We initialize the config. Here we usually call confmgr
-    // TODO: Call confmgr
     this.config = {
-      channels: ['matrix', 'twitter'], // TODO: Load from config
-      nbBlocks: this.getConfig('NB_BLOCKS'),
-      specials: [], // TODO: Load from config
-    }
+      channels: this.context.config.Get(Blocthday.MODULE, ConfigKeys.CHANNELS),
+      nbBlocks: this.context.config.Get(Blocthday.MODULE, ConfigKeys.NB_BLOCKS),
+      specials: this.context.config.Get(Blocthday.MODULE, ConfigKeys.SPECIALS),
+    };
   }
 
   /**
@@ -79,18 +87,16 @@ export default class Blocthday extends PolkabotWorker {
     };
   }
 
-  // @Trace()
-  // @Command({ description: 'Get the current list of the special blocks' })
-  // public cmdGetSpecials(_event, room: Room): CommandHandlerOutput {
-  //   return {
-  //     code: ErrorCode.Ok,
-  //     logMsg: `Specials: ${JSON.stringify(this.config.specials)}`,
-  //     answers: [{
-  //       room,
-  //       message: `Specials: ${JSON.stringify(this.config.specials)}`
-  //     }]
-  //   };
-  // }
+  /**
+   * Remove a block number from the list of specials
+   * @param n 
+   */
+  private removeSpecial(n: BN): void {
+    const index = this.config.specials.indexOf(n, 0);
+    if (index > -1) {
+      this.config.specials.splice(index, 1);
+    }
+  }
 
   /**
    * This command mainly demonstrates how to change some varialbles of the plugin at runtime
@@ -101,64 +107,50 @@ export default class Blocthday extends PolkabotWorker {
   @Trace()
   @Command({ description: 'Add/remove specials' }) // TODO: Add regexp here to keep simple
   public cmdSpecials(_event, room: Room, args: string[]): CommandHandlerOutput {
-    this.context.logger.debug('args: %o', args)
+    this.context.logger.debug('args: %o', args);
 
-    const subCommand = args && args.length == 2 ? args[0] : 'get'
-    const commandArgs = args && args.length == 2 ? args[1] : null // TODO: should not take [1] but 'all the rest
+    const subCommand = args && args.length == 2 ? args[0] : 'get';
+    const commandArgs = args && args.length == 2 ? args[1] : null; // TODO: should not take [1] but 'all the rest
 
-    this.context.logger.debug('subCommand: %s', subCommand)
-    this.context.logger.debug('commandArgs: %s', commandArgs)
+    this.context.logger.debug('subCommand: %s', subCommand);
+    this.context.logger.debug('commandArgs: %s', commandArgs);
 
-    // TODO: Ideally, specials should be handled as a set
     const blockArg = new BN(commandArgs);
     switch (subCommand) {
       case 'get':
-        break
+        break;
+
       case 'add':
         if (blockArg.lte(this.currentBlock))
-          return { code: ErrorCode.GenericError, logMsg: `It makes no sense to add a block that past` }
+          return Blocthday.generateSingleAnswer('It makes no sense to add a block that past', room);
         else
-          this.config.specials.push(blockArg)
-        break
-      case 'rm':
+          this.config.specials.push(blockArg);
+        break;
 
-        const index = this.config.specials.indexOf(blockArg, 0);
-        if (index > -1) {
-          this.config.specials.splice(index, 1);
-        }
-        break
+      case 'rm':
+        this.removeSpecial(blockArg);
+        break;
+
       default:
-        return {
-          code: ErrorCode.GenericError,
-          logMsg: `Blocthday subcommand ${subCommand} for command specials not found`,
-          answers: [{
-            room,
-            message: `Blocthday subcommand ${subCommand} for command specials not found`
-          }]
-        };
+        return Blocthday.generateSingleAnswer(`Blocthday subcommand ${subCommand} for command specials not found`, room);
     }
 
-    const specialsAsString = this.config.specials.map(bn => bn.toString(10))
-    return {
-      code: ErrorCode.Ok,
-      logMsg: `Specials: ${specialsAsString}`,
-      answers: [{
-        room,
-        message: `Specials: ${specialsAsString}`
-      }]
-    };
+    const specialsAsString = this.config.specials.map(bn => bn.toString(10));
+    return Blocthday.generateSingleAnswer(`Specials: ${specialsAsString}`, room);
   }
 
   @Trace()
   @Command({ description: 'Start the plugin' })
-  public cmdStart() {
-
+  public cmdStart(_event, room: Room): CommandHandlerOutput {
+    this.start();
+    return Blocthday.generateSingleAnswer('OK Started', room);
   }
 
   @Command({ description: 'Stop the plugin' })
   @Trace()
-  public cmdStop() {
-
+  public cmdStop(_event, room: Room): CommandHandlerOutput {
+    this.stop();
+    return Blocthday.generateSingleAnswer('OK Stopped', room);
   }
 
   public start(): void {
@@ -178,9 +170,11 @@ export default class Blocthday extends PolkabotWorker {
     this.unsubs['subscribeNewHeads'] = await this.context.polkadot.rpc.chain.subscribeNewHeads((header: HeaderExtended) => {
       this.currentBlock = header.number.unwrap().toBn();
 
-      if (Checkers.check(this.currentBlock, this.config.nbBlocks) ||
-        Checkers.checkerSpecials(this.currentBlock, this.config.specials)) {
-        // TODO: If you hit one of the specials, we could not remove it from the list
+      const isSpecial = Checkers.checkerSpecials(this.currentBlock, this.config.specials);
+      if (Checkers.check(this.currentBlock, this.config.nbBlocks) || isSpecial) {
+
+        if (isSpecial)
+          this.removeSpecial(this.currentBlock);
 
         const notifierMessage: NotifierMessage = {
           message: `Happy ${this.config.nbBlocks}-BlocthDay!!! The chain is now at block #${this.currentBlock.toString(10)}`

@@ -42,7 +42,7 @@ export function Configured(params: ConfiguredDecoratorArgs): Function {
 
     target.getValue = function <T>(key: string): T {
       Logger.debug(`Get key for ${target.configApplication}_${target.configModule}_${key}`);
-      throw new Error('@Configured is not implemented')
+      throw new Error('@Configured is not implemented');
       //return 42 as unknown as T;
     };
   };

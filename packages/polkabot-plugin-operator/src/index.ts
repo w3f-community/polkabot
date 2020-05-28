@@ -72,7 +72,7 @@ export default class Operator extends PolkabotChatbot {
         const command = CtrlClass.commands[commandName];
         message += `<li><code>!${CtrlClass.meta.alias} ${command.name}</code>: ${command.description} - ${
           command.adminOnly ? 'Admin' : 'Public'
-          }</li>`;
+        }</li>`;
       });
       message += '</ul>';
     });

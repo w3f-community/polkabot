@@ -61,9 +61,19 @@ POLKABOT:
       regexp: ^true|false$
 
     NB_BLOCKS:
-      description: How often do we want to wish a happy Block-th-day 
+      description: How often do we want to wish a happy Block-th-day. 0 disables it but many other automatic checks are done.
       type: number
       default: 0
+
+    CHANNELS:
+      description: List of notification channels
+      type: array
+      default: ['matrix', 'twitter']
+
+    SPECIALS:
+      description: List special (=random...) blocks we want to announce. Blocks in the past have no effect. Note that the current checkers already cover many cases such as 800000, 123456, 888888, etc....
+      type: array
+      default: [42, 69, 8888888]
 
   BLOCKSTATS:
     DISABLED:

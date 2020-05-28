@@ -3,7 +3,7 @@ import { PluginModule, PluginContext, PluginType, UnsubDictionnary } from './typ
 
 export abstract class PolkabotWorker extends PolkabotPluginBase {
   protected unsubs: UnsubDictionnary = {};
-  protected started: boolean = false;
+  protected started = false;
 
   constructor(mod: PluginModule, context: PluginContext, config?) {
     super(PluginType.Worker, mod, context, config);
