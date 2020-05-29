@@ -10,3 +10,7 @@ config.js
 package-lock.json
 yarn-error.log
 *.db
+polkabot.code-workspace
+*.log
+docs
+public/doc

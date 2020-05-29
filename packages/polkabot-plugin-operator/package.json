@@ -1,0 +1,44 @@
+{
+  "name": "polkabot-plugin-operator",
+  "version": "0.5.0",
+  "description": "The operator plugin is targeted mainly to the Bot Master and allows performing monitoring and maintenance tasks.",
+  "main": "dist/polkabot-plugin-operator/src/index.js",
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "lint": "eslint --ext .ts,.tsx .",
+    "start": "babel-node ./src/index.js",
+    "build:watch": "tsc --build tsconfig.json -w",
+    "prepublishOnly": "npm run build",
+    "postinstall": "npm run build",
+    "clean": "rm -rf dist node_modules",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
+    "build:doc": "typedoc src --readme none"
+  },
+  "author": "Chevdor <chevdor@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.7",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "10.0.2",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "nyc": "^15.0.0",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/Polkabot/polkabot-plugin-operator.git"
+  },
+  "engines": {
+    "node": ">=10.13.0",
+    "yarn": "^1.10.1"
+  }
+}

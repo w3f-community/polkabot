@@ -1,0 +1,13 @@
+
+= BlockStats
+
+This plugin computes stats from time to time. Under normal circumstances, it will not show anything. If the network seems to be running slower than usual, the stats will be sent to the Matrix room.
+
+Messages look like:
+
+----
+WARNING: Average block time exceeded 5.000s
+Stats for the last 10 at #1184470:
+    - Nb Blocks: 10
+    - Average Block time: 6.705s
+----
