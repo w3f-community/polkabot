@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import BN from 'bn.js';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';

@@ -1,6 +1,6 @@
 {
   "name": "polkabot-plugin-stallwatcher",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A PolkaBot plugin monitoring for chain stalling",
   "main": "dist/src/index.js",
   "scripts": {
@@ -10,6 +10,8 @@
     "prepublishOnly": "npm run build",
     "postinstall": "npm run build",
     "clean": "rm -rf dist node_mdules",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
     "build:doc": "typedoc src --readme none"
   },
   "author": "Chevdor <chevdor@gmail.com>",

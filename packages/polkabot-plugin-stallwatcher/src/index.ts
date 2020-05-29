@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import BN from 'bn.js';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { PluginModule, PluginContext } from '@polkabot/api/src/types';
@@ -6,6 +5,7 @@ import { PluginModule, PluginContext } from '@polkabot/api/src/types';
 type StallWatcherConfig = {
   duration: number;
 }
+
 export default class StallWatcher extends PolkabotWorker {
   private stalled: boolean;
   private lastBlockTime: Date;
