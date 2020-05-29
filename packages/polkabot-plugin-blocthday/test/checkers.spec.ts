@@ -102,7 +102,6 @@ describe('Checkers', () => {
     });
 
     it('Should return the list of checker functions by name', () => {
-      console.log(Checkers.checkers.map(fn => fn).join(','));
       expect(Checkers.checkerNth(new BN(2), 0)).to.be.false;
     });
   });

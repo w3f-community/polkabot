@@ -109,7 +109,12 @@ POLKABOT:
 
     DURATION:
       type: number
-      default: 15
+      default: 15.2
+    
+    CHANNELS:
+      description: List of notification channels
+      type: array
+      default: ['matrix', 'twitter']
 
   OPERATOR:
     DISABLED:

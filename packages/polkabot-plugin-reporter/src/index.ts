@@ -3,6 +3,7 @@ import moment from 'moment';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import blake2 from '@polkadot/util-crypto/blake2/asHex';
 import { NotifierSpecs, PluginModule, PluginContext, BlockMoment, Announcement, Severity } from '@polkabot/api/src/types';
+import { HeaderExtended } from '@polkadot/api-derive/type';
 
 /**
  * This plugin is keeping an eye on on the public referendum and 
@@ -95,7 +96,7 @@ export default class Reporter extends PolkabotWorker {
   }
 
   async subscribeChainBlockHeader(): Promise<void> {
-    this.unsub = await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
+    this.unsub = await this.context.polkadot.rpc.chain.subscribeNewHeads((header: HeaderExtended) => {
       const KEY = 'blockNumber';
       if (header) {
         this.cache[KEY] = header.number.unwrap().toBn();

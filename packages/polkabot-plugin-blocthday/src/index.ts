@@ -143,14 +143,14 @@ export default class Blocthday extends PolkabotWorker {
   @Command({ description: 'Start the plugin' })
   public cmdStart(_event, room: Room): CommandHandlerOutput {
     this.start();
-    return Blocthday.generateSingleAnswer('OK Started', room);
+    return PolkabotPluginBase.generateSingleAnswer('OK Started', room);
   }
 
   @Command({ description: 'Stop the plugin' })
   @Trace()
   public cmdStop(_event, room: Room): CommandHandlerOutput {
     this.stop();
-    return Blocthday.generateSingleAnswer('OK Stopped', room);
+    return PolkabotPluginBase.generateSingleAnswer('OK Stopped', room);
   }
 
   public start(): void {
