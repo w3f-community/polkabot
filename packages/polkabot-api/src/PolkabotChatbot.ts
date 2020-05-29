@@ -52,7 +52,7 @@ export abstract class PolkabotChatbot extends PolkabotPluginBase implements Chat
    * See https://regex101.com/r/1EDFsV/1/tests
    */
   public static getBotCommand(str: string): BotCommand | null {
-    const capture = str.match(/^!(?<module>\w+)(\s+(?<command>\w+))(\s+(?<args>.*))?$/i) || [];
+    const capture = str.match(/!(?<module>\w+)(\s+(?<command>\w+))(\s+(?<args>.*))?$/i) || [];
     if (capture.length > 0 && capture.groups.module && capture.groups.command) {
       const { module, command, args } = capture.groups;
       const argList: string[] = args === undefined ? null : args.split(' ').map(i => i.replace(' ', ''));

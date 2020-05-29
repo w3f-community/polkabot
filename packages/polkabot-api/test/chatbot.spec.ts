@@ -23,11 +23,11 @@ describe('PolkabotChatbot', () => {
     expect(cmd.args).to.deep.equal(['bar', 'param=42']);
   });
 
-  xit('Should get a valid botCommand', () => {
+  it('Should get a valid botCommand', () => {
     const cmd = PolkabotChatbot.getBotCommand(' !mod foo bar');
     expect(cmd.module).to.equal('mod');
     expect(cmd.command).to.equal('foo');
-    expect(cmd.args).to.be.null;
+    expect(cmd.args).to.deep.equal(['bar']);
   });
 
   it('Should not find a botCommand #1', () => {
