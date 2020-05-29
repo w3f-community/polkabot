@@ -22,7 +22,7 @@ class TestClass2 {
 
 describe('Decorators', () => {
   it('TestClass1', () => {
-    const CtrlClass = (TestClass1 as unknown as Controllable)
+    const CtrlClass = (TestClass1 as unknown as Controllable);
     expect(CtrlClass.meta.alias).not.to.be.undefined;
     expect(CtrlClass.meta.name).to.eql('Foo');
     expect(CtrlClass.meta.alias).to.eql('bar');
@@ -30,7 +30,7 @@ describe('Decorators', () => {
   });
 
   it('TestClass2', () => {
-    const CtrlClass = (TestClass2 as unknown as Controllable)
+    const CtrlClass = (TestClass2 as unknown as Controllable);
 
     expect(CtrlClass.meta.alias).not.to.be.undefined;
     expect(CtrlClass.meta.name).to.eql('TestClass2');
