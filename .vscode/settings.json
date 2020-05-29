@@ -1,0 +1,26 @@
+{
+    "eslint.enable": false,
+    "search.exclude": {
+        "**/node_modules": false
+    },
+    "cSpell.words": [
+        "BLOCKSTATS",
+        "BOTMASTER",
+        "BOTUSER",
+        "Blocthday",
+        "Chatbot",
+        "Datastore",
+        "Interop",
+        "POLKABOT",
+        "Parens",
+        "STALLWATCHER",
+        "bot's",
+        "confmgr",
+        "envfile",
+        "minimongo",
+        "msgsype",
+        "typedoc",
+        "upsert",
+        "xxhash"
+    ]
+}

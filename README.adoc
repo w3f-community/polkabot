@@ -1,64 +1,73 @@
 = Polkabot
 :toc:
-
-image:https://gitlab.com/chevdor/polkabot/badges/master/pipeline.svg[link="https://gitlab.com/chevdor/polkabot/commits/master",title="pipeline status"]
-image:https://gitlab.com/chevdor/polkabot/badges/master/coverage.svg[link="https://gitlab.com/chevdor/polkabot/commits/master",title="coverage report"]
+:sectnums:
+:sectanchors:
+:proj: PolkaBOT
+:exe: polkabot
 
 == Intro
 
-image::doc/polkabot.png[width=300px]
+image::doc/polkabot.png[width=300px, align=center]
 
-You can see Polkabot in action in link:++https://matrix.to/#/#polkadot-network-status:matrix.org++[#polkadot-network-status:matrix.org]
+You can see {proj} in action in link:++https://matrix.to/#/#polkadot-network-status:matrix.org++[#polkadot-network-status:matrix.org]
 
 Polkabot is an extensible bot for http://polkadot.network[Polkadot], running on http://matrix.org[Matrix.org]
 
-NOTE: Polkabot aims as being *as silent as possible* so don't expect lots of fuzz and action!
+NOTE: {proj} aims as being *as silent as possible* so don't expect lots of fuzz and action!
+
+include::doc/config.adoc[leveloffset=+1]
 
 == Install & Run
 
 	git clone https://gitlab.com/chevdor/polkabot.git
 	cd polkabot
+	nvm use
 	yarn
-
-At that point, you will need to search for the `config-sample.js` files. Everywhere you find one, create a `config.js` and make sure you adapt the content. Once you think you are good:
-
 	yarn start
 
-== Docker images
+NOTE: For devs, the command is typically:
 
-To build the base and the custom:
+	NODE_ENV=dev LOG_LEVEL=silly yarn start
 
-	yarn build:docker
+include::doc/docker.adoc[leveloffset=+1]
 
-This will build the Polkabot main image.
+include::CONTRIBUTING.adoc[leveloffset=+1]
 
-Then, test with :
+include::doc/plugins.adoc[leveloffset=+1]
 
-----
-docker run --rm -it -v ~/path/to/your/config.js:/data/config.js chevdor/polkabot npm start -- --config /data/config.js
-----
+== Dev notes
 
-== Configuration
+You can find the API documentation at https://polkabot.gitlab.io/polkabot/
 
-Polkabot uses 2 levels of configuration:
-- the main config in src/config.js
-- the plugin specific config in `src/plugins/.../config.js`
+	yarn
+	yarn-check
+	yarn upgrade
+
+Start your substrate node:
+
+	docker run --rm -it chevdor/substrate substrate --dev
+
+then run:
+
+	nvm use
+
+Before you got further you need to check your config. This is a .env file and all variables start with `POLKABOT_`. 
+By default, the running mode is 'production' and will pick the `.env` file. The following to the same:
+
+	yarn start
+	NODE_ENV=production yarn start
+	
+If you want to use another file such as `.env.dev`, you may use:
+
+	NODE_ENV=dev y start
 
 
-include::CONTRIBUTING.adoc[]
+== Settingg the bot account
 
+Matrix is changing quickly and e2e is now enabled by default. You will need to make an account for the bot and login a to get your recovery key and define your recovery passphrase. After that, e2e should work. 
 
-=== Create plugins
+WARNING: If you use a browser to login as the bot, you will automatically signal that the bot is 2e2 capable.. which it is not. After that, all invitations from Riot will be with encryption turned on. There is a workaround which is to create a new room without encryption, invite the bot (it will join automatically) and change the conversation level to 'Direct Message'.
 
-Once you picked a name for your plugin, create a folder in `src/plugin`.
+== Encryption
 
-Your plugin can start with code similar to:
-
-[source, js, indent=0, linenums]
-----
-include::doc/plugin.js[]
-----
-
-== Plugins
-
-You can all the plugins in https://gitlab.com/Polkabot
+Currently, Polkabot does NOT support encryption as it adds a few more headache. If encryption is needed, https://github.com/matrix-org/pantalaimon could be used as proxy.

@@ -1,5 +1,4 @@
-
-== Contributing
+= Contributing
 
 Contributions are more than welcome, especially in the form of Pull Requests.
 
@@ -7,15 +6,15 @@ You may also report any issue you run into, questions, wishes and ideas at https
 
 === Development Guide
 
-These are the steps that we suggest you follow that will allow you to contribute to Polkabot, as well as run your own bot and create your own custom plugins.
+These are the steps that we suggest you follow that will allow you to contribute to {proj}, as well as run your own bot and create your own custom plugins.
 
-==== Fork Polkabot and associated plugins
+==== Fork {proj} and associated plugins
 
 Click the 'Fork' icon in GitLab to fork the repository
 
-==== Clone each fork you made of Polkabot and associated plugins
+==== Clone each fork you made of {proj} and associated plugins
 
-The following assumes that you have forked repositories from https://gitlab.com/Polkabot into your own GitLab account 'yourusername' and that you are going to develop in the following directory on your local machine: ~/code/gitlab/yourusername/. Note that there may be more plugins available than those listed below.
+The following assumes that you have forked repositories from https://gitlab.com/{proj} into your own GitLab account 'yourusername' and that you are going to develop in the following directory on your local machine: ~/code/gitlab/yourusername/. Note that there may be more plugins available than those listed below.
 
 ```
 cd ~/code/gitlab/yourusername/ && git clone https://gitlab.com/yourusername/polkabot && \
@@ -34,8 +33,8 @@ Install Node Version Manager and use it to install and switch to a supported ver
 nvm use v10.15.3
 ```
 
-Find out where globally installed NPM modules are installed since Polkabot will scan that directory
-for any Polkabot plugins and load any that it finds there. The following will return the location of the
+Find out where globally installed NPM modules are installed since {proj} will scan that directory
+for any {proj} plugins and load any that it finds there. The following will return the location of the
 Node.js binary for the current version being used.
 
 ```
@@ -46,7 +45,7 @@ It may return something like `/home/yourusername/.nvm/versions/node/v10.15.3/bin
 Now we want to create a symlink from where the NPM modules are located that are associated with this
 version Node.js, which is in the following 'lib' subdirectory `/home/yourusername/.nvm/versions/node/v10.15.3/lib`.
 
-==== Create symbolic links from each of the cloned Polkabot plugins to where the globally installed NPM modules are located for your current version of Node.js
+==== Create symbolic links from each of the cloned {proj} plugins to where the globally installed NPM modules are located for your current version of Node.js
 
 The following is an example of how you might create the symlinks:
 
@@ -58,11 +57,11 @@ ln -s ~/code/gitlab/yourusername/polkabot-plugin-stallwatcher/ ~/.nvm/versions/n
 ln -s ~/code/gitlab/yourusername/polkabot-plugin-reporter/ ~/.nvm/versions/node/v10.15.3/lib/node_modules
 ```
 
-==== Build each of the Polkabot plugins
+==== Build each of the {proj} plugins
 
-Build all the Polkabot plugins easily with a single command similar to that shown below.
-A mirror reflection each of the built plugins will be available for Polkabot's plugin scanner to find them
-earlier we created symbolic links between each of the cloned Polkabot plugin repositories
+Build all the {proj} plugins easily with a single command similar to that shown below.
+A mirror reflection each of the built plugins will be available for {proj}'s plugin scanner to find them
+earlier we created symbolic links between each of the cloned {proj} plugin repositories
 and the globally installed NPM module directory your current Node.js version.
 
 ```
@@ -79,7 +78,7 @@ In Matrix Riot, create a new Room, then change the settings so you can find the 
 
 In the settings for the Room, the Advanced section shows the Internal room ID (i.e. !AbCdEfGhIjKlMnPqRS:matrix.org). You will add this to your .env file in a subsequent step.
 
-In order test Polkabot with your two users, you may wish to run one instance of the Matrix Riot Desktop application, and login to that with your existing Matrix Riot user id. Then in a subsequent step make this user id the Bot Master in your .env file. Then create a second user using Matrix Riot's Browser application, by going to the address of the room id (i.e. https://riot.im/app/#/room/!AbCdEfGhIjKlMnPqRS:matrix.org). Then in a subsequent step make this user id the Bot in your .env file.
+In order test {proj} with your two users, you may wish to run one instance of the Matrix Riot Desktop application, and login to that with your existing Matrix Riot user id. Then in a subsequent step make this user id the Bot Master in your .env file. Then create a second user using Matrix Riot's Browser application, by going to the address of the room id (i.e. https://riot.im/app/#/room/!AbCdEfGhIjKlMnPqRS:matrix.org). Then in a subsequent step make this user id the Bot in your .env file.
 
 ==== Add a .env file with your credentials
 
@@ -95,10 +94,10 @@ Replace `MATRIX_LOGIN_USER_ID` and `MATRIX_LOGIN_USER_ID` with your Matrix Riot 
 
 Replace `MATRIX_BOT_MASTER_USER_ID` with the Matrix Riot user id of your Bot Master (the user that is
 able to send direct messages to the Bot requesting them to perform certain actions such as make an
-annoucement to the Matrix Riot room id that you specified)
+announcement to the Matrix Riot room id that you specified)
 Replace `MATRIX_BOT_USER_ID` with your Bot's user id.
 
-Note that Polkabot will only try to login your user if you are using a custom Matrix base url (i.e. not matrix.org).
+Note that {proj} will only try to login your user if you are using a custom Matrix base url (i.e. not matrix.org).
 
 ```
 POLKADOT_NODE_NAME=anything
@@ -107,7 +106,7 @@ MATRIX_BASE_URL=https://matrix.org
 MATRIX_ROOM_ID=!AbCdEfGhIjKlMnPqRS:matrix.org
 MATRIX_LOGIN_USER_ID=@yourusername:matrix.org
 MATRIX_LOGIN_USER_PASSWORD=yourpassword
-MATRIX_BOT_MASTER_USER_ID=@yourusername:matrix.org
+MATRIX_BOTMASTER_ID=@yourusername:matrix.org
 MATRIX_BOT_USER_ID=@botusername:matrix.org
 MATRIX_TOKEN=
 ```
@@ -128,7 +127,7 @@ substrate --dev
 
 Reference: https://docs.substrate.dev/
 
-==== Run Polkabot
+==== Run {proj}
 
 ```
 cd ~/code/gitlab/yourusername/polkabot && \
@@ -137,16 +136,16 @@ yarn && yarn start
 
 ==== View the logs and identify any errors
 
-If you encounter any errors then please create an issue in the respective GitLab repo of the 'Polkabot' username (i.e. click 'New Issue' at https://gitlab.com/Polkabot/polkabot/issues).
+If you encounter any errors then please create an issue in the respective GitLab repo of the '{proj}' username (i.e. click 'New Issue' at https://gitlab.com/{proj}/polkabot/issues).
 
 ==== Try using the Bot
 
-===== Polkabot Operator plugin
+===== {proj} Operator plugin
 
 Write a direct message from your Bot Master to your Bot `!say hello`, and the Bot will announce the message `hello` in the room id that you specified in the .env file.
 
 Any user may write `!status` and the Bot will respond with the Polkadot / Substrate node network status.
 
-===== Polkabot StallWatcher plugin
+===== {proj} StallWatcher plugin
 
-Write a direct message from your Bot Master to your Bot `!sw duration <FREQUENCY_IN_BLOCKS>`, and the Bot's configuration settings will change the threshold upon which it makes annoucements in the room id that you specified in the .env file (from the default specified in that plugin repositories config.js file).
+Write a direct message from your Bot Master to your Bot `!sw duration <FREQUENCY_IN_BLOCKS>`, and the Bot's configuration settings will change the threshold upon which it makes announcements in the room id that you specified in the .env file (from the default specified in that plugin repositories config.js file).

@@ -1,0 +1,137 @@
+POLKABOT:
+  POLKADOT:
+    # Polkadot config
+    NODE_NAME:
+      description: Name of the node we connect to. This is mainly for your documentation
+      default: Node
+
+    URL:
+      mandatory: true
+      description: The URL of the WebSocket to be used to connect to the node
+      regexp: ^wss?://\w+:\d+$
+  
+  MATRIX:
+    # Matrix config
+    BOTMASTER_ID:
+      description: This is the admin of the bot
+      default: '@chevdor:matrix.org'
+      regexp: ^@.+:.+$
+
+    ROOM_ID:
+      description: This is the room where the Bot is active
+      mandatory: true
+      regexp: ^\!.+:.+$
+
+    BOTUSER_ID:
+      description: This is the Matrix account for the Bot
+      mandatory: true
+      regexp: ^@.+:.+$
+
+    TOKEN:
+      description: This is the Matrix secret token
+      mandatory: true
+      masked: true
+      regexp: ^.{272}$
+
+    BASE_URL:
+      description: URL of the Matrix server
+      mandatory: true
+      default: https://matrix.org
+      regexp: ^https?://.*
+
+    LOGIN_USER_ID:
+      description: Only required for custom Matrix servers
+      mandatory: false
+    
+    LOGIN_USER_PASSWORD:
+      description: Only required for custom Matrix servers
+      mandatory: false
+      masked: true
+
+    MESSAGES_TO_SHOW:
+      description: Number of messages to show
+      default: 20
+
+  BLOCTHDAY:
+    # Those would go to a BLOCTHDAY sub module once confmgr supports it
+    DISABLED:
+      description: Whether BLOCTHDAY should be enabled
+      type: boolean
+      default: true
+      regexp: ^true|false$
+
+    NB_BLOCKS:
+      description: How often do we want to wish a happy Block-th-day. 0 disables it but many other automatic checks are done.
+      type: number
+      default: 0
+
+    CHANNELS:
+      description: List of notification channels
+      type: array
+      default: ['matrix', 'twitter']
+
+    SPECIALS:
+      description: List special (=random...) blocks we want to announce. Blocks in the past have no effect. Note that the current checkers already cover many cases such as 800000, 123456, 888888, etc....
+      type: array
+      default: [42, 69, 8888888]
+
+  BLOCKSTATS:
+    DISABLED:
+      description: Whether BLOCKSTATS should be enabled
+      type: boolean
+      default: true
+    
+    NB_BLOCKS:
+      description: How often do we calculate the stats
+      type: number
+      default: 100
+
+    THRESHOLD:
+      description: Number of seconds max expected between blocks
+      type: number
+      default: 8.0
+
+    LOG_NTH_BLOCK:
+      description: How often do we want to log
+      type: number
+      default: 1000
+
+  STALLWATCHER:
+    DISABLED:
+      description: Whether STALLWATCHER should be enabled
+      type: boolean
+      default: true
+
+    DURATION:
+      type: number
+      default: 15
+
+  OPERATOR:
+    DISABLED:
+      description: Whether OPERATOR should be enabled
+      type: boolean
+      default: true
+
+  REPORTER:
+    DISABLED:
+      description: Whether REPORTER should be enabled
+      type: boolean
+      default: true
+
+  NOTIFIER_MATRIX:
+    DISABLED:
+      description: Whether NOTIFIER_MATRIX should be enabled
+      type: boolean
+      default: true
+
+  NOTIFIER_DEMO:
+    DISABLED:
+      description: Whether NOTIFIER_DEMO should be enabled
+      type: boolean
+      default: true
+
+  NOTIFIER_TWITTER:
+    DISABLED:
+      description: Whether NOTIFIER_TWITTER should be enabled
+      type: boolean
+      default: true

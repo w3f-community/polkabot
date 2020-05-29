@@ -1,0 +1,88 @@
+{
+  "name": "@polkabot/polkabot",
+  "version": "0.5.0",
+  "description": "Matrix Bot for Polkadot",
+  "main": "dist/src/polkabot.js",
+  "bin": {
+    "polkabot": "./dist/polkabot.js"
+  },
+  "repository": "https://gitlab.com/Polkabot/polkabot",
+  "scripts": {
+    "start": "node -r ts-node/register ./src/polkabot.ts",
+    "start:watch": "nodemon",
+    "dev": "nodemon ./src/polkabot -c ./config.js --exec babel-node --presets env",
+    "build": "tsc --build tsconfig.json",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
+    "test:local": "mocha --require babel-core/register test/* --exit",
+    "lint": "eslint --ext .js,.ts src",
+    "clean": "rm -rf .nyc_output build coverage node_modules out dist *.log docs",
+    "prepublishOnly": "npm run build",
+    "build:doc": "typedoc src --readme none",
+    "build:docker": "docker build -t chevdor/polkabot .",
+    "docker:run": "docker run --rm -it chevdor/mypolkabot",
+    "patch": "echo 'Disabling package uniqueness check. See https://github.com/polkadot-js/api/issues/984'; sed -i '/function assertSingletonPackage(name) {/ a   return' node_modules/@polkadot/util/assertSingletonPackage.js"
+  },
+  "author": "chevdor",
+  "license": "ISC",
+  "keywords": [
+    "blockchain",
+    "polkadot",
+    "NodeJS",
+    "ChatBox",
+    "Matrix.org"
+  ],
+  "dependencies": {
+    "@babel/runtime": "^7.9.2",
+    "bn.js": "5.1.1",
+    "confmgr": "^1.0.5",
+    "find-node-modules": "^2.0.0",
+    "matrix-js-sdk": "^6.0.0",
+    "minimongo": "6.5.0",
+    "nedb": "^1.8.0",
+    "node-localstorage": "^2.1.6",
+    "olm": "https://matrix.org/packages/npm/olm/olm-3.1.0.tgz",
+    "winston": "^3.2.1",
+    "yargs": "15.3.1"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/matrix-js-sdk": "^5.1.0",
+    "@types/mocha": "^7.0.2",
+    "@typescript-eslint/eslint-plugin": "2.29.0",
+    "@typescript-eslint/parser": "2.29.0",
+    "chai": "4.2.0",
+    "chai-http": "4.3.0",
+    "dotenv": "8.2.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-config-standard": "14.1.1",
+    "eslint-plugin-import": "2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-react": "7.19.0",
+    "eslint-plugin-standard": "4.0.1",
+    "jsdoc": "3.6.4",
+    "jsdoc-route-plugin": "^0.1.0",
+    "mocha": "^7.1.1",
+    "nodemon": "2.0.3",
+    "snazzy": "^8.0.0",
+    "standard": "14.3.3",
+    "ts-node": "^8.9.0",
+    "typescript": "^3.9.3",
+    "yarn": "^1.22.4"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "ignore": [
+      "dist/"
+    ],
+    "env": [
+      "mocha"
+    ]
+  },
+  "engines": {
+    "node": ">=10.13.0",
+    "yarn": "^1.10.1"
+  }
+}

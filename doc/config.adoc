@@ -1,0 +1,14 @@
+= Configuration
+
+Before you can start {proj}, you will have to configure a few things. {proj} is using https://gitlab.com/chevdor/confmgr[confmgr]. 
+
+You will need to create a file under packages/polkabot. This file should be named `.env` or `.env.foobar` if you start with `NODE_ENV=foobar`. As a test, you may start {proj} without any config and it will tell you what is missing. Many values have default, so you can get started with a very minimal configuration.
+
+Look for the sample file under `packages/polkabot/.env-sample`.
+
+== Configuration
+
+{proj} uses 2 levels of configuration:
+
+- the main config in src/config.js
+- the plugin specific config in `src/plugins/.../config.js`

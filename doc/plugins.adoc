@@ -1,0 +1,16 @@
+= Plugins
+
+== Create plugins
+
+Once you picked a name for your plugin, create a folder in `src/plugin`.
+
+Your plugin can start with code similar to:
+
+[source, js, indent=0, linenums]
+----
+include::doc/plugin.js[]
+----
+
+== Plugins list
+
+You can all the plugins in https://gitlab.com/Polkabot
