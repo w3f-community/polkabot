@@ -46,9 +46,9 @@ export enum ConfigKeys {
  */
 @Callable({ alias: 'bday' })
 export default class Blocthday extends PolkabotWorker {
+  private static readonly MODULE = 'BLOCTHDAY';
   private config: BlocthdayConfig;
   private currentBlock: BN;
-  private static readonly MODULE = 'BLOCTHDAY';
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
@@ -155,10 +155,10 @@ export default class Blocthday extends PolkabotWorker {
 
   public start(): void {
     super.start();
-    this.context.logger.info('Starting Blocthday with config set to %o', this.config);
+    this.context.logger.silly('Starting Blocthday with config set to %o', this.config);
 
     this.watchChain().catch(error => {
-      this.context.logger.error('Error subscribing to chain head: ', error);
+      this.context.logger.error('Error subscribing to chain head: %o', error);
     });
   }
 

@@ -9,7 +9,7 @@ POLKABOT:
       mandatory: true
       description: The URL of the WebSocket to be used to connect to the node
       regexp: ^wss?://\w+:\d+$
-  
+
   MATRIX:
     # Matrix config
     BOTMASTER_ID:
@@ -95,6 +95,11 @@ POLKABOT:
       description: How often do we want to log
       type: number
       default: 1000
+
+    CHANNELS:
+      description: List of notification channels
+      type: array
+      default: ['matrix', 'twitter']
 
   STALLWATCHER:
     DISABLED:
