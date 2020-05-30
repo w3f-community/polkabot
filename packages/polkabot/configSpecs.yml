@@ -128,6 +128,11 @@ POLKABOT:
       type: boolean
       default: true
 
+    CHANNELS:
+      description: List of notification channels
+      type: array
+      default: ['matrix', 'twitter']
+
   NOTIFIER_MATRIX:
     DISABLED:
       description: Whether NOTIFIER_MATRIX should be enabled

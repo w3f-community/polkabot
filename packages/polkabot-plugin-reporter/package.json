@@ -10,49 +10,25 @@
     "prepublishOnly": "npm run build",
     "postinstall": "npm run build",
     "clean": "rm -rf dist build node_modules",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
     "build:doc": "typedoc src --readme none"
   },
   "author": "Chevdor <chevdor@gmail.com>",
   "license": "ISC",
   "peerDependencies": {
     "@polkadot/storage": "^0.80.1",
-    "@polkadot/util-crypto": "^0.92.1",
-    "bn.js": "^4.11.8"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "10.0.1",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.26.0",
-    "standard": "12.0.1"
+    "@polkadot/util-crypto": "^0.92.1"
   },
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/Polkabot/polkabot-plugin-reporter.git"
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "ignore": [
-      "dist/"
-    ],
-    "env": [
-      "mocha"
-    ]
   },
   "engines": {
     "node": ">=10.13.0",
     "yarn": "^1.10.1"
   },
   "dependencies": {
-    "babel-cli": "6.26.0",
-    "babel-core": "6.26.3",
-    "babel-eslint": "10.0.3",
-    "babel-polyfill": "6.26.0",
-    "babel-preset-env": "1.7.0",
-    "babel-register": "6.26.0",
-    "moment": "^2.24.0",
-    "standard": "14.3.1"
+    "bn.js": "^5.1.1"
   }
 }

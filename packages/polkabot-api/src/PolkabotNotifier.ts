@@ -14,5 +14,6 @@ export abstract class PolkabotNotifier extends PolkabotPluginBase {
    * @param _specs 
    */
   public notify(_message: NotifierMessage, _specs: NotifierSpecs): void {
+    // specific code comes here
   }
 }

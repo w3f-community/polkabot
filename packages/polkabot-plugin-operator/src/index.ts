@@ -134,9 +134,11 @@ export default class Operator extends PolkabotChatbot {
       // this.context.logger.info(" *** bot command:", JSON.stringify(botCommand, null, 2));
       if (!botCommand) {
         this.context.logger.info(`No bot command found in: >${msg}<`);
+
         this.answer({
           room,
-          message: 'I was tought to smile when I don\'t get it. 😁'
+          message: 'I was tought to smile when I don\'t get it. 😁',
+          html: true
         });
       } else {
         const cmdHandler: PluginCommand = PolkabotChatbot.matchCommand(this.controllables, botCommand);

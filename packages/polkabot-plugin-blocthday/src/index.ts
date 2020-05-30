@@ -7,15 +7,6 @@ import { PolkabotPluginBase, assert } from '@polkabot/api/src';
 import { Checkers } from './checkers';
 
 /**
- * This is a trick: we cannot declare Blocthday as implementing
- * the Controllable interface as it 'apparently' does not.
- * It actually does thanks to decorators but this is dynamic
- * and typescript cannot know about it. This also allows not having to
- * cast 'as unknown as Controllable' all over the place for instances.
- */
-// interface Blocthday extends Controllable { }  // TODO: bring back
-
-/**
  * This is a convenience to describe the config expected by the plugin.
  * Most of the fields should be available in the config (See confmgr).
  */
@@ -29,12 +20,12 @@ export type BlocthdayConfig = {
 }
 
 /**
- * Convenience for Blothday to avoid typos.
+ * Convenience to avoid typos.
  */
 export enum ConfigKeys {
-  NB_BLOCKS = 'NB_BLOCKS',
   CHANNELS = 'CHANNELS',
-  SPECIALS = 'SPECIALS'
+  SPECIALS = 'SPECIALS',
+  NB_BLOCKS = 'NB_BLOCKS',
 }
 
 /**
@@ -185,6 +176,3 @@ export default class Blocthday extends PolkabotWorker {
     });
   }
 }
-
-// Related to the Blocthday interface, see above.
-// export default Blocthday;
