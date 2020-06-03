@@ -43,21 +43,22 @@ export default class Blocthday extends PolkabotWorker {
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    this.context.logger.silly('++ Blocthday');
-
+    
     // The following asserts are only valid if you want this plugin to be Controllable
     const commands = (Blocthday as unknown as Controllable).commands;
     assert(typeof commands !== 'undefined', 'Commands were not set');
     assert(Object.keys(commands).length > 0, 'commands contains no command!');
-
+    
     // Calling this method in the ctor is mandatory
     PolkabotPluginBase.bindCommands(this);
-
+    
     this.config = {
       channels: this.context.config.Get(Blocthday.MODULE, ConfigKeys.CHANNELS),
       nbBlocks: this.context.config.Get(Blocthday.MODULE, ConfigKeys.NB_BLOCKS),
       specials: this.context.config.Get(Blocthday.MODULE, ConfigKeys.SPECIALS),
     };
+    
+    this.context.logger.silly('++ Blocthday, config: %o', this.config);
   }
 
   /**
@@ -163,10 +164,10 @@ export default class Blocthday extends PolkabotWorker {
 
       const isSpecial = Checkers.checkerSpecials(this.currentBlock, this.config.specials);
       if (Checkers.check(this.currentBlock, this.config.nbBlocks) || isSpecial) {
-
         if (isSpecial)
           this.removeSpecial(this.currentBlock);
 
+        this.context.logger.debug(`Found event, isSpecial: ${isSpecial}`)  
         const notifierMessage: NotifierMessage = {
           message: `Happy ${this.config.nbBlocks}-BlocthDay!!! The chain is now at block #${this.currentBlock.toString(10)}`
         };
