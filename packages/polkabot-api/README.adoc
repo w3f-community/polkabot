@@ -1,3 +1,4 @@
 
-= Polkabot API
+= PolkaBOT API
 
+The PolkaBOT API contains types and many helpers that will help create new plugins with minimum effort and code.

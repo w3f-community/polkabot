@@ -11,8 +11,11 @@ import { winston } from './LoggerFactory';
 import { packageJson } from 'package-json';
 import { ConfigObject } from 'confmgr';
 import { PolkabotPluginBase } from '.';
-
 export { winston };
+
+export interface PolkabotInterface {
+  notify(message: NotifierMessage, specs: NotifierSpecs): void;
+}
 
 export type Cache = {
   [Key: string]: unknown;
@@ -180,7 +183,7 @@ export interface PluginContext {
   matrix: MatrixClient;
   logger: winston.Logger;
   polkadot;
-  polkabot;
+  polkabot: PolkabotInterface;
 }
 
 /**

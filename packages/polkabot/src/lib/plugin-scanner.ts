@@ -7,10 +7,10 @@ import { PluginModule } from '@polkabot/api/src/types';
 const Logger = LoggerSingleton.getInstance();
 
 export default class PluginScanner {
-  private name: string;
+  // private name: string;
 
-  public constructor(name) {
-    this.name = name;
+  public constructor(_name: string) {
+    // this.name = name;
   }
 
   // public scanold(cb, done): void {

@@ -1,6 +1,6 @@
 {
   "name": "polkabot-plugin-blockstats",
-  "version": "0.4.4",
+  "version": "0.6.0",
   "description": "",
   "main": "dist/src/index.js",
   "scripts": {
@@ -9,6 +9,8 @@
     "build": "tsc --build tsconfig.json",
     "prepublishOnly": "npm run build",
     "clean": "rm -rf dist node_modules",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
     "postinstall": "npm run build",
     "build:doc": "typedoc src --readme none"
   },

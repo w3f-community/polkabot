@@ -1,6 +1,6 @@
 {
   "name": "polkabot-plugin-blocthday",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "",
   "main": "dist/src/index.js",
   "scripts": {
@@ -22,15 +22,6 @@
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/Polkabot/polkabot-plugin-blocthday.git"
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "ignore": [
-      "dist/"
-    ],
-    "env": [
-      "mocha"
-    ]
   },
   "engines": {
     "node": ">=10.13.0",
