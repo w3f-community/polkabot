@@ -4,8 +4,8 @@ import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import blake2 from '@polkadot/util-crypto/blake2/asHex';
 import { PluginModule, PluginContext, BlockMoment, Announcement, Severity } from '@polkabot/api/src/types';
 import { HeaderExtended } from '@polkadot/api-derive/type';
-import { Callable } from '@polkabot/api/src/decorators';
-import { PolkabotPluginBase } from '@polkabot/api/src';
+import { Callable, Command } from '@polkabot/api/src/decorators';
+import { PolkabotPluginBase, Room, CommandHandlerOutput } from '@polkabot/api/src';
 import { logCache } from './helpers';
 
 /**
@@ -82,6 +82,18 @@ export default class Reporter extends PolkabotWorker {
     };
 
     this.cache = {};
+  }
+
+  @Command({ description: 'Start the plugin' })
+  public cmdStart(_event, room: Room): CommandHandlerOutput {
+    this.start();
+    return PolkabotPluginBase.generateSingleAnswer('OK Started', room);
+  }
+
+  @Command({ description: 'Stop the plugin' })
+  public cmdStop(_event, room: Room): CommandHandlerOutput {
+    this.stop();
+    return PolkabotPluginBase.generateSingleAnswer('OK Stopped', room);
   }
 
   /** Check the last blocks and figure out the block time.

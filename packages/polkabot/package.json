@@ -19,8 +19,6 @@
     "clean": "rm -rf .nyc_output build coverage node_modules out dist *.log docs",
     "prepublishOnly": "npm run build",
     "build:doc": "typedoc src --readme none",
-    "build:docker": "docker build -t chevdor/polkabot .",
-    "docker:run": "docker run --rm -it chevdor/mypolkabot",
     "patch": "echo 'Disabling package uniqueness check. See https://github.com/polkadot-js/api/issues/984'; sed -i '/function assertSingletonPackage(name) {/ a   return' node_modules/@polkadot/util/assertSingletonPackage.js"
   },
   "author": "chevdor",

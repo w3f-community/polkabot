@@ -300,7 +300,8 @@ export default class Polkabot implements PolkabotInterface {
     this.matrix.on('RoomMember.membership', (_event: Event, member: RoomMember) => {
       if (member.membership === 'invite') {
         this.matrix.joinRoom(member.roomId).then(_ => {
-          Logger.info('Auto-joined %o', member);
+          Logger.info('Auto-joined %s', member.roomId);
+          Logger.silly('Auto-joined %s', member);
         });
       }
     });
