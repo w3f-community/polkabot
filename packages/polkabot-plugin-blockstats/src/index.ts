@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import BN from 'bn.js';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
 import { HeaderExtended } from '@polkadot/api-derive/type';
@@ -98,7 +96,7 @@ export default class BlockStats extends PolkabotWorker {
   }
 
   async watchChain(): Promise<void> {
-    this.unsubs['subscribeNewHeads'] = await this.context.polkadot.rpc.chain.subscribeNewHeads(header => {
+    this.unsubs['subscribeNewHeads'] = await this.context.polkadot.rpc.chain.subscribeNewHeads((header: HeaderExtended) => {
       this.currentBlock = header.number.unwrap().toBn();
 
       if (this.currentBlock.mod(new BN(this.config.nbBlocks)).toString(10) === '0') {

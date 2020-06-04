@@ -8,7 +8,7 @@ export abstract class PolkabotWorker extends PolkabotPluginBase {
   constructor(mod: PluginModule, context: PluginContext, config?) {
     super(PluginType.Worker, mod, context, config);
   }
-
+  
   public start(): void {
     this.started = true;
   }

@@ -8,7 +8,7 @@ POLKABOT:
     URL:
       mandatory: true
       description: The URL of the WebSocket to be used to connect to the node
-      regexp: ^wss?://\w+:\d+$
+      regexp: ^wss?:\/\/([\w-\.]+)(:(\d+))?$
 
   MATRIX:
     # Matrix config
@@ -31,7 +31,7 @@ POLKABOT:
       description: This is the Matrix secret token
       mandatory: true
       masked: true
-      regexp: ^.{272}$
+      regexp: ^.{250,300}$
 
     BASE_URL:
       description: URL of the Matrix server
@@ -109,7 +109,12 @@ POLKABOT:
 
     DURATION:
       type: number
-      default: 15
+      default: 15.2
+    
+    CHANNELS:
+      description: List of notification channels
+      type: array
+      default: ['matrix', 'twitter']
 
   OPERATOR:
     DISABLED:
@@ -122,6 +127,27 @@ POLKABOT:
       description: Whether REPORTER should be enabled
       type: boolean
       default: true
+
+    CHANNELS:
+      description: List of notification channels
+      type: array
+      default: ['matrix', 'twitter']
+
+    OBSERVED:
+      description: This is the list of modules and methods we are considering
+      type: object
+      default: {
+        democracy: ['Proposed'],
+        sudo: ['Sudid'],
+        treasury: ['Proposed', 'NewTip'],
+        system: [],
+        council: ['Executed']
+      }
+
+    BLOCK_VIEWER:
+      description: The url used to see more details about a given blocks
+      type: string
+      default: https://polkadot.js.org/apps/#/explorer/query/
 
   NOTIFIER_MATRIX:
     DISABLED:

@@ -6,5 +6,31 @@ This plugin wishes Polkadot a happy blocthday every nth block.
 Messages look like:
 
 ----
-Happy BlocthDay!!! Polkadot is now at #1184300
+🎂 Happy BlocthDay!!! The chain is now at block #1000000
 ----
+
+In its first version, this plugin will only report Nth blocthdays. For instance for N=10, it would report block #10, #20, #30, etc... That can quickly become very annoying...
+
+A newer version include several `checkers`. Checkers are in charge of deciding whether a given block is worth mentionning or not.
+
+The current list of checkers is shown below in details.
+
+== Checkers
+
+=== Specials
+
+Special is rather simple and allows the user defining a random list of worth-mentioning blocks. That can be for instance #42, #987654, or any other random block.
+
+=== Nth
+
+The Nth checker is now usually disabled by default with a value of 0. Setting its `NB_BLOCKS` configuration parameter to a value that is not 0 will bring back the original behavior.
+
+=== Seq
+
+The Seq checker is looking for 'funny' block numbers looking like `123`, `1234`, `12345`, etc...
+
+=== Exp
+
+The Exp checker is the less annoying evolution of the Nth checkers. It will only consider 'round' numbers such as #1000, #7000, #20000. 
+
+NOTE: It will NOT consider #1100 as an interesting block. 

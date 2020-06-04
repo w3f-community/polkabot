@@ -7,15 +7,6 @@ import { PolkabotPluginBase, assert } from '@polkabot/api/src';
 import { Checkers } from './checkers';
 
 /**
- * This is a trick: we cannot declare Blocthday as implementing
- * the Controllable interface as it 'apparently' does not.
- * It actually does thanks to decorators but this is dynamic
- * and typescript cannot know about it. This also allows not having to
- * cast 'as unknown as Controllable' all over the place for instances.
- */
-// interface Blocthday extends Controllable { }  // TODO: bring back
-
-/**
  * This is a convenience to describe the config expected by the plugin.
  * Most of the fields should be available in the config (See confmgr).
  */
@@ -29,12 +20,12 @@ export type BlocthdayConfig = {
 }
 
 /**
- * Convenience for Blothday to avoid typos.
+ * Convenience to avoid typos.
  */
 export enum ConfigKeys {
-  NB_BLOCKS = 'NB_BLOCKS',
   CHANNELS = 'CHANNELS',
-  SPECIALS = 'SPECIALS'
+  SPECIALS = 'SPECIALS',
+  NB_BLOCKS = 'NB_BLOCKS',
 }
 
 /**
@@ -52,21 +43,22 @@ export default class Blocthday extends PolkabotWorker {
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
-    this.context.logger.silly('++ Blocthday');
-
+    
     // The following asserts are only valid if you want this plugin to be Controllable
     const commands = (Blocthday as unknown as Controllable).commands;
     assert(typeof commands !== 'undefined', 'Commands were not set');
     assert(Object.keys(commands).length > 0, 'commands contains no command!');
-
+    
     // Calling this method in the ctor is mandatory
     PolkabotPluginBase.bindCommands(this);
-
+    
     this.config = {
       channels: this.context.config.Get(Blocthday.MODULE, ConfigKeys.CHANNELS),
       nbBlocks: this.context.config.Get(Blocthday.MODULE, ConfigKeys.NB_BLOCKS),
       specials: this.context.config.Get(Blocthday.MODULE, ConfigKeys.SPECIALS),
     };
+    
+    this.context.logger.silly('++ Blocthday, config: %o', this.config);
   }
 
   /**
@@ -143,14 +135,14 @@ export default class Blocthday extends PolkabotWorker {
   @Command({ description: 'Start the plugin' })
   public cmdStart(_event, room: Room): CommandHandlerOutput {
     this.start();
-    return Blocthday.generateSingleAnswer('OK Started', room);
+    return PolkabotPluginBase.generateSingleAnswer('OK Started', room);
   }
 
   @Command({ description: 'Stop the plugin' })
   @Trace()
   public cmdStop(_event, room: Room): CommandHandlerOutput {
     this.stop();
-    return Blocthday.generateSingleAnswer('OK Stopped', room);
+    return PolkabotPluginBase.generateSingleAnswer('OK Stopped', room);
   }
 
   public start(): void {
@@ -172,12 +164,12 @@ export default class Blocthday extends PolkabotWorker {
 
       const isSpecial = Checkers.checkerSpecials(this.currentBlock, this.config.specials);
       if (Checkers.check(this.currentBlock, this.config.nbBlocks) || isSpecial) {
-
         if (isSpecial)
           this.removeSpecial(this.currentBlock);
 
+        this.context.logger.debug(`Found event, isSpecial: ${isSpecial}`);  
         const notifierMessage: NotifierMessage = {
-          message: `Happy ${this.config.nbBlocks}-BlocthDay!!! The chain is now at block #${this.currentBlock.toString(10)}`
+          message: `🎂 Happy BlocthDay!!! The chain is now at block #${this.currentBlock.toString(10)}`
         };
 
         this.context.polkabot.notify(notifierMessage, { notifiers: this.config.channels });
@@ -185,6 +177,3 @@ export default class Blocthday extends PolkabotWorker {
     });
   }
 }
-
-// Related to the Blocthday interface, see above.
-// export default Blocthday;

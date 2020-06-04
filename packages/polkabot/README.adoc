@@ -1,0 +1,44 @@
+
+= PolkaBOT
+:toc: right
+:toclevels: 3
+:sectnums:
+:sectanchors:
+
+Placeholder
+
+include::../polkabot-api/README.adoc[leveloffset=+1]
+
+== Plugins
+
+Plugins are divised in 3 categories. Some plugins may be crossover though. Those categories are:
+
+- Chatbots
+- Workers
+- Notifiers
+
+You may find more details below.
+
+=== Chatbots
+
+Chatbots allow interacting with the users. They expose some commands that can be called from a Matrix.org client. Some of the commands are restricted to the bot operator. Some other commands maybe be available to the users.
+
+Unlike the Notifiers, a chatbot is actively listenning on the matrix.org network.
+
+include::../polkabot-plugin-operator/README.adoc[leveloffset=+3]
+
+=== Workers
+
+Workers are plugins that are getting the job done. They are observing the chain and trying to be smart to find relevant information. They may expose some commands that the Chatbot(s) can handle. They do not send any notification. Instead, they delegate this task to the/some notifiers.
+
+include::../polkabot-plugin-blockstats/README.adoc[leveloffset=+3]
+include::../polkabot-plugin-blocthday/README.adoc[leveloffset=+3]
+include::../polkabot-plugin-stallwatcher/README.adoc[leveloffset=+3]
+include::../polkabot-plugin-reporter/README.adoc[leveloffset=+3]
+
+=== Notifiers
+
+The notifiers are in charge of spreading the information over various channels.
+
+include::../polkabot-plugin-notifier-matrix/README.adoc[leveloffset=+3]
+include::../polkabot-plugin-notifier-twitter/README.adoc[leveloffset=+3]

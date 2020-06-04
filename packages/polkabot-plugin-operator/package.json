@@ -1,6 +1,6 @@
 {
   "name": "polkabot-plugin-operator",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "The operator plugin is targeted mainly to the Bot Master and allows performing monitoring and maintenance tasks.",
   "main": "dist/polkabot-plugin-operator/src/index.js",
   "scripts": {
@@ -40,5 +40,8 @@
   "engines": {
     "node": ">=10.13.0",
     "yarn": "^1.10.1"
+  },
+  "dependencies": {
+    "moment": "^2.26.0"
   }
 }

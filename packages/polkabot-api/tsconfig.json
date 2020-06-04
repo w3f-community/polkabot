@@ -1,8 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./build"
+    "outDir": "./build",
+    "paths": {
+      "@polkabot/*": ["../polkabot/src"],
+    }
   },
-  "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json"],
+  "include": ["./bin/**/*", "./src/**/*", "./test/**/*", "./package.json"]
 }
-
