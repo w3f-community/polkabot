@@ -8,12 +8,12 @@ export abstract class PolkabotWorker extends PolkabotPluginBase {
   constructor(mod: PluginModule, context: PluginContext, config?) {
     super(PluginType.Worker, mod, context, config);
   }
-
-  public start() {
+  
+  public start(): void {
     this.started = true;
   }
 
-  public stop() {
+  public stop(): void {
     this.context.logger.debug('STOPPING');
 
     Object.keys(this.unsubs).map(unsub => {

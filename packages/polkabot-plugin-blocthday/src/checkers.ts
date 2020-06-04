@@ -13,7 +13,7 @@ export class Checkers {
      */
   public static checkerExp: checker = (n: BN): boolean => {
     const s = n.toString(10);
-    return s.length > 1 && new BN(s.substring(1)).eq(new BN(0));
+    return s.length > 2 && new BN(s.substring(1)).eq(new BN(0));
   }
 
   /**
@@ -27,7 +27,7 @@ export class Checkers {
     for (const str of s.split('')) {
       if (parseInt(str) !== previous++) return false;
     }
-    return true;
+    return s.length > 1;
   }
 
   /**
@@ -52,10 +52,9 @@ export class Checkers {
      * For instance, for N=11, return true for block 11, 22, 33, ...
      */
   public static checkerNth: checker = (n: BN, nbBlocks: BN): boolean => {
-    // [name] == 'junk'
     nbBlocks = new BN(nbBlocks);
     if (nbBlocks.eq(new BN(0))) return false;
-    return (n.mod(nbBlocks).toString(10) === '0');
+    return (n.gt(new BN(0)) && n.mod(nbBlocks).toString(10) === '0');
   }
 
   public static checkers: checker[] = [
@@ -64,7 +63,6 @@ export class Checkers {
     Checkers.checkerSame,
     Checkers.checkerNth,
   ]
-
 
   /**
      * This function runs the combined tests and returns true

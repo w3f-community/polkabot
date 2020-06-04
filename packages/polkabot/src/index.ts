@@ -9,27 +9,29 @@ import { ConfigManager, ConfigObject } from 'confmgr';
 import { assert } from '@polkadot/util';
 import { routeMatrixLogger } from './lib/matrix-helpers';
 import { NotifiersTable } from './types';
-import { PolkabotChatbot, PolkabotNotifier, MatrixClient, Controllable, PolkabotPlugin, NotifierMessage, NotifierSpecs, PluginModule, PluginContext, RoomMember, winston, getClass, PolkabotPluginBase, CommandDictionary } from '@polkabot/api/src';
+import { PolkabotChatbot, PolkabotNotifier, MatrixClient, Controllable, PolkabotPlugin, NotifierMessage, NotifierSpecs, PluginModule, PluginContext, RoomMember, getClass, PolkabotPluginBase, CommandDictionary, PolkabotInterface } from '@polkabot/api/src';
 import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
 import { isControllable, isWorker, isNotifier, isChatBot } from './lib/type-helpers';
 
 const Logger = LoggerSingleton.getInstance();
 routeMatrixLogger(Logger);
 
+
+
 /**
  * This is the main Polkabot class. It discovers the available plugins.
  * It takes care of connecting and creating various resources and sharing that
  * with the plugins. It also links all plugins together depending on their types.
  */
-export default class Polkabot {
-  private db: minimongo.MemoryDb;
+export default class Polkabot implements PolkabotInterface {
   private config: ConfigObject;
   private matrix: MatrixClient;
   private polkadot: ApiPromise;
   private notifiersTable: NotifiersTable = {};
   private controllablePlugins: Controllable[] = [];
   private chatBots: PolkabotChatbot[] = [];
-  private Logger: winston.Logger;
+  private db: minimongo.MemoryDb;
+  // private Logger: winston.Logger;
 
   public constructor(..._args: string[]) {
     this.db = new Datastore({ filename: 'polkabot.db' });
@@ -124,6 +126,7 @@ export default class Polkabot {
       Logger.debug(`Found ${plugins.length} plugins that are enabled`);
 
       const loads = [];
+      
       plugins.map(plugin => {
         const context: PluginContext = {
           config: this.config,
