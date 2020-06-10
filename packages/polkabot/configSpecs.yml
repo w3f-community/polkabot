@@ -8,7 +8,7 @@ POLKABOT:
     URL:
       mandatory: true
       description: The URL of the WebSocket to be used to connect to the node
-      regexp: ^wss?:\/\/([\w-\.]+)(:(\d+))?$
+      regexp: ^wss?:\/\/([\w-\.]+)(:(\d+))?\/?$
 
   MATRIX:
     # Matrix config

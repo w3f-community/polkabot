@@ -7,6 +7,7 @@ import { HeaderExtended } from '@polkadot/api-derive/type';
 import { Callable, Command } from '@polkabot/api/src/decorators';
 import { PolkabotPluginBase, Room, CommandHandlerOutput } from '@polkabot/api/src';
 import { logCache } from './helpers';
+import { EventRecord } from '@polkadot/types/interfaces/system';
 
 /**
  * This is a convenience to describe the config expected by the plugin.
@@ -366,10 +367,11 @@ You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
   async watchEvents(): Promise<void> {
     const api = this.context.polkadot;
 
-    this.unsubs['events'] = api.query.system.events((events) => {
-      events.forEach((record) => {
-        const { event, _phase } = record;
-        const _types = event.typeDef;
+    this.unsubs['events'] = api.query.system.events((events: EventRecord[]) => {
+      events.forEach((record: EventRecord) => {
+        const { event } = record;
+        // const _types = event.typeDef;
+
         if (Object.keys(this.config.observed).includes(event.section)) {
           if (this.config.observed[event.section].includes(event.method)) {
 
