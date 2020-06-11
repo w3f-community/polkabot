@@ -1,0 +1,8 @@
+Some batch calls for testing.
+
+This is using: https://github.com/w3f/injection-tool#batch-proxy-sudo-force-transfers
+
+from the cloned repo with a symlink to the csv:
+
+    y force-transfers --csv alice_to_bcdef.csv --wsEndpoint ws://localhost:9944 --suri //Alice --source 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY 
+

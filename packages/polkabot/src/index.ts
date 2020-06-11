@@ -16,8 +16,6 @@ import { isControllable, isWorker, isNotifier, isChatBot } from './lib/type-help
 const Logger = LoggerSingleton.getInstance();
 routeMatrixLogger(Logger);
 
-
-
 /**
  * This is the main Polkabot class. It discovers the available plugins.
  * It takes care of connecting and creating various resources and sharing that
@@ -264,22 +262,6 @@ export default class Polkabot implements PolkabotInterface {
       logger: (msg) => Logger.silly(msg, { labels: { source: 'MatrixSDK' } })
     });
 
-    // TODO: the following is not valid, it is not b/c we use another server than matrix.org that we need a password
-    // if (isCustomBaseUrl(this.config.values.MATRIX.BASE_URL)) {
-    //   const data = await this.matrix
-    //     .login('m.login.password', {
-    //       user: this.config.values.MATRIX.LOGIN_USER_ID,
-    //       password: this.config.values.MATRIX.LOGIN_USER_PASSWORD,
-    //     })
-    //     .catch(error => {
-    //       Logger.error('Error logging into matrix:', error);
-    //     });
-
-    //   if (data) {
-    //     Logger.info('Logged in with credentials: ', data);
-    //   }
-    // }
-
     this.matrix.once('sync', (state, _prevState, data) => {
       switch (state) {
         case 'PREPARED':
@@ -306,8 +288,6 @@ export default class Polkabot implements PolkabotInterface {
       }
     });
 
-    // TODO: ensure we get a number below, otherwise the matrix SDK is unhappy
-    // this.matrix.startClient({ initialSyncLimit: this.config.values.MATRIX.MESSAGES_TO_SHOW });
-    this.matrix.startClient({ initialSyncLimit: 3 });
+    this.matrix.startClient({ initialSyncLimit: this.config.Get('MATRIX', 'MESSAGES_TO_SHOW') });
   }
 }

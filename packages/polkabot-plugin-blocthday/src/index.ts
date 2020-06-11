@@ -97,12 +97,12 @@ export default class Blocthday extends PolkabotWorker {
    * @param args 
    */
   @Trace()
-  @Command({ description: 'Add/remove specials' }) // TODO: Add regexp here to keep simple
+  @Command({ description: 'Add/remove specials' })
   public cmdSpecials(_event, room: Room, args: string[]): CommandHandlerOutput {
     this.context.logger.debug('args: %o', args);
 
     const subCommand = args && args.length == 2 ? args[0] : 'get';
-    const commandArgs = args && args.length == 2 ? args[1] : null; // TODO: should not take [1] but 'all the rest
+    const commandArgs = args && args.length >= 2 ? args.slice(1).join(' ') : null;
 
     this.context.logger.debug('subCommand: %s', subCommand);
     this.context.logger.debug('commandArgs: %s', commandArgs);
