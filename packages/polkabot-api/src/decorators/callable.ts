@@ -1,6 +1,6 @@
 import LoggerSingleton from '@polkabot/api/src/LoggerFactory';
 import { assert } from '../utils';
-import { CallableMeta, ControllableMeta } from '../types';
+import { CallableMeta, ControllableMeta, Controllable } from '../types';
 
 const Logger = LoggerSingleton.getInstance();
 
@@ -12,11 +12,11 @@ const Logger = LoggerSingleton.getInstance();
  */
 export function Callable(args?: CallableMeta): Function {
   // Note we cannot use context yet
-  return (target: any) => {
-    Logger.silly(`@Callable on ${(target as unknown as Function).name}`);
+  return (target: Function & Controllable) => {
+    Logger.silly(`@Callable on ${target.name}`);
     const meta: ControllableMeta = {
-      name: args && args.name ? args.name : (target as any).name,
-      alias: args && args.alias ? args.alias : (target as any).name.toLowerCase()
+      name: args && args.name ? args.name : (target as Function).name,
+      alias: args && args.alias ? args.alias : (target as Function).name.toLowerCase()
     };
 
     // Implement Controllable

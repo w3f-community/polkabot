@@ -90,8 +90,6 @@ export type RoomId = string;
 export type Message = string;
 export type SenderId = string;
 
-// export type Member = any;
-
 export type PluginCommand = {
   name: string; // ie: start
   description: string; // what does this command do
@@ -140,12 +138,6 @@ export interface Controllable extends Function {
 export type CommandDictionary = {
   [key: string]: PluginCommand;
 }
-
-// TODO: delete
-// interface hasHandlers {
-//   handlers: CommandDictionary;
-//   showHandlers: () => void;
-// }
 
 /**
  * A ChatBot must have controllables to send commands to.
@@ -249,4 +241,3 @@ export type BlockMoment = {
   date: Date; // what is the estimated date
   message: string; // formated date string that will be removed
 };
-

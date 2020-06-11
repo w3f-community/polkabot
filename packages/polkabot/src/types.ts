@@ -38,16 +38,5 @@ export interface NotifiersTable {
 }
 
 export type PolkabotGlobal = {
-  // Olm: Olm;
-  localStorage: any;
+  localStorage: unknown;
 };
-
-
-// export interface MatrixClient {
-//   sendTextMessage: (roomId, string) => void;
-//   sendHtmlMessage: (roomId: RoomId, html: string, text: string) =>  void;
-//   //on: (string, (event, room, _toStartOfTimeline) => void) => void;
-//   once: (event: string, handler: Function) => void;
-//   startClient(msgToSHow: number);
-//   login: (pass: string, options: Record<string, unknown>) => Promise<MatrixClient>;
-// }
