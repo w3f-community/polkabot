@@ -7,6 +7,7 @@ import PluginLoader from './lib/plugin-loader';
 import sdk from 'matrix-js-sdk'; // must be after adding olm to global
 import { ConfigManager, ConfigObject } from 'confmgr';
 import { assert } from '@polkadot/util';
+import polkadotApiPackage from '@polkadot/api/package.json';
 import { routeMatrixLogger } from './lib/matrix-helpers';
 import { NotifiersTable } from './types';
 import { PolkabotChatbot, PolkabotNotifier, MatrixClient, Controllable, PolkabotPlugin, NotifierMessage, NotifierSpecs, PluginModule, PluginContext, RoomMember, getClass, PolkabotPluginBase, CommandDictionary, PolkabotInterface } from '@polkabot/api/src';
@@ -207,13 +208,7 @@ export default class Polkabot implements PolkabotInterface {
    */
   public async run(): Promise<void> {
     Logger.info(`${pkg.name} v${pkg.version}`);
-
-    // const configLocation = this.args.config
-    //   ? this.args.config
-    //   : path.join(__dirname, './config')
-    // Logger.info('Config location: ', configLocation)
-
-    // this.config = require(configLocation)
+    Logger.info(`Using PolkadotJS API v${polkadotApiPackage.version}`);
 
     this.config = ConfigManager.getInstance('configSpecs.yml').getConfig();
     this.config.Print({ compact: true, logger: (msg) => Logger.debug(msg) });
@@ -222,14 +217,13 @@ export default class Polkabot implements PolkabotInterface {
       Logger.error('Config is NOT valid');
       this.config.Print({ compact: true, logger: (msg) => Logger.error(msg) });
       process.exit(1);
-      // this.Logger[ isConfigValid ? 'info': 'error'] (`Your config is${ isConfigValid? '' : ' NOT'} valid!`);
     }
 
-    // Logger.info(`config: ${JSON.stringify(this.config, null, 2)}`);
     Logger.info(`Connecting to host: ${this.config.values.POLKADOT.URL}`);
     Logger.silly(`Running with bot user id: ${this.config.values.MATRIX.BOTUSER_ID}`);
 
     const provider = new WsProvider(this.config.values.POLKADOT.URL);
+    
     // Create the API and wait until ready
     this.polkadot = await ApiPromise.create({ provider });
 
