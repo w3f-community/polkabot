@@ -1,6 +1,6 @@
 = Polkabot
 :toc: right
-:toclevels: 5
+:toclevels: 3
 :sectnums:
 :sectanchors:
 :proj: PolkaBOT
@@ -16,7 +16,9 @@ You can see {proj} in action in:
 - link:++https://matrix.to/#/#kusama-network-status:matrix.org++[#kusama-network-status:matrix.org]
 - link:++https://matrix.to/#/#westend-network-status:matrix.org++[#westend-network-status:matrix.org]
 
-{proj} is an extensible bot for http://polkadot.network[Polkadot], running on http://matrix.org[Matrix.org]
+You can also run {proj} yourself and the <<docker>> images that are available may help.
+
+{proj} is an extensible bot for http://polkadot.network[Polkadot] and other Substrate based chains. It is mainly running on http://matrix.org[Matrix.org] but also handles notification with other networks such as twitter using dedicated plugins.
 
 NOTE: {proj} aims as being *as silent as possible* so don't expect lots of fuzz and action!
 
@@ -36,12 +38,6 @@ NOTE: For devs, the command is typically:
 
 	NODE_ENV=dev LOG_LEVEL=silly yarn start
 
-include::doc/docker.adoc[leveloffset=+1]
-
-// include::CONTRIBUTING.adoc[leveloffset=+1]
-
-include::doc/plugins.adoc[leveloffset=+1]
-
 == Dev notes
 
 You can find the API documentation at https://polkabot.gitlab.io/polkabot/
@@ -52,7 +48,7 @@ You can find the API documentation at https://polkabot.gitlab.io/polkabot/
 
 Start your substrate node:
 
-	docker run --rm -it -p 9944:9944 chevdor/substrate substrate --dev
+	docker run --rm -it --name polkadev -p 9944:9944 chevdor/polkadot:0.8.2 polkadot --dev --alice --rpc-cors all --unsafe-ws-external
 
 then run:
 
@@ -78,3 +74,9 @@ WARNING: If you use a browser to login as the bot, you will automatically signal
 == Encryption
 
 Currently, Polkabot does NOT support encryption. If encryption is needed, https://github.com/matrix-org/pantalaimon could be used as proxy.
+
+include::doc/docker.adoc[leveloffset=+1]
+
+include::CONTRIBUTING.adoc[leveloffset=+1]
+
+include::doc/plugins.adoc[leveloffset=+1]

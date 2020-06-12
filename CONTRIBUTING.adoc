@@ -4,33 +4,24 @@ Contributions are more than welcome, especially in the form of Pull Requests.
 
 You may also report any issue you run into, questions, wishes and ideas at https://gitlab.com/chevdor/polkabot/issues
 
-=== Development Guide
+== Development Guide
 
 These are the steps that we suggest you follow that will allow you to contribute to {proj}, as well as run your own bot and create your own custom plugins.
 
-==== Fork {proj} and associated plugins
+.Fork {proj} and associated plugins
 
 Click the 'Fork' icon in GitLab to fork the repository
 
-==== Clone each fork you made of {proj} and associated plugins
+.Clone each fork you made of {proj} and associated plugins
 
-The following assumes that you have forked repositories from https://gitlab.com/{proj} into your own GitLab account 'yourusername' and that you are going to develop in the following directory on your local machine: ~/code/gitlab/yourusername/. Note that there may be more plugins available than those listed below.
+The following assumes that you have forked repositories from https://gitlab.com/{proj} into your own GitLab account 'yourusername' and that you are going to develop in the following directory on your local machine: ~/code/gitlab/yourusername/.
 
-```
-cd ~/code/gitlab/yourusername/ && git clone https://gitlab.com/yourusername/polkabot && \
-cd ~/code/gitlab/yourusername/ && git clone https://gitlab.com/yourusername/polkabot-plugin-blockstats && \
-cd ~/code/gitlab/yourusername/ && git clone https://gitlab.com/yourusername/polkabot-plugin-blocthday && \
-cd ~/code/gitlab/yourusername/ && git clone https://gitlab.com/yourusername/polkabot-plugin-operator && \
-cd ~/code/gitlab/yourusername/ && git clone https://gitlab.com/yourusername/polkabot-plugin-stallwatcher && \
-cd ~/code/gitlab/yourusername/ && git clone https://gitlab.com/yourusername/polkabot-plugin-reporter
-```
-
-==== Change to supported version of Node.js and find out where globally installed NPM modules are installed
+.Change to supported version of Node.js and find out where globally installed NPM modules are installed
 
 Install Node Version Manager and use it to install and switch to a supported version of Node.js (i.e. 10.x)
 
 ```
-nvm use v10.15.3
+nvm use 12
 ```
 
 Find out where globally installed NPM modules are installed since {proj} will scan that directory
@@ -45,7 +36,7 @@ It may return something like `/home/yourusername/.nvm/versions/node/v10.15.3/bin
 Now we want to create a symlink from where the NPM modules are located that are associated with this
 version Node.js, which is in the following 'lib' subdirectory `/home/yourusername/.nvm/versions/node/v10.15.3/lib`.
 
-==== Create symbolic links from each of the cloned {proj} plugins to where the globally installed NPM modules are located for your current version of Node.js
+.Create symbolic links from each of the cloned {proj} plugins to where the globally installed NPM modules are located for your current version of Node.js
 
 The following is an example of how you might create the symlinks:
 
@@ -57,7 +48,7 @@ ln -s ~/code/gitlab/yourusername/polkabot-plugin-stallwatcher/ ~/.nvm/versions/n
 ln -s ~/code/gitlab/yourusername/polkabot-plugin-reporter/ ~/.nvm/versions/node/v10.15.3/lib/node_modules
 ```
 
-==== Build each of the {proj} plugins
+.Build each of the {proj} plugins
 
 Build all the {proj} plugins easily with a single command similar to that shown below.
 A mirror reflection each of the built plugins will be available for {proj}'s plugin scanner to find them
@@ -72,7 +63,7 @@ cd ~/code/gitlab/yourusername/polkabot-plugin-stallwatcher/ && yarn && yarn run 
 cd ~/code/gitlab/yourusername/polkabot-plugin-reporter/ && yarn && yarn run build
 ```
 
-==== Create a new Room for the Bot to make announcements and listen for public user input, and create a Bot and a Bot Master
+.Create a new Room for the Bot to make announcements and listen for public user input, and create a Bot and a Bot Master
 
 In Matrix Riot, create a new Room, then change the settings so you can find the room (i.e. enable 'Publish this room to the public in matrix.org's room directory?').
 
@@ -80,7 +71,7 @@ In the settings for the Room, the Advanced section shows the Internal room ID (i
 
 In order test {proj} with your two users, you may wish to run one instance of the Matrix Riot Desktop application, and login to that with your existing Matrix Riot user id. Then in a subsequent step make this user id the Bot Master in your .env file. Then create a second user using Matrix Riot's Browser application, by going to the address of the room id (i.e. https://riot.im/app/#/room/!AbCdEfGhIjKlMnPqRS:matrix.org). Then in a subsequent step make this user id the Bot in your .env file.
 
-==== Add a .env file with your credentials
+.Add a .env file with your credentials
 
 The .env file is for you to store credentials, and since the file is included in the .gitignore
 file, it will not be added to GitLab.
@@ -111,7 +102,7 @@ MATRIX_BOT_USER_ID=@botusername:matrix.org
 MATRIX_TOKEN=
 ```
 
-==== Run Polkadot / Substrate
+.Run Polkadot / Substrate
 
 Download and install Substrate:
 
@@ -127,25 +118,25 @@ substrate --dev
 
 Reference: https://docs.substrate.dev/
 
-==== Run {proj}
+.Run {proj}
 
 ```
 cd ~/code/gitlab/yourusername/polkabot && \
 yarn && yarn start
 ```
 
-==== View the logs and identify any errors
+.View the logs and identify any errors
 
 If you encounter any errors then please create an issue in the respective GitLab repo of the '{proj}' username (i.e. click 'New Issue' at https://gitlab.com/{proj}/polkabot/issues).
 
-==== Try using the Bot
+.Try using the Bot
 
-===== {proj} Operator plugin
+=.{proj} Operator plugin
 
 Write a direct message from your Bot Master to your Bot `!say hello`, and the Bot will announce the message `hello` in the room id that you specified in the .env file.
 
 Any user may write `!status` and the Bot will respond with the Polkadot / Substrate node network status.
 
-===== {proj} StallWatcher plugin
+==== {proj} StallWatcher plugin
 
 Write a direct message from your Bot Master to your Bot `!sw duration <FREQUENCY_IN_BLOCKS>`, and the Bot's configuration settings will change the threshold upon which it makes announcements in the room id that you specified in the .env file (from the default specified in that plugin repositories config.js file).

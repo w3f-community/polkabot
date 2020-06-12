@@ -2,13 +2,40 @@
 
 Before you can start {proj}, you will have to configure a few things. {proj} is using https://gitlab.com/chevdor/confmgr[confmgr]. 
 
-You will need to create a file under packages/polkabot. This file should be named `.env` or `.env.foobar` if you start with `NODE_ENV=foobar`. As a test, you may start {proj} without any config and it will tell you what is missing. Many values have default, so you can get started with a very minimal configuration.
+If you run the source, you will need to create a file under packages/polkabot. This file should be named `.env` or `.env.foobar` if you start with `NODE_ENV=foobar`. As a test, you may start {proj} without any config and it will tell you what is missing. Many values have default, so you can get started with a very minimal configuration.
 
 Look for the sample file under `packages/polkabot/.env-sample`.
 
 == Configuration
 
-{proj} uses 2 levels of configuration:
+{proj} uses a single file or ENV variables to configure itself as well as its plugins.
 
-- the main config in src/config.js
-- the plugin specific config in `src/plugins/.../config.js`
+The best way to understand the requirements for the configuration file is to check the link:../packages/polkabot/configSpecs.yml[configSpecs.yml]:
+
+----
+include::../packages/polkabot/configSpecs.yml[]
+----
+
+This file describes the specifications for the configuration. Many properties have +default+ values so you don't even need to provide them unless you want to override.
+
+If you checkout the link:../packages/polkabot/configSpecs.yml[configSpecs.yml], you will see that we have a property `NODE_NAME` under `POLKADOT` under `POLKABOT`.
+
+That means that we need to provide a value for `POLKABOT_POLKADOT_NODE_NAME`. We can provide this value directly as an ENV or using an ENV file.
+
+NOTE: Using an ENV file is probably much easier...
+
+=== Using ENV variables
+
+Simple pass the variable before calling polkabot:
+
+    POLKABOT_POLKADOT_NODE_NAME=foo yarn start
+
+=== Using an ENV file
+
+This is the recommended option.
+
+We provide a sample configuration file:
+
+----
+include::../packages/polkabot/.env-sample[]
+----
