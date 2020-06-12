@@ -28,6 +28,12 @@ export enum ConfigKeys {
   NB_BLOCKS = 'NB_BLOCKS',
 }
 
+export type ChainData = {
+  name: string;
+  nodeName: string;
+  nodeVersion: string;
+}
+
 /**
  * This plugin wishes announces when the chain reached a set of given block numbers.
  * The initial version was taking a NB_BLOCKS parameters. It ended up annoying: at first, when the chain is at block < 1000,
@@ -40,6 +46,7 @@ export default class Blocthday extends PolkabotWorker {
   private static readonly MODULE = 'BLOCTHDAY';
   private config: BlocthdayConfig;
   private currentBlock: BN;
+  private chain: ChainData;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
@@ -159,6 +166,18 @@ export default class Blocthday extends PolkabotWorker {
    * See https://polkadot.js.org/api/examples/promise/02_listen_to_blocks/
    */
   async watchChain(): Promise<void> {
+    const [chain, nodeName, nodeVersion ] = await Promise.all([
+      this.context.polkadot.rpc.system.chain(),
+      this.context.polkadot.rpc.system.name(),
+      this.context.polkadot.rpc.system.version(),
+    ]);
+
+    this.chain = {
+      name: chain,
+      nodeName,
+      nodeVersion
+    };
+
     this.unsubs['subscribeNewHeads'] = await this.context.polkadot.rpc.chain.subscribeNewHeads((header: HeaderExtended) => {
       this.currentBlock = header.number.unwrap().toBn();
 
@@ -169,7 +188,7 @@ export default class Blocthday extends PolkabotWorker {
 
         this.context.logger.debug(`Found event, isSpecial: ${isSpecial}`);  
         const notifierMessage: NotifierMessage = {
-          message: `🎂 Happy BlocthDay!!! The chain is now at block #${this.currentBlock.toString(10)}`
+          message: `🎂 Happy BlocthDay!!! The ${this.chain.name} chain is now at block #${this.currentBlock.toString(10)}`
         };
 
         this.context.polkabot.notify(notifierMessage, { notifiers: this.config.channels });
