@@ -193,67 +193,11 @@ for ${m.humanize()}.\nCheck out the project at https://gitlab.com/Polkabot`
              * the following form: `!say <MESSAGE>` or `!status`
              */
             const capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
-            // this.context.logger.info("Operator - captured from Bot Master: ", capture);
             if (capture.length > 0 && capture.groups.cmd) {
               const _cmd: string = capture.groups.cmd;
               const _args = capture.groups.args;
-
-              //   this.context.logger.info("Operator - cmd: ", cmd);
-              //   this.context.logger.info("Operator - args: ", args);
-              //   switch (cmd) {
-              //     case "status":
-              //       const uptime = (process.uptime() / 60 / 60).toFixed(2);
-              //       this.answer(
-              //         room.roomId,
-              //         `Hey ${
-              //           this.context.config.matrix.botMasterId
-              //         }, I am still here, running for ${uptime} hours. Check out the project at https://gitlab.com/Polkabot`
-              //       );
-              //       break;
-              //     case "say":
-              //       this.context.logger.info("Operator - Received command !say:", cmd, args);
-              //       const notifierMessage: NotifierMessage = {
-              //         message: args
-              //       };
-
-              //       const notifierSpecs: NotifierSpecs = {
-              //         notifiers: ["matrix", "demo", "all"]
-              //       };
-
-              //       this.context.polkabot.notify(notifierMessage, notifierSpecs);
-              //       break;
-              //     default:
-              //       this.answer(
-              //         room.roomId,
-              //         `Operator - Command **!${cmd}** is not supported. You can use commands:
-              //       !status OR !say <MESSAGE>`
-              //       );
-              //   }
-              // }
             } else {
               this.context.logger.info(`Operator - Bot received message from non-Bot Master (sender: ${senderId}) in direct message`);
-              // const re = new RegExp('')
-
-              //           let capture = msg.match(/^!(?<cmd>\w+)(\s+(?<args>.*?))??$/i) || [];
-              //           this.context.logger.info("Operator - captured from non-Bot Master: ", capture);
-              //           if (capture.length > 0 && capture.groups.cmd) {
-              //             const cmd: string = capture.groups.cmd;
-
-              //             switch (cmd) {
-              //               case "status":
-              //                 const uptime = (process.uptime() / 60 / 60).toFixed(2);
-              //                 this.answer(
-              //                   room.roomId,
-              //                   `I am still here! I've been running ${capitalize(this.context.pkg.name)} v${
-              //                     this.context.pkg.version
-              //                   } for ${uptime} hours.
-              // Check out the project at https://gitlab.com/Polkabot`
-              //                 );
-              //                 break;
-              //               default:
-              //                 this.answer(room.roomId, `Operator - Command **!${cmd}** is not supported. You can use command: !status`);
-              //             }
-              //           }
             }
           }
         }

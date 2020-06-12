@@ -22,6 +22,10 @@ You can also run {proj} yourself and the <<docker>> images that are available ma
 
 NOTE: {proj} aims as being *as silent as possible* so don't expect lots of fuzz and action!
 
+:imagesdir: doc/quickstart
+include::doc/quickstart/quickstart.adoc[leveloffset=+1]
+
+:imagesdir: doc
 include::doc/config.adoc[leveloffset=+1]
 
 include::packages/polkabot/README.adoc[leveloffset=+1]
