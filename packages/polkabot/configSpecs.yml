@@ -50,7 +50,8 @@ POLKABOT:
 
     MESSAGES_TO_SHOW:
       description: Number of messages to show
-      default: 20
+      default: 3
+      type: number
 
   BLOCTHDAY:
     # Those would go to a BLOCTHDAY sub module once confmgr supports it
@@ -166,3 +167,44 @@ POLKABOT:
       description: Whether NOTIFIER_TWITTER should be enabled
       type: boolean
       default: true
+
+    COOLDOWN:
+      descriptions: This is a value in milliseconds. We will NOT tweet again before this time elapsed.
+      type: number
+      default: 5000
+
+    RATE_WINDOW:
+      description: You should not change that. This window is defined by the twitter API. This is a value in milliseconds. The default is 3 hours.
+      type: number
+      default: 10800000
+
+    RATE_LIMIT:
+      description: This is to ensure we stay under the window limit allowed by the Twitter API. Twitter allows 300 posts per window.
+      type: number
+      default: 200
+
+    CONSUMER_KEY:
+      description: Twitter consumer key
+      mandatory: true
+      type: string
+      regexp: ^.{25}$
+
+    CONSUMER_SECRET:
+      description: Twitter consumer secret
+      masked: true
+      mandatory: true
+      type: string
+      regexp: ^.{50}$
+
+    TOKEN_KEY:
+      description: Twitter App token
+      mandatory: true
+      type: string
+      regexp: ^.{50}$
+
+    TOKEN_SECRET:
+      description: Twitter App token secret
+      masked: true
+      mandatory: true
+      type: string
+      regexp: ^.{45}$

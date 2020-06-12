@@ -6,7 +6,7 @@ import { PluginModule, PluginContext, BlockMoment, Announcement, Severity } from
 import { HeaderExtended } from '@polkadot/api-derive/type';
 import { Callable, Command } from '@polkabot/api/src/decorators';
 import { PolkabotPluginBase, Room, CommandHandlerOutput } from '@polkabot/api/src';
-import { logCache } from './helpers';
+import { logCache, filterEvents } from './helpers';
 import { EventRecord } from '@polkadot/types/interfaces/system';
 
 /**
@@ -31,11 +31,8 @@ enum ConfigKeys {
   BLOCK_VIEWER = 'BLOCK_VIEWER'
 }
 
-// TODO: We can do better than that!
-type Validators = Array<any>
-
 type Hash = string;
-type WasmBlob = string; // TODO: probably not...
+type WasmBlob = string;
 type RuntimeCache = {
   hash: Hash;
   code: WasmBlob;
@@ -45,7 +42,6 @@ type RuntimeCache = {
  * To avoid typos that would lead to issues, we declare all the keys we plan on using in our cache here.
  */
 export enum CacheKeys {
-  validators = 'validators',
   validatorCount = 'validatorCount',
   runtime = 'runtime',
   proposalCount = 'proposalCount',
@@ -55,7 +51,7 @@ export enum CacheKeys {
 }
 
 export type ReporterCache = {
-  [key: string]: BN | Validators | string | number | RuntimeCache;
+  [key: string]: BN | string | number | RuntimeCache;
 }
 
 /**
@@ -67,7 +63,6 @@ export type ReporterCache = {
 export default class Reporter extends PolkabotWorker {
   private static readonly MODULE = 'REPORTER';
   private config: ReporterConfig;
-
   private cache: ReporterCache;
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
@@ -157,57 +152,6 @@ export default class Reporter extends PolkabotWorker {
       const KEY = CacheKeys.blockNumber;
       if (header) {
         this.cache[KEY] = header.number.unwrap().toBn();
-      }
-    });
-  }
-
-  /**
-   * @deprecated This is no longer very relevant
-   */
-  async watchActiveValidatorCount(): Promise<void> {
-    await this.context.polkadot.query.session.validators((validators: Validators) => {
-      const KEY = CacheKeys.validators;
-      let cache = this.cache[KEY] as Validators;
-
-      if (!cache) {
-        cache = validators;
-        logCache.bind(this)(cache, KEY);
-      }
-      if (cache && cache.length !== validators.length) {
-        this.context.logger.info('Active Validator count: %d', validators.length);
-
-        this.announce({
-          message: `Active Validator count has changed from ${cache.length} to ${validators.length}`,
-          severity: Severity.INFO,
-        });
-        cache = validators;
-      } else {
-        this.context.logger.info(`Active Validator count: ${validators.length}`);
-      }
-    });
-  }
-
-  /**
-   * @deprecated This is no longer very relevant
-   */
-  async watchValidatorSlotCount(): Promise<void> {
-    await this.context.polkadot.query.staking.validatorCount((validatorCount: number) => {
-      const KEY = CacheKeys.validatorCount;
-      let cache = this.cache[KEY] as number;
-
-      if (!cache) {
-        cache = validatorCount;
-        logCache.bind(this)(cache, KEY);
-      }
-      if (cache && cache !== validatorCount) {
-        cache = validatorCount;
-        this.context.logger.info('Validator count: %d', validatorCount.toString(10));
-        this.announce({
-          message: `The number of validator slots has changed. It is now ${validatorCount.toString(
-            10
-          )}`,
-          severity: Severity.IMPORTANT,
-        });
       }
     });
   }
@@ -303,11 +247,9 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
 
         this.announce({
           message: `@room New Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
-          You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(
-  10
-)} blocks. 
-            That means a deadline at block #${deadline.toString(10)}, don't miss it! 
-            the deadline to vote is ${moment(blockMoment.date).fromNow()}.`,
+You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(10)} blocks. 
+That means a deadline at block #${deadline.toString(10)}, don't miss it! 
+The deadline to vote is ${moment(blockMoment.date).fromNow()}.`,
           severity: Severity.INFO,
         });
       } else {
@@ -346,9 +288,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
 
         this.announce({
           message: `@room New referendum (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
-You can vote for referendum #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(
-  10
-)} blocks. 
+You can vote for referendum #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(10)} blocks. 
 That means a deadline at block #${deadline.toString(10)}, don't miss it! 
 You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
           severity: Severity.INFO,
@@ -368,44 +308,33 @@ You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
     const api = this.context.polkadot;
 
     this.unsubs['events'] = api.query.system.events((events: EventRecord[]) => {
-      events.forEach((record: EventRecord) => {
+      this.context.logger.silly(`Got ${events.length} events`);
+      const filteredEvents = filterEvents(events, this.config.observed);
+      this.context.logger.silly(`After filtering, we have ${filteredEvents.length} events`);
+
+      let message = `📰 @room Something interesting (${filteredEvents.length} events) occured in block #${this.cache[CacheKeys.blockNumber]}\n`;
+      filteredEvents.forEach((record: EventRecord, index: number) => {
         const { event } = record;
-        // const _types = event.typeDef;
+        const doc = event.meta.documentation.map((d) => d.toString()).join(', ');
 
-        if (Object.keys(this.config.observed).includes(event.section)) {
-          if (this.config.observed[event.section].includes(event.method)) {
+        if (index < 5)
+          message += `- ${event.section}:${event.method} - ${doc}\n`;
+        else
+          message += '... and some more...\n';
 
-            const doc = event.meta.documentation.map((d) => d.toString()).join(', ');
-            this.announce({
-              message: `📰 @room A new interesting event occured in block #${this.cache[CacheKeys.blockNumber]}:\n${event.section}:${event.method} - ${doc} You can check it out at ${this.config.blockViewer}${this.cache[CacheKeys.blockNumber]}`,
-              severity: Severity.INFO,
-            });
-
-            this.context.logger.info('%s:%s %o', event.section, event.method, doc);
-            this.context.logger.silly(JSON.stringify(event, null, 2));
-          }
-          else {
-            this.context.logger.silly('Unsupported METHOD: %s:%s', event.section, event.method);
-          }
-        }
-        else {
-          this.context.logger.silly('Unsupported MODULE: %s', event.section);
-        }
-        // loop through each of the parameters, displaying the type and data
-        //event.data.forEach((data, index) => {
-        //  console.log(types[index].type + ';' + data.toString());
-        //});
+        this.context.logger.info('%s:%s %o', event.section, event.method, doc);
       });
+      message += `You can check it out at ${this.config.blockViewer}${this.cache[CacheKeys.blockNumber]}`;
+
+      if (filteredEvents.length) {
+        this.context.polkabot.notify({ message }, { notifiers: this.config.channels });
+      }
     });
   }
 
   async watchChain(): Promise<void> {
     // Blocks
     await this.subscribeChainBlockHeader();
-
-    // Validators
-    // await this.watchActiveValidatorCount();
-    // await this.watchValidatorSlotCount();
 
     // Runtime
     await this.watchRuntimeCode();

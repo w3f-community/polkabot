@@ -62,8 +62,7 @@ export class PolkabotPluginBase {
     assert(typeof CtrlClass.commands !== 'undefined', 'No command was set!');
 
     Object.keys(CtrlClass.commands).map((key: string) => {
-
-      that.context.logger.silly('Binding method %s:%s', CtrlClass.meta.name, key);  // TODO; check here, are we binding the status function or cmdStatus ?
+      that.context.logger.silly('Binding method %s:%s', CtrlClass.meta.name, key);
       CtrlClass.commands[key].handler = CtrlClass.commands[key].handler.bind(that);
     });
   }
