@@ -1,17 +1,15 @@
 import moment from 'moment';
 import { PolkabotChatbot } from '@polkabot/api/src/PolkabotChatbot';
 import MatrixHelper from './matrix-helper';
-import { packageJson } from 'package-json';
 import { assert } from '@polkadot/util';
 import { OperatorParams } from './types';
 import { isHelpNeeded } from './helpers';
 import { Event, MatrixEventType, Controllable, PluginCommand, PluginContext, PluginModule, CommandHandlerOutput, BotCommand, SenderId, RoomId, Room } from '@polkabot/api/src/types';
-import { capitalize, getClass } from '@polkabot/api/src';
+import { capitalize, getClass, PolkabotPluginBase } from '@polkabot/api/src';
 import { Command, Callable } from '@polkabot/api/src/decorators';
 
 @Callable({ alias: 'op' })
 export default class Operator extends PolkabotChatbot {
-  package: packageJson;
   controllables: Controllable[];
   context: PluginContext;
   params: OperatorParams;
@@ -30,6 +28,10 @@ export default class Operator extends PolkabotChatbot {
 
   public constructor(mod: PluginModule, context: PluginContext, config?) {
     super(mod, context, config);
+
+    // Calling this method in the ctor is mandatory
+    PolkabotPluginBase.bindCommands(this);
+
     assert(this.context.config, 'The config seems to be missing');
     this.params = this.loadParams();
     this.matrixHelper = new MatrixHelper(this.params);
@@ -50,9 +52,8 @@ export default class Operator extends PolkabotChatbot {
       answers: [
         {
           room,
-          message: `I am still here! I've been running ${capitalize(this.package.name)} v${capitalize(
-            this.package.version
-          )} for ${m.humanize()}.\nCheck out the project at https://gitlab.com/Polkabot`
+          message: `I am still here! I've been running ${capitalize(this.package.name)} v${capitalize(this.package.version)} 
+for ${m.humanize()}.\nCheck out the project at https://gitlab.com/Polkabot`
         }
       ]
     };
