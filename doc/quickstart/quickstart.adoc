@@ -474,7 +474,8 @@ In order to contact Polkabot, you MUST open a NON encrypted chat session. A simp
 
 image:2_createroom.png[]
 
-The Bot will automatically accept the invitation. In the event that it fails, you can also login and accept using Riot.im for instance.
+The Bot will automatically accept the invitation. In the event that it fails, you may try restarting polkabot, it may join successfully then.
+You can also login and accept using Riot.im for instance.
 
 image:3_invite.png[]
 

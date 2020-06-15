@@ -8,7 +8,7 @@
 
 == Intro
 
-image::doc/polkabot.png[width=300px, align=center]
+image::resources/logos/polkabot.png[width=300px, align=center]
 
 You can see {proj} in action in:
 
