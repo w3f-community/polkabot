@@ -47,11 +47,12 @@ export enum CacheKeys {
   proposalCount = 'proposalCount',
   publicPropCount = 'publicPropCount',
   referendumCount = 'referendumCount',
-  blockNumber = 'blockNumber'
+  blockNumber = 'blockNumber',
+  lastBlockDate = 'lastBlockDate'
 }
 
 export type ReporterCache = {
-  [key: string]: BN | string | number | RuntimeCache;
+  [key: string]: BN | string | number | RuntimeCache | Date;
 }
 
 /**
@@ -149,11 +150,32 @@ export default class Reporter extends PolkabotWorker {
 
   async subscribeChainBlockHeader(): Promise<void> {
     this.unsubs['subscribeNewHeads'] = await this.context.polkadot.rpc.chain.subscribeNewHeads((header: HeaderExtended) => {
-      const KEY = CacheKeys.blockNumber;
       if (header) {
-        this.cache[KEY] = header.number.unwrap().toBn();
+        this.cache[CacheKeys.blockNumber] = header.number.unwrap().toBn();
+        this.cache[CacheKeys.lastBlockDate] = new Date();
       }
     });
+  }
+
+  /**
+   * This function is a little trick.
+   * As of writting, random events do not provide the block number.
+   * Subscribing both to events and newHeads is no solution as you may
+   * have race conditions making one or the other event showing up first.
+   * An aletrnative would be to QUERY events in a block instead of 
+   * listening to events.
+   * For now, we check out the time of the last block. If the last known
+   * block is older than 1s we assume we have the right block. If not,
+   * we consider that a new block came in.
+   */
+  private getBlockNumber(): BN {
+    const lastBlockTime = (this.cache[CacheKeys.lastBlockDate] as Date).getTime();
+    const now = Date.now();
+    this.context.logger.debug('lastBlockTime: %d   now: %d', lastBlockTime, now);
+    if (now <= lastBlockTime + 1000)
+      return this.cache[CacheKeys.blockNumber] as BN;
+    else
+      return (this.cache[CacheKeys.blockNumber] as BN).add(new BN(1));
   }
 
   /**
@@ -171,13 +193,13 @@ export default class Reporter extends PolkabotWorker {
       }
       if (cache && cache.hash !== hash) {
         cache = { hash, code };
-        this.context.logger.info('Runtime Code hash changed: %o', hash);
+        this.context.logger.info('📃 Runtime Code hash changed: %o', hash);
 
         // const codeInHex = '0x' + this.buf2hex(code)
         // this.context.logger.info('Runtime Code hex changed', codeInHex)
 
         this.announce({
-          message: `Runtime code hash has changed. The hash is now ${hash}. The runtime is now ${
+          message: `📃 Runtime code hash has changed. The hash is now ${hash}. The runtime is now ${
             code ? (code.length / 1024).toFixed(2) : '???'
           } kb.`,
           severity: Severity.CRITICAL,
@@ -210,10 +232,10 @@ export default class Reporter extends PolkabotWorker {
       if (cache && !cache.eq(count)) {
         cache = count;
 
-        this.context.logger.info('Proposal count changed: %s', count.toString(10));
+        this.context.logger.info('🦸 Proposal count changed: %s', count.toString(10));
         const id = count.sub(new BN(1));
         this.announce({
-          message: `A new council motion proposal is available (#${id}), check your UI at https://polkadot.js.org/apps/#/democracy.
+          message: `🦸 New council motion proposal is available (#${id}), check your UI at https://polkadot.js.org/apps/#/democracy.
 You will be able to vote shortly, a new referendum will show up in the UI.`,
           severity: Severity.INFO,
         });
@@ -246,7 +268,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
         const id = count.sub(new BN(1)).toString(10);
 
         this.announce({
-          message: `@room New Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
+          message: `🆎 ew Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
 You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(10)} blocks. 
 That means a deadline at block #${deadline.toString(10)}, don't miss it! 
 The deadline to vote is ${moment(blockMoment.date).fromNow()}.`,
@@ -287,7 +309,7 @@ The deadline to vote is ${moment(blockMoment.date).fromNow()}.`,
         const id = count.sub(new BN(1)).toString(10);
 
         this.announce({
-          message: `@room New referendum (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
+          message: `New referendum (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
 You can vote for referendum #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(10)} blocks. 
 That means a deadline at block #${deadline.toString(10)}, don't miss it! 
 You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
@@ -312,7 +334,8 @@ You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
       const filteredEvents = filterEvents(events, this.config.observed);
       this.context.logger.silly(`After filtering, we have ${filteredEvents.length} events`);
 
-      let message = `📰 @room Something interesting (${filteredEvents.length} events) occured in block #${this.cache[CacheKeys.blockNumber]}\n`;
+      const blockNumber = this.getBlockNumber();
+      let message = `📰 Something interesting (${filteredEvents.length} events) occured in block #${blockNumber}\n`;
       filteredEvents.forEach((record: EventRecord, index: number) => {
         const { event } = record;
         const doc = event.meta.documentation.map((d) => d.toString()).join(', ');
@@ -324,7 +347,7 @@ You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
 
         this.context.logger.info('%s:%s %o', event.section, event.method, doc);
       });
-      message += `You can check it out at ${this.config.blockViewer}${this.cache[CacheKeys.blockNumber]}`;
+      message += `You can check it out at ${this.config.blockViewer}${blockNumber}`;
 
       if (filteredEvents.length) {
         this.context.polkabot.notify({ message }, { notifiers: this.config.channels });

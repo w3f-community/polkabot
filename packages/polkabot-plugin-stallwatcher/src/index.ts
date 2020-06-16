@@ -99,6 +99,8 @@ export default class StallWatcher extends PolkabotWorker {
 
         this.stalled = false;
       }
+
+      // TODO: we should get the block time as stored in the block and not the time when WE SEE a new block
       this.lastBlockTime = new Date();
     });
   }
