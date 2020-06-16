@@ -172,7 +172,7 @@ export default class Reporter extends PolkabotWorker {
     const lastBlockTime = (this.cache[CacheKeys.lastBlockDate] as Date).getTime();
     const now = Date.now();
     this.context.logger.debug('lastBlockTime: %d   now: %d', lastBlockTime, now);
-    if (now <= lastBlockTime + 1000)
+    if (now <= lastBlockTime + 2500)
       return this.cache[CacheKeys.blockNumber] as BN;
     else
       return (this.cache[CacheKeys.blockNumber] as BN).add(new BN(1));
@@ -336,17 +336,22 @@ You have around ${votingTimeInMinutes.toFixed(2)} minutes to vote.`,
 
       const blockNumber = this.getBlockNumber();
       let message = `📰 Something interesting (${filteredEvents.length} events) occured in block #${blockNumber}\n`;
-      filteredEvents.forEach((record: EventRecord, index: number) => {
+  
+      let index = 0;
+      for (const record of filteredEvents) {
         const { event } = record;
         const doc = event.meta.documentation.map((d) => d.toString()).join(', ');
 
-        if (index < 5)
+        if (index++ < 5)
           message += `- ${event.section}:${event.method} - ${doc}\n`;
-        else
+        else {
           message += '... and some more...\n';
+          break;
+        }
 
         this.context.logger.info('%s:%s %o', event.section, event.method, doc);
-      });
+      }
+
       message += `You can check it out at ${this.config.blockViewer}${blockNumber}`;
 
       if (filteredEvents.length) {
