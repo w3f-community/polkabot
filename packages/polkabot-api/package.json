@@ -15,7 +15,7 @@
     "build:doc": "typedoc src --readme none"
   },
   "author": "Chevdor <chevdor@gmail.com>",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "bn.js": "^5.1.1",
     "package-json": "^4.0.1"

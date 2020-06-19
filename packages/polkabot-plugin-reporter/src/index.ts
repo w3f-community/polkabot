@@ -119,13 +119,21 @@ export default class Reporter extends PolkabotWorker {
     // const currentBlock = (await this.context.polkadot.rpc.chain.getBlock()).block.header.number.toNumber();
     const blockTime = await this.getAverageBlockTime();
 
+    this.context.logger.silly('Blocktime: %d', blockTime);
+
     const h = await this.context.polkadot.rpc.chain.getBlockHash(this.cache.blockNumber);
     const now = new Date((await this.context.polkadot.query.timestamp.now.at(h)).toNumber());
+
+    this.context.logger.silly('Block now: %s', now.toISOString());
+
     const future = block > this.cache.blockNumber;
     const other = new Date(
       now.getTime() + (this.cache.blockNumber as BN).sub(block).toNumber() * blockTime * 1000
     );
+
+    this.context.logger.silly('Other date: %s', other.toISOString());
     const duration = Math.abs(now.getTime() - other.getTime()) / 1000;
+    this.context.logger.silly('Duration: %d', duration);
 
     return {
       future,
@@ -246,29 +254,31 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
   }
 
   /**
-   * @deprecated we now use events
+   * @deprecated we now use events although the method may remain interesting as example to watch random storage.
    */
   async watchPublicProposalCount(): Promise<void> {
     await this.context.polkadot.query.democracy.publicPropCount(async (count: BN) => {
       const KEY = CacheKeys.publicPropCount;
       this.context.logger.info('publicPropCount: %s', count.toString(10));
-      let cache = this.cache[KEY] as BN;
+      // let cache = this.cache[KEY] as BN;
 
-      if (!cache) {
-        cache = count;
-        logCache.bind(this)(cache, KEY);
+      if (!(this.cache[KEY] as BN)) {
+        this.cache[KEY] = count;
+        logCache.bind(this)(this.cache[KEY] as BN, KEY);
       }
-      if (cache && !cache.eq(count)) {
-        cache = count;
+      if (this.cache[KEY] && !(this.cache[KEY] as BN).eq(count)) {
+        this.cache[KEY] = count;
         const deadline = (this.cache.blockNumber as BN).add(this.context.polkadot.consts.democracy.votingPeriod) as BN;
         const blockMoment = await this.getBlockMoment(deadline);
+
+        this.context.logger.debug('block moment %o', blockMoment)
         // const votingTimeInMinutes =
         //   parseInt(this.context.polkadot.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
         this.context.logger.info('Proposal count changed: %s', count.toString(10));
         const id = count.sub(new BN(1)).toString(10);
 
         this.announce({
-          message: `🆎 ew Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
+          message: `🆎 New Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
 You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(10)} blocks. 
 That means a deadline at block #${deadline.toString(10)}, don't miss it! 
 The deadline to vote is ${moment(blockMoment.date).fromNow()}.`,

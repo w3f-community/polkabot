@@ -22,7 +22,7 @@
     "patch": "echo 'Disabling package uniqueness check. See https://github.com/polkadot-js/api/issues/984'; sed -i '/function assertSingletonPackage(name) {/ a   return' node_modules/@polkadot/util/assertSingletonPackage.js"
   },
   "author": "chevdor",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "keywords": [
     "blockchain",
     "polkadot",

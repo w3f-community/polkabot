@@ -148,7 +148,7 @@ POLKABOT:
     BLOCK_VIEWER:
       description: The url used to see more details about a given blocks
       type: string
-      default: https://polkadot.js.org/apps/#/explorer/query/
+      default: https://ipfs.io/ipns/polkadot.dotapps.io/#/explorer/query/
 
   NOTIFIER_MATRIX:
     DISABLED:

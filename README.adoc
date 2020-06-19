@@ -84,3 +84,9 @@ include::doc/docker.adoc[leveloffset=+1]
 include::CONTRIBUTING.adoc[leveloffset=+1]
 
 include::doc/plugins.adoc[leveloffset=+1]
+
+== License
+
+----
+include::LICENSE[]
+----

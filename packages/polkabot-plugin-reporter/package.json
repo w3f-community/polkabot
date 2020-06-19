@@ -15,7 +15,7 @@
     "build:doc": "typedoc src --readme none"
   },
   "author": "Chevdor <chevdor@gmail.com>",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@polkadot/storage": "^0.80.1",
     "@polkadot/util-crypto": "^0.92.1"
