@@ -271,7 +271,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
         const deadline = (this.cache.blockNumber as BN).add(this.context.polkadot.consts.democracy.votingPeriod) as BN;
         const blockMoment = await this.getBlockMoment(deadline);
 
-        this.context.logger.debug('block moment %o', blockMoment)
+        this.context.logger.debug('block moment %o', blockMoment);
         // const votingTimeInMinutes =
         //   parseInt(this.context.polkadot.consts.democracy.votingPeriod.mul(this.cache.minimumPeriod).toString(10)) / 60;
         this.context.logger.info('Proposal count changed: %s', count.toString(10));

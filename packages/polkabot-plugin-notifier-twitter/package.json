@@ -1,6 +1,6 @@
 {
   "name": "polkabot-plugin-notifier-twitter",
-  "version": "0.7.0",
+  "version": "0.7.2",
   "description": "",
   "main": "dist/polkabot-plugin-notifier-twitter/src/index.js",
   "scripts": {

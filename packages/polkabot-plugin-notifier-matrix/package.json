@@ -1,6 +1,6 @@
 {
   "name": "polkabot-plugin-notifier-matrix",
-  "version": "0.7.0",
+  "version": "0.7.2",
   "description": "",
   "main": "dist/polkabot-plugin-notifier-matrix/src/index.js",
   "scripts": {

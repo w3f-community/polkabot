@@ -7,3 +7,5 @@ src/config.js
 .DS_Store
 *.log
 doc
+**/.env.*
+!**/.env-sample
