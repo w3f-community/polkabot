@@ -5,8 +5,6 @@
 :sectnums:
 :sectanchors:
 
-Placeholder
-
 include::../polkabot-api/README.adoc[leveloffset=+1]
 
 == Plugins
