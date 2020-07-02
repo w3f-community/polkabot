@@ -36,32 +36,11 @@ It may return something like `/home/yourusername/.nvm/versions/node/v10.15.3/bin
 Now we want to create a symlink from where the NPM modules are located that are associated with this
 version Node.js, which is in the following 'lib' subdirectory `/home/yourusername/.nvm/versions/node/v10.15.3/lib`.
 
-.Create symbolic links from each of the cloned {proj} plugins to where the globally installed NPM modules are located for your current version of Node.js
-
-The following is an example of how you might create the symlinks:
-
-```
-ln -s ~/code/gitlab/yourusername/polkabot-plugin-blockstats/ ~/.nvm/versions/node/v10.15.3/lib/node_modules && \
-ln -s ~/code/gitlab/yourusername/polkabot-plugin-blocthday/ ~/.nvm/versions/node/v10.15.3/lib/node_modules && \
-ln -s ~/code/gitlab/yourusername/polkabot-plugin-operator/ ~/.nvm/versions/node/v10.15.3/lib/node_modules && \
-ln -s ~/code/gitlab/yourusername/polkabot-plugin-stallwatcher/ ~/.nvm/versions/node/v10.15.3/lib/node_modules && \
-ln -s ~/code/gitlab/yourusername/polkabot-plugin-reporter/ ~/.nvm/versions/node/v10.15.3/lib/node_modules
-```
-
 .Build each of the {proj} plugins
 
 Build all the {proj} plugins easily with a single command similar to that shown below.
-A mirror reflection each of the built plugins will be available for {proj}'s plugin scanner to find them
-earlier we created symbolic links between each of the cloned {proj} plugin repositories
-and the globally installed NPM module directory your current Node.js version.
 
-```
-cd ~/code/gitlab/yourusername/polkabot-plugin-blockstats/ && yarn && yarn run build && \
-cd ~/code/gitlab/yourusername/polkabot-plugin-blocthday/ && yarn && yarn run build && \
-cd ~/code/gitlab/yourusername/polkabot-plugin-operator/ && yarn && yarn run build && \
-cd ~/code/gitlab/yourusername/polkabot-plugin-stallwatcher/ && yarn && yarn run build && \
-cd ~/code/gitlab/yourusername/polkabot-plugin-reporter/ && yarn && yarn run build
-```
+    yarn build
 
 .Create a new Room for the Bot to make announcements and listen for public user input, and create a Bot and a Bot Master
 
@@ -106,37 +85,20 @@ MATRIX_TOKEN=
 
 Download and install Substrate:
 
-```
-curl https://getsubstrate.io -sSf | bash
-```
+    curl https://getsubstrate.io -sSf | bash
 
 Run Substrate in a seperate Terminal window
 
-```
-substrate --dev
-```
+    substrate --dev
+
 
 Reference: https://docs.substrate.dev/
 
 .Run {proj}
 
-```
-cd ~/code/gitlab/yourusername/polkabot && \
-yarn && yarn start
-```
+    cd ~/code/gitlab/yourusername/polkabot && \
+    yarn && yarn start
 
 .View the logs and identify any errors
 
 If you encounter any errors then please create an issue in the respective GitLab repo of the '{proj}' username (i.e. click 'New Issue' at https://gitlab.com/{proj}/polkabot/issues).
-
-.Try using the Bot
-
-=.{proj} Operator plugin
-
-Write a direct message from your Bot Master to your Bot `!say hello`, and the Bot will announce the message `hello` in the room id that you specified in the .env file.
-
-Any user may write `!status` and the Bot will respond with the Polkadot / Substrate node network status.
-
-==== {proj} StallWatcher plugin
-
-Write a direct message from your Bot Master to your Bot `!sw duration <FREQUENCY_IN_BLOCKS>`, and the Bot's configuration settings will change the threshold upon which it makes announcements in the room id that you specified in the .env file (from the default specified in that plugin repositories config.js file).
