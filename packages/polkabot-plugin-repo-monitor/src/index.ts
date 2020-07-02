@@ -7,13 +7,17 @@ import { PolkabotPluginBase, assert } from '@polkabot/api/src';
 
 export type Channel = {
   type: 'matrix' | 'twitter';
-  rooms: string[]
+  targets: string[]
 }
 
 export type WatchedRepo = {
   repo: string;
   channels: Channel[]
 }
+
+// TODO: We may add gitlab as 2nd step
+
+export type Provider = 'github'; //| 'gitlab'
 
 /**
  * This is a convenience to describe the config expected by the plugin.
@@ -96,11 +100,14 @@ export default class RepoMonitor extends PolkabotWorker {
       this.context.logger.info(`Provider: ${provider}`)
       const repos = this.config.watchlist[provider]
       Object.keys(repos).forEach(key => {
-        const watchedRepo = repos[key]
+        const watchedRepo: WatchedRepo = repos[key]
 
-        this.context.logger.info(`  - repo: ${JSON.stringify(watchedRepo)}`)
         this.context.logger.info(`  - repo: ${JSON.stringify(watchedRepo.repo)}`)
-        this.context.logger.info(`  - channels: ${JSON.stringify(watchedRepo.channels)}`)
+        const channels = watchedRepo.channels
+        // this.context.logger.info(`  - channels: ${JSON.stringify(channels)}`)
+        channels.forEach(channel => {
+          this.context.logger.info(`    - channel: ${JSON.stringify(channel.type)} => ${JSON.stringify(channel.targets)}`)
+        })
       })
     })
   }

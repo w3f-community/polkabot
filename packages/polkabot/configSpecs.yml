@@ -222,4 +222,4 @@ POLKABOT:
     REPOS:
       description: List of repos to watch
       type: object
-      default: {"github":{"repo":"chevdor/junk1","channels":[{"type":"matrix","rooms":["!fLauqijtMUNuIxxoYk:polkadot.builders","!fLauqijtMUNuIxxoYk:polkadot.builders"]},{"type":"twitter","accounts":["someaccount"]}]},"gitlab":{"repo":"chevdor/junk1","channels":[{"type":"matrix","rooms":["!fLauqijtMUNuIxxoYk:polkadot.builders","!fLauqijtMUNuIxxoYk:polkadot.builders"]},{"type":"twitter","accounts":["someaccount"]}]}}
+      default: {"github":[{"repo":"chevdor/junk1","channels":[{"type":"matrix","targets":["!fLauqijtMUNuIxxoYk:polkadot.builders","!fLauqijtMUNuIxxoYk:polkadot.builders"]},{"type":"twitter","targets":["someaccount"]}]}],"gitlab":[{"repo":"chevdor/junk1","channels":[{"type":"matrix","targets":["!fLauqijtMUNuIxxoYk:polkadot.builders","!fLauqijtMUNuIxxoYk:polkadot.builders"]},{"type":"twitter","targets":["someaccount"]}]}]}
