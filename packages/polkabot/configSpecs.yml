@@ -208,3 +208,18 @@ POLKABOT:
       mandatory: true
       type: string
       regexp: ^.{45}$
+  REPO_MONITOR:
+    DISABLED:
+      description: Whether REPO_MONITOR should be enabled
+      type: boolean
+      default: true
+    TOKEN_GITHUB:
+      description: Github token
+      type: string
+    TOKEN_GITLAB:
+      description: Github token
+      type: string    
+    REPOS:
+      description: List of repos to watch
+      type: object
+      default: {"github":{"repo":"chevdor/junk1","channels":[{"type":"matrix","rooms":["!fLauqijtMUNuIxxoYk:polkadot.builders","!fLauqijtMUNuIxxoYk:polkadot.builders"]},{"type":"twitter","accounts":["someaccount"]}]},"gitlab":{"repo":"chevdor/junk1","channels":[{"type":"matrix","rooms":["!fLauqijtMUNuIxxoYk:polkadot.builders","!fLauqijtMUNuIxxoYk:polkadot.builders"]},{"type":"twitter","accounts":["someaccount"]}]}}

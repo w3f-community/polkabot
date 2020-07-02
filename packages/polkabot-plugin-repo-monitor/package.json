@@ -1,0 +1,30 @@
+{
+  "name": "polkabot-plugin-repo-monitor",
+  "version": "0.7.2",
+  "description": "",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "lint": "standard",
+    "start": "babel-node ./src/index.js",
+    "build": "tsc --build tsconfig.json",
+    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist build node_modulesd docs",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
+    "postinstall": "npm run build",
+    "build:doc": "typedoc src --readme none"
+  },
+  "author": "Chevdor <chevdor@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "bn.js": "^5.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/Polkabot/polkabot.git"
+  },
+  "engines": {
+    "node": ">=10.13.0",
+    "yarn": "^1.10.1"
+  }
+}
