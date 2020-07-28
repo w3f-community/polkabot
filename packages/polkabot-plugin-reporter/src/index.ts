@@ -139,7 +139,7 @@ export default class Reporter extends PolkabotWorker {
       future,
       duration,
       date: other,
-      message: `${moment(duration).fromNow()}`,
+      message: `${moment(duration).toNow()}`,
     };
   }
 
@@ -281,7 +281,7 @@ You will be able to vote shortly, a new referendum will show up in the UI.`,
           message: `🆎 New Proposal (#${id}) available. Check your UI at https://polkadot.js.org/apps/#/democracy.
 You can second Proposal #${id} during the next ${this.context.polkadot.consts.democracy.votingPeriod.toString(10)} blocks. 
 That means a deadline at block #${deadline.toString(10)}, don't miss it! 
-The deadline to vote is ${moment(blockMoment.date).fromNow()}.`,
+The deadline to vote is ${moment(blockMoment.date).toNow()}.`,
           severity: Severity.INFO,
         });
       } else {
