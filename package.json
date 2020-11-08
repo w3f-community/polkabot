@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.7.3",
+  "version": "0.7.4",
   "workspaces": [
     "packages/*"
   ],
@@ -23,7 +23,9 @@
     "docker:run": "docker run --rm -it --name polkabot chevdor/polkabot",
     "docker:tag": "VERSION=`cat package.json | jq -r .version`; docker tag chevdor/polkabot chevdor/polkabot:$VERSION",
     "docker:push": "VERSION=`cat package.json | jq -r .version`; docker push chevdor/polkabot; docker push chevdor/polkabot:$VERSION",
-    "docker:ls": "docker images | grep polkabot"
+    "docker:ls": "docker images | grep polkabot",
+    "docker:all": "yarn docker:build && yarn docker:tag && yarn docker:push && say Finished publishing the new docker image",
+    "git:tag": "VERSION=`cat package.json | jq -r .version`; git tag -f v$VERSION; git tag"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.8.3",
@@ -32,6 +34,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.8.7",
-    "@polkadot/api": "^1.26.1"
+    "@polkadot/api": "^2.5.1"
   }
 }
