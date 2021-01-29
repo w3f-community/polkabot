@@ -1,13 +1,13 @@
 import BN from 'bn.js';
 import moment from 'moment';
 import { PolkabotWorker } from '@polkabot/api/src/PolkabotWorker';
-import blake2 from '@polkadot/util-crypto/blake2/asHex';
 import { PluginModule, PluginContext, BlockMoment, Announcement, Severity } from '@polkabot/api/src/types';
 import { HeaderExtended } from '@polkadot/api-derive/type';
 import { Callable, Command } from '@polkabot/api/src/decorators';
 import { PolkabotPluginBase, Room, CommandHandlerOutput } from '@polkabot/api/src';
 import { logCache, filterEvents } from './helpers';
 import { EventRecord } from '@polkadot/types/interfaces/system';
+import { blake2AsHex } from '@polkadot/util-crypto/blake2';
 
 /**
  * This is a convenience to describe the config expected by the plugin.
@@ -192,7 +192,7 @@ export default class Reporter extends PolkabotWorker {
   async watchRuntimeCode(): Promise<void> {
     await this.context.polkadot.query.substrate.code((code: WasmBlob) => {
       const KEY = CacheKeys.runtime;
-      const hash = blake2(code, 64) as Hash;
+      const hash = blake2AsHex(code, 64) as Hash;
       let cache = this.cache[KEY] as RuntimeCache;
 
       if (!cache) {

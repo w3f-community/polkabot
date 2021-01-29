@@ -1,6 +1,6 @@
 {
   "name": "@polkabot/polkabot",
-  "version": "0.7.2",
+  "version": "0.7.5",
   "description": "Matrix Bot for Polkadot",
   "main": "dist/src/polkabot.js",
   "bin": {
@@ -33,7 +33,7 @@
   "dependencies": {
     "@babel/runtime": "^7.9.2",
     "bn.js": "5.1.1",
-    "confmgr": "^1.0.5",
+    "confmgr": "^1.0.6",
     "find-node-modules": "^2.0.0",
     "matrix-js-sdk": "^6.0.0",
     "minimongo": "6.5.0",

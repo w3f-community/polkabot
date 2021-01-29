@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.7.4",
+  "version": "0.7.5",
   "workspaces": [
     "packages/*"
   ],
@@ -34,6 +34,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.8.7",
-    "@polkadot/api": "^2.5.1"
+    "@polkadot/api": "3.6.4"
   }
 }

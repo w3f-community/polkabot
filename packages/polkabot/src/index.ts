@@ -216,6 +216,7 @@ export default class Polkabot implements PolkabotInterface {
     if (!isConfigValid) {
       Logger.error('Config is NOT valid');
       this.config.Print({ compact: true, logger: (msg) => Logger.error(msg) });
+      Logger.error(`Your config is not valid, you can start off with an env file with the following conten:\n${this.config.GenEnv().join('\n')}`);
       process.exit(1);
     }
 
