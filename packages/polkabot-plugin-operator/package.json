@@ -38,7 +38,7 @@
     "url": "https://gitlab.com/Polkabot/polkabot-plugin-operator.git"
   },
   "engines": {
-    "node": ">=10.13.0",
+    "node": ">=12",
     "yarn": "^1.10.1"
   },
   "dependencies": {
